@@ -1,0 +1,65 @@
+server:
+  port: 8060
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
+
+logging:
+  pattern: 
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+              
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+      - id: account-service
+        uri: lb://account-service
+        predicates:
+        - Path=/accounts/**
+        filters:
+        - RewritePath=/accounts/(?<path>.*), /$\{path}
+        - name: CircuitBreaker
+          args:
+            name: account-service
+            fallbackuri: forward:/accountServiceFallBack
+      - id: location-service
+        uri: lb://location-service
+        predicates:
+        - Path=/locations/**
+        filters:
+        - RewritePath=/locations/(?<path>.*), /$\{path}
+        - name: CircuitBreaker
+          args:
+            name: location-service
+            fallbackuri: forward:/locationServiceFallBack
+      - id: organization-service
+        uri: lb://organization-service
+        predicates:
+        - Path=/organizations/**
+        filters:
+        - RewritePath=/organizations/(?<path>.*), /$\{path}
+        - name: CircuitBreaker
+          args:
+            name: location-service
+            fallbackuri: forward:/locationServiceFallBack
+      - id: openapi
+        uri: http://localhost:${server.port}
+        predicates:
+        - Path=/v3/api-docs/**
+        filters:
+        - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: account
+        url: /v3/api-docs/account
+      - name: location
+        url: /v3/api-docs/location
+      - name: organization
+        url: /v3/api-docs/organization
