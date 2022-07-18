@@ -23,30 +23,18 @@ spring:
         - Path=/accounts/**
         filters:
         - RewritePath=/accounts/(?<path>.*), /$\{path}
-        - name: CircuitBreaker
-          args:
-            name: account-service
-            fallbackuri: forward:/accountServiceFallBack
       - id: location-service
         uri: lb://location-service
         predicates:
         - Path=/locations/**
         filters:
         - RewritePath=/locations/(?<path>.*), /$\{path}
-        - name: CircuitBreaker
-          args:
-            name: location-service
-            fallbackuri: forward:/locationServiceFallBack
       - id: organization-service
         uri: lb://organization-service
         predicates:
         - Path=/organizations/**
         filters:
         - RewritePath=/organizations/(?<path>.*), /$\{path}
-        - name: CircuitBreaker
-          args:
-            name: location-service
-            fallbackuri: forward:/locationServiceFallBack
       - id: openapi
         uri: http://localhost:${server.port}
         predicates:
