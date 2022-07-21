@@ -15,10 +15,10 @@ public enum AuthErrorCode {
     MISSING_OLD_PASSWORD_OR_CODE_FIELD(0, "Phải có mật khẩu cũ hoặc nhập mã"),
     CODE_IS_NOT_VERIFIED(0, "Không thể xác thực mã cho người dùng"),
 
-    PERMISSION_DENIED(0, ""),
-    INTERNAL_ERROR(0, ""),
-    CANT_ADD_ORGANIZATION(0, ""),
-    CANT_GET_ORGANIZATION(0, "");
+    PERMISSION_DENIED(0, "Bạn không có quyền thực hiện chức năng này"),
+    INTERNAL_ERROR(0, "Có lỗi xảy ra, hãy thử lại sau!"),
+    CANT_ADD_ORGANIZATION(0, "Không thể thêm tổ chức"),
+    CANT_GET_ORGANIZATION(0, "Không thể lấy thông tin tổ chức");
     private final int code;
     private String message;
 

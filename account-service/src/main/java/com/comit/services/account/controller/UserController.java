@@ -4,12 +4,12 @@ import com.comit.services.account.business.UserBusiness;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
-import com.comit.services.account.controller.response.BaseResponse;
-import com.comit.services.account.controller.response.NumberAccountResponse;
+import com.comit.services.account.controller.response.*;
+import com.comit.services.account.exeption.AccountRestApiException;
+import com.comit.services.account.model.dto.LocationDto;
+import com.comit.services.account.model.dto.OrganizationDto;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.constant.UserErrorCode;
-import com.comit.services.account.controller.response.UserListResponse;
-import com.comit.services.account.controller.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -150,5 +150,20 @@ public class UserController {
     public ResponseEntity<BaseResponse> getUsersByOrganizationId(@PathVariable(name = "organizationId") int organizationId) {
         List<UserDto> userDtos = userBusiness.getUsersByOrganizationId(organizationId);
         return new ResponseEntity<>(new UserListResponse(UserErrorCode.SUCCESS, userDtos), HttpStatus.OK);
+    }
+
+    @GetMapping("/current/location")
+    ResponseEntity<LocationResponse> getLocationOfCurrentUser() {
+        LocationDto locationDto = userBusiness.getLocationOfCurrentUser();
+        if (locationDto == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return new ResponseEntity<>(new LocationResponse(UserErrorCode.SUCCESS, locationDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/current/organization")
+    ResponseEntity<OrganizationResponse> getOrganizationOfCurrentUser() {
+        OrganizationDto organizationDto = userBusiness.getOrganizationOfCurrentUser();
+        return new ResponseEntity<>(new OrganizationResponse(UserErrorCode.SUCCESS, organizationDto), HttpStatus.OK);
     }
 }

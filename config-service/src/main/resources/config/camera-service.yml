@@ -1,0 +1,27 @@
+server:
+  port: 8083
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
+      
+logging:
+  pattern: 
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+
+springdoc:
+  packagesToScan: com.comit.services.camera
+
+spring:
+  datasource:
+    username: tung
+    url: jdbc:mysql://localhost:3306/camera_db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+core:
+  api:
+    check-camera: http://10.10.2.116:5678/camera/check_cameras

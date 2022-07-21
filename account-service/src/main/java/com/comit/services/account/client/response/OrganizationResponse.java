@@ -12,8 +12,9 @@ public class OrganizationResponse extends BaseResponse {
     @JsonProperty(value = "organization")
     private Organization organization;
 
-
-    public OrganizationResponse(int code, String message) {
-        super(code, message);
+    public OrganizationResponse(int code, String message, Organization organization) {
+        this.organization = organization;
+        this.code = code;
+        this.message = message;
     }
 }

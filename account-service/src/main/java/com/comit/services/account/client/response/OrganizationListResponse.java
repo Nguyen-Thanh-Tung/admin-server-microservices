@@ -14,7 +14,9 @@ public class OrganizationListResponse extends BaseResponse {
     @JsonProperty(value = "organizations")
     private List<Organization> organizations;
 
-    public OrganizationListResponse(int code, String message) {
-        super(code, message);
+    public OrganizationListResponse(int code, String message, List<Organization> organizations) {
+        this.code = code;
+        this.message = message;
+        this.organizations = organizations;
     }
 }

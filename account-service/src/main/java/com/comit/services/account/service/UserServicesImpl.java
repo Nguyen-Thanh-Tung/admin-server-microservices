@@ -1,5 +1,18 @@
 package com.comit.services.account.service;
 
+import com.comit.services.account.client.LocationClient;
+import com.comit.services.account.client.MailClient;
+import com.comit.services.account.client.MetadataClient;
+import com.comit.services.account.client.OrganizationClient;
+import com.comit.services.account.client.request.MailRequest;
+import com.comit.services.account.client.request.OrganizationRequest;
+import com.comit.services.account.client.response.OrganizationResponse;
+import com.comit.services.account.constant.AuthErrorCode;
+import com.comit.services.account.constant.UserErrorCode;
+import com.comit.services.account.controller.response.LocationResponse;
+import com.comit.services.account.controller.response.MetadataResponse;
+import com.comit.services.account.exeption.AccountRestApiException;
+import com.comit.services.account.exeption.AuthException;
 import com.comit.services.account.model.entity.*;
 import com.comit.services.account.repository.UserRepository;
 import com.comit.services.account.constant.Const;
@@ -7,6 +20,7 @@ import com.comit.services.account.util.RequestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -21,6 +35,14 @@ public class UserServicesImpl implements UserServices {
 
     @Autowired
     RequestHelper requestHelper;
+    @Autowired
+    MailClient mailClient;
+    @Autowired
+    OrganizationClient organizationClient;
+    @Autowired
+    LocationClient locationClient;
+    @Autowired
+    MetadataClient metadataClient;
 
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
@@ -163,6 +185,63 @@ public class UserServicesImpl implements UserServices {
     @Override
     public List<User> getUsersByOrganization(Integer organizationId) {
         return userRepository.findAllByOrganizationIdAndStatusNotIn(organizationId, List.of(Const.DELETED));
+    }
+
+    @Override
+    public Organization getOrganizationById(int organizationId) {
+        OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationId).getBody();
+        if (organizationResponse == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return organizationResponse.getOrganization();
+    }
+
+    @Override
+    public Organization getOrganizationByName(String organizationName) {
+        OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationName).getBody();
+        if (organizationResponse == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return organizationResponse.getOrganization();
+    }
+
+    @Override
+    public Organization addOrganization(Organization organization) {
+        OrganizationResponse organizationResponse = organizationClient.addOrganization(new OrganizationRequest(organization)).getBody();
+        if (organizationResponse == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return organizationResponse.getOrganization();
+    }
+
+    @Override
+    public void sendForgetPasswordMail(User user) {
+        MailRequest mailRequest = new MailRequest(user.getEmail(), user.getFullName(), user.getId(), user.getCode());
+        mailClient.sendMailForgetPassword(mailRequest);
+    }
+
+    @Override
+    public Location getLocation(Integer locationId) {
+        LocationResponse locationResponse = locationClient.getLocation(locationId).getBody();
+        if (locationResponse == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return null;
+    }
+
+    @Override
+    public void sendConfirmCreateUserMail(User newUser) {
+        MailRequest mailRequest = new MailRequest(newUser.getEmail(), newUser.getFullName(), newUser.getId(), newUser.getCode());
+        mailClient.sendMailConfirmCreateUser(mailRequest);
+    }
+
+    @Override
+    public Metadata saveMetadata(MultipartFile file) {
+        MetadataResponse metadataResponse = metadataClient.saveMetadata(file).getBody();
+        if (metadataResponse == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return metadataResponse.getMetadata();
     }
 
     public boolean belongOrganization(User user, Integer organizationId) {

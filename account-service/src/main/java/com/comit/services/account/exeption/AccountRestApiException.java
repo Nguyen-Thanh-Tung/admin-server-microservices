@@ -22,6 +22,10 @@ public class AccountRestApiException extends RuntimeException {
         this.message = message;
     }
 
+    public String getResponseMessage() {
+        return this.message;
+    }
+
     @Override
     public String getMessage() {
         if (originEx != null) {

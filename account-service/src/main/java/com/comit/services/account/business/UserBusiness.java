@@ -3,6 +3,8 @@ package com.comit.services.account.business;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
+import com.comit.services.account.model.dto.LocationDto;
+import com.comit.services.account.model.dto.OrganizationDto;
 import com.comit.services.account.model.dto.UserDto;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,4 +35,8 @@ public interface UserBusiness {
     int getNumberAccount();
 
     List<UserDto> getUsersByOrganizationId(int organizationId);
+
+    LocationDto getLocationOfCurrentUser();
+
+    OrganizationDto getOrganizationOfCurrentUser();
 }

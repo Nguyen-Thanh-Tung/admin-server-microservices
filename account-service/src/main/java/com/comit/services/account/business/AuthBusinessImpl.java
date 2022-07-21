@@ -55,12 +55,6 @@ public class AuthBusinessImpl implements AuthBusiness {
     @Autowired
     HttpServletRequest httpServletRequest;
 
-    @Autowired
-    OrganizationClient organizationClient;
-
-    @Autowired
-    MailClient mailClient;
-
     @Override
     public String getTokenLogin(LoginRequest request) {
         verifyRequestServices.verifyLoginRequest(request);
@@ -105,16 +99,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             throw new AccountRestApiException(UserErrorCode.EMAIL_EXISTED);
         }
 
-        Organization organization = null;
-        OrganizationResponse getOrganizationByIdResponse = organizationClient.getOrganization(signUpRequest.getOrganizationId()).getBody();
-        if (getOrganizationByIdResponse != null && getOrganizationByIdResponse.getCode() == 1) {
-            organization = getOrganizationByIdResponse.getOrganization();
-            if (organization == null) {
-                throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
-            }
-        } else {
-            throw new AccountRestApiException(UserErrorCode.CAN_NOT_GET_ORGANIZATION);
-        }
+        Organization organization = userServices.getOrganizationById(signUpRequest.getOrganizationId());
 
         // Create new user's account
         Set<Role> roleSet = new HashSet<>();
@@ -159,23 +144,14 @@ public class AuthBusinessImpl implements AuthBusiness {
         roles.add(Const.ROLE_SUPER_ADMIN);
 
         // Create organization
-        Organization organization = null;
-        OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationName).getBody();
-        if (organizationResponse != null && organizationResponse.getCode() == UserErrorCode.SUCCESS.getCode()) {
-            organization = organizationResponse.getOrganization();
-            if (organization == null) {
-                organization = new Organization();
-                organization.setName(organizationName);
-                OrganizationResponse addOrganizationResponse = organizationClient.addOrganization(organization).getBody();
-                if (addOrganizationResponse != null && addOrganizationResponse.getCode() == UserErrorCode.SUCCESS.getCode()) {
-                    organization = addOrganizationResponse.getOrganization();
-                } else {
-                    throw new AuthException(AuthErrorCode.CANT_ADD_ORGANIZATION);
-                }
-            }
-        } else {
-            throw new AuthException(AuthErrorCode.CANT_GET_ORGANIZATION);
+        Organization organization = userServices.getOrganizationByName(organizationName);
+
+        if (organization == null) {
+            organization = new Organization();
+            organization.setName(organizationName);
+            organization = userServices.addOrganization(organization);
         }
+
 
         User user = userServices.getUser(username);
         if (user == null) {
@@ -236,8 +212,6 @@ public class AuthBusinessImpl implements AuthBusiness {
         String code = IDGeneratorUtil.gen();
         user.setCode(code);
         userServices.saveUser(user);
-
-        MailRequest mailRequest = new MailRequest(user.getEmail(), user.getFullName(), user.getId(), user.getCode());
-        mailClient.sendMailForgetPassword(mailRequest);
+        userServices.sendForgetPasswordMail(user);
     }
 }

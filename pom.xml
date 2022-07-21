@@ -19,6 +19,9 @@
 		<module>gateway-service</module>
 		<module>account-service</module>
 		<module>location-service</module>
+		<module>camera-service</module>
+		<module>employee-service</module>
+		<module>mail-service</module>
 	</modules>
 	
 </project>

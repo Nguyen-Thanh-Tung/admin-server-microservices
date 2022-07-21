@@ -12,8 +12,9 @@ import com.comit.services.account.client.request.MailRequest;
 import com.comit.services.account.controller.response.LocationResponse;
 import com.comit.services.account.controller.response.MetadataResponse;
 import com.comit.services.account.exeption.AccountRestApiException;
-import com.comit.services.account.model.entity.Role;
-import com.comit.services.account.model.entity.User;
+import com.comit.services.account.model.dto.LocationDto;
+import com.comit.services.account.model.dto.OrganizationDto;
+import com.comit.services.account.model.entity.*;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
 import com.comit.services.account.controller.request.AddUserRequest;
@@ -42,15 +43,6 @@ public class UserBusinessImpl implements UserBusiness {
     private UserVerifyRequestServices verifyRequestServices;
     @Autowired
     private CommonBusiness commonBusiness;
-
-    @Autowired
-    private OrganizationClient organizationClient;
-    @Autowired
-    private LocationClient locationClient;
-    @Autowired
-    private MailClient mailClient;
-    @Autowired
-    private MetadataClient metadataClient;
 
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
@@ -101,8 +93,8 @@ public class UserBusinessImpl implements UserBusiness {
 
         Integer organizationId = request.getOrganizationId();
         if (organizationId != null) {
-            OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationId).getBody();
-            if (organizationResponse == null || organizationResponse.getOrganization() == null) {
+            Organization organization = userServices.getOrganizationById(organizationId);
+            if (organization == null) {
                 throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
             }
         } else {
@@ -132,11 +124,8 @@ public class UserBusinessImpl implements UserBusiness {
 
         // Admin create user (in permission, ex: Time Keeping Admin create Time Keeping User)
         if (request.getLocationId() != null) {
-            LocationResponse locationResponse = locationClient.getLocation(request.getLocationId()).getBody();
-            if (locationResponse == null || locationResponse.getLocation() == null) {
-                throw new AccountRestApiException(UserErrorCode.LOCATION_NOT_EXIST);
-            }
-            user.setLocationId(locationResponse.getLocation().getId());
+            Location location = userServices.getLocation(request.getLocationId());
+            user.setLocationId(location.getId());
         }
 
 
@@ -149,8 +138,7 @@ public class UserBusinessImpl implements UserBusiness {
         }
         User newUser = userServices.saveUser(currentUser, user);
         // Send mail
-        MailRequest mailRequest = new MailRequest(newUser.getEmail(), newUser.getFullName(), newUser.getId(), code);
-        mailClient.sendMailConfirmCreateUser(mailRequest);
+        userServices.sendConfirmCreateUserMail(newUser);
         return UserDto.convertUserToUserDto(newUser);
     }
 
@@ -197,8 +185,8 @@ public class UserBusinessImpl implements UserBusiness {
             Integer organizationId;
             if (organizationIdStr != null) {
                 organizationId = Integer.parseInt(organizationIdStr);
-                OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationId).getBody();
-                if (organizationResponse == null || organizationResponse.getOrganization() == null) {
+                Organization organization = userServices.getOrganizationById(organizationId);
+                if (organization == null) {
                     throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
                 }
             } else {
@@ -224,11 +212,11 @@ public class UserBusinessImpl implements UserBusiness {
             user.setOrganizationId(organizationId);
 
             if (locationIdStr != null && !locationIdStr.trim().isEmpty()) {
-                LocationResponse locationResponse = locationClient.getLocation(Integer.parseInt(locationIdStr)).getBody();
-                if (locationResponse == null || locationResponse.getLocation() == null) {
+                Location location = userServices.getLocation(Integer.parseInt(locationIdStr));
+                if (location == null) {
                     throw new AccountRestApiException(UserErrorCode.LOCATION_NOT_EXIST);
                 }
-                user.setLocationId(locationResponse.getLocation().getId());
+                user.setLocationId(location.getId());
             }
 
             if (currentUser.getId() != user.getId() && !userServices.hasPermissionManageUser(currentUser, user)) {
@@ -236,9 +224,9 @@ public class UserBusinessImpl implements UserBusiness {
             }
 
             if (file != null) {
-                MetadataResponse metadataResponse = metadataClient.saveMetadata(file).getBody();
-                if (metadataResponse != null && metadataResponse.getMetadata() != null) {
-                    user.setAvatarId(metadataResponse.getMetadata().getId());
+                Metadata metadata = userServices.saveMetadata(file);
+                if (metadata != null) {
+                    user.setAvatarId(metadata.getId());
                 }
             }
             User newUser = userServices.saveUser(user);
@@ -309,9 +297,9 @@ public class UserBusinessImpl implements UserBusiness {
             MultipartFile file = multipartHttpServletRequest.getFile("file");
 
             verifyRequestServices.verifyUploadAvatar(file);
-            MetadataResponse metadataResponse = metadataClient.saveMetadata(file).getBody();
-            if (metadataResponse != null && metadataResponse.getMetadata() != null) {
-                user.setAvatarId(metadataResponse.getMetadata().getId());
+            Metadata metadata = userServices.saveMetadata(file);
+            if (metadata != null) {
+                user.setAvatarId(metadata.getId());
             }
             User newUser = userServices.saveUser(user);
             return UserDto.convertUserToUserDto(newUser);
@@ -347,5 +335,28 @@ public class UserBusinessImpl implements UserBusiness {
             }
         });
         return userDtos;
+    }
+
+    @Override
+    public LocationDto getLocationOfCurrentUser() {
+        User currentUser = commonBusiness.getCurrentUser();
+        if (currentUser == null) {
+            return null;
+        }
+        Location location = userServices.getLocation(currentUser.getLocationId());
+        if (location == null) {
+            return null;
+        }
+        return LocationDto.convertLocationToLocationDto(location);
+    }
+
+    @Override
+    public OrganizationDto getOrganizationOfCurrentUser() {
+        User currentUser = commonBusiness.getCurrentUser();
+        Organization organization = userServices.getOrganizationById(currentUser.getOrganizationId());
+        if (organization != null) {
+            return OrganizationDto.convertOrganizationToOrganizationDto(organization);
+        }
+        return null;
     }
 }

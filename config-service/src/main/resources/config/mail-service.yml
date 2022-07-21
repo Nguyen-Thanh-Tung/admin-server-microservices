@@ -1,0 +1,28 @@
+server:
+  port: 8085
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
+      
+logging:
+  pattern: 
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+
+springdoc:
+  packagesToScan: com.comit.services.mail
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sinhvienitpro95@gmail.com
+    password: zajgpbjjcxxhvtjn
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          debug: false

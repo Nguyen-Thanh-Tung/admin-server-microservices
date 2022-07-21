@@ -35,12 +35,32 @@ spring:
         - Path=/organizations/**
         filters:
         - RewritePath=/organizations/(?<path>.*), /$\{path}
+      - id: camera-service
+        uri: lb://camera-service
+        predicates:
+        - Path=/cameras/**
+        filters:
+        - RewritePath=/cameras/(?<path>.*), /$\{path}
+      - id: employee-service
+        uri: lb://employee-service
+        predicates:
+          - Path=/employees/**
+        filters:
+          - RewritePath=/employees/(?<path>.*), /$\{path}
+      - id: mail-service
+        uri: lb://mail-service
+        predicates:
+          - Path=/mails/**
+        filters:
+          - RewritePath=/mails/(?<path>.*), /$\{path}
       - id: openapi
         uri: http://localhost:${server.port}
         predicates:
         - Path=/v3/api-docs/**
         filters:
         - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+  main:
+    web-application-type: reactive
 
 springdoc:
   swagger-ui:

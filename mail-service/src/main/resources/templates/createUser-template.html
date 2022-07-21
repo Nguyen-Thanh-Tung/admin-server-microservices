@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Spring boot eamil teplate with Thymeleaf</title>
+
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'/>
+
+    <!-- use the font -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+        }
+    </style>
+</head>
+<body>
+<p th:text="${'Dear ' + name}"></p>
+
+<p>
+    Tài khoản của bạn đã được chi nhánh/tổ chức tạo thành công vào lúc:
+    <span th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy HH:mm')}"></span>
+</p>
+
+<p>
+    Bạn cần tạo mật khẩu để có thể truy cập vào hệ thống. Hãy truy cập <a th:href="@{${link}}"> link </a> để tạo mật khẩu.
+</p>
+
+<p>
+    Trân trọng, <br/>
+    <em th:text="${sign}"></em>
+<p th:text="${location}"></p>
+</p>
+</body>
+</html>

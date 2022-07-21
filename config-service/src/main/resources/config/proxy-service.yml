@@ -21,3 +21,12 @@ zuul:
     location:
       path: /locations/**
       serviceId: location-service
+    camera:
+      path: /cameras/**
+      serviceId: camera-service
+    employee:
+      path: /employees/**
+      serviceId: employee-service
+    mail:
+      path: /mails/**
+      serviceId: mail-service
