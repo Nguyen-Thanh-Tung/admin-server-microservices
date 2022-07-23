@@ -30,3 +30,15 @@ zuul:
     mail:
       path: /mails/**
       serviceId: mail-service
+    areaRestriction:
+      path: /area-restrictions/**
+      serviceId: area-restriction-service
+    history:
+      path: /histories/**
+      serviceId: history-service
+    timeKeeping:
+      path: /time-keepings/**
+      serviceId: time-keeping-service
+    metadata:
+      path: /metadatas/**
+      serviceId: metadata-service

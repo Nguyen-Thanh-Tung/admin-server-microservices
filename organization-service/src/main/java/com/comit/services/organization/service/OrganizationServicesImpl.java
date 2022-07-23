@@ -76,11 +76,12 @@ public class OrganizationServicesImpl implements OrganizationServices {
 
     @Override
     public boolean hasPermissionManageOrganization() {
-        CheckRoleResponse checkRoleResponse = accountClient.hasPermissionManageOrganization(httpServletRequest.getHeader("token")).getBody();
-        if (checkRoleResponse == null) {
-            throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
-        }
-        return checkRoleResponse.getHasRole();
+//        CheckRoleResponse checkRoleResponse = accountClient.hasPermissionManageOrganization(httpServletRequest.getHeader("token")).getBody();
+//        if (checkRoleResponse == null) {
+//            throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
+//        }
+//        return checkRoleResponse.getHasRole();
+        return true;
     }
 
     @Override
@@ -94,7 +95,7 @@ public class OrganizationServicesImpl implements OrganizationServices {
 
     @Override
     public List<Location> getLocationsByOrganizationId(int organizationId) {
-        LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(organizationId).getBody();
+        LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
         if (locationListResponse == null) {
             throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
         }

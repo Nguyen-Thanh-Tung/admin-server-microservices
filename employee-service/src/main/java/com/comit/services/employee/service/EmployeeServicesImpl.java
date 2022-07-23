@@ -117,7 +117,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
             if (response.body() != null) {
                 return response.body().string();
             }
-//            return "{\"code\": 200, \"data\": {\"embedding_id\":36, \"location_id\": 13, \"image_path\": \"test\"}}";
+//            return "{\"code\": 200, \"data\": {\"embedding_id\":1, \"location_id\": 1, \"image_path\": \"test\"}}";
             return null;
         } catch (Exception e) {
             throw new RestApiException(EmployeeErrorCode.CAN_NOT_ADD_EMPLOYEE);
@@ -213,8 +213,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Metadata saveMetadata(String image_path) {
-        MetadataResponse metadataResponse = metadataClient.saveMetadata(new MetadataRequest(image_path)).getBody();
+    public Metadata saveMetadata(String imagePath) {
+        MetadataResponse metadataResponse = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), new MetadataRequest(imagePath)).getBody();
         if (metadataResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -241,7 +241,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public List<AreaEmployeeTime> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
-        AreaEmployeeTimeListResponse areaEmployeeTimeListResponse = areaRestrictionClient.saveAreaEmployeeTimeList(new AreaEmployeeTimeListRequest(areaEmployees, newEmployeeId)).getBody();
+        AreaEmployeeTimeListResponse areaEmployeeTimeListResponse = areaRestrictionClient.saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"), new AreaEmployeeTimeListRequest(areaEmployees, newEmployeeId)).getBody();
 
         if (areaEmployeeTimeListResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
@@ -251,7 +251,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteEmployeeAreaRestrictionList(Integer employeeId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteAreaEmployeeTimeList(employeeId).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteAreaEmployeeTimeList(httpServletRequest.getHeader("token"), employeeId).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -264,7 +264,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public List<AreaRestriction> getAreaRestrictions(int managerId) {
-        AreaRestrictionListResponse areaRestrictionListResponse = areaRestrictionClient.getAreaRestrictions(managerId).getBody();
+        AreaRestrictionListResponse areaRestrictionListResponse = areaRestrictionClient.getAreaRestrictions(httpServletRequest.getHeader("token"), managerId).getBody();
         if (areaRestrictionListResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -273,7 +273,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteAreaRestrictionManagerNotificationList(Integer employeeId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteAreaRestrictionManagerNotificationList(employeeId).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteAreaRestrictionManagerNotificationList(httpServletRequest.getHeader("token"), employeeId).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -291,7 +291,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode) {
-        BaseResponse baseResponse = mailClient.sendQrCodeMail(new MailRequest(mailTo, fullname, employeeCode, organizationName, locationName, locationCode)).getBody();
+        BaseResponse baseResponse = mailClient.sendQrCodeMail(httpServletRequest.getHeader("token"), new MailRequest(mailTo, fullname, employeeCode, organizationName, locationName, locationCode)).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }

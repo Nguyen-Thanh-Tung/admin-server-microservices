@@ -6,13 +6,11 @@ import com.comit.services.account.client.MetadataClient;
 import com.comit.services.account.client.OrganizationClient;
 import com.comit.services.account.client.request.MailRequest;
 import com.comit.services.account.client.request.OrganizationRequest;
+import com.comit.services.account.client.response.LocationResponse;
+import com.comit.services.account.client.response.MetadataResponse;
 import com.comit.services.account.client.response.OrganizationResponse;
-import com.comit.services.account.constant.AuthErrorCode;
 import com.comit.services.account.constant.UserErrorCode;
-import com.comit.services.account.controller.response.LocationResponse;
-import com.comit.services.account.controller.response.MetadataResponse;
 import com.comit.services.account.exeption.AccountRestApiException;
-import com.comit.services.account.exeption.AuthException;
 import com.comit.services.account.model.entity.*;
 import com.comit.services.account.repository.UserRepository;
 import com.comit.services.account.constant.Const;
@@ -22,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +42,8 @@ public class UserServicesImpl implements UserServices {
     LocationClient locationClient;
     @Autowired
     MetadataClient metadataClient;
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
@@ -189,7 +190,7 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public Organization getOrganizationById(int organizationId) {
-        OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationId).getBody();
+        OrganizationResponse organizationResponse = organizationClient.getOrganization(httpServletRequest.getHeader("token"), organizationId).getBody();
         if (organizationResponse == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
@@ -198,7 +199,7 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public Organization getOrganizationByName(String organizationName) {
-        OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationName).getBody();
+        OrganizationResponse organizationResponse = organizationClient.getOrganization(httpServletRequest.getHeader("token"), organizationName).getBody();
         if (organizationResponse == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
@@ -207,7 +208,7 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public Organization addOrganization(Organization organization) {
-        OrganizationResponse organizationResponse = organizationClient.addOrganization(new OrganizationRequest(organization)).getBody();
+        OrganizationResponse organizationResponse = organizationClient.addOrganization(httpServletRequest.getHeader("token"), new OrganizationRequest(organization)).getBody();
         if (organizationResponse == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
@@ -217,27 +218,30 @@ public class UserServicesImpl implements UserServices {
     @Override
     public void sendForgetPasswordMail(User user) {
         MailRequest mailRequest = new MailRequest(user.getEmail(), user.getFullName(), user.getId(), user.getCode());
-        mailClient.sendMailForgetPassword(mailRequest);
+        mailClient.sendMailForgetPassword(httpServletRequest.getHeader("token"), mailRequest);
     }
 
     @Override
     public Location getLocation(Integer locationId) {
-        LocationResponse locationResponse = locationClient.getLocation(locationId).getBody();
+        if (locationId == null) {
+            return null;
+        }
+        LocationResponse locationResponse = locationClient.getLocation(httpServletRequest.getHeader("token"), locationId).getBody();
         if (locationResponse == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
-        return null;
+        return locationResponse.getLocation();
     }
 
     @Override
     public void sendConfirmCreateUserMail(User newUser) {
         MailRequest mailRequest = new MailRequest(newUser.getEmail(), newUser.getFullName(), newUser.getId(), newUser.getCode());
-        mailClient.sendMailConfirmCreateUser(mailRequest);
+        mailClient.sendMailConfirmCreateUser(httpServletRequest.getHeader("token"), mailRequest);
     }
 
     @Override
     public Metadata saveMetadata(MultipartFile file) {
-        MetadataResponse metadataResponse = metadataClient.saveMetadata(file).getBody();
+        MetadataResponse metadataResponse = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), file).getBody();
         if (metadataResponse == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }

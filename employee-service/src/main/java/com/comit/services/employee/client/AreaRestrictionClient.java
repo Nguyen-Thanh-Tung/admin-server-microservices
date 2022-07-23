@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "area-restriction-service")
 public interface AreaRestrictionClient {
     @GetMapping("/areaRestrictions/manager/{managerId}")
-    ResponseEntity<AreaRestrictionListResponse> getAreaRestrictions(@PathVariable Integer managerId);
+    ResponseEntity<AreaRestrictionListResponse> getAreaRestrictions(@RequestHeader("token") String token, @PathVariable Integer managerId);
 
     @GetMapping("/areaRestrictions/notificationManager/{employeeId}")
-    ResponseEntity<BaseResponse> deleteAreaRestrictionManagerNotificationList(@PathVariable Integer employeeId);
+    ResponseEntity<BaseResponse> deleteAreaRestrictionManagerNotificationList(@RequestHeader("token") String token, @PathVariable Integer employeeId);
 
     @PostMapping("/areaRestriction/areaEmployeeTime")
-    ResponseEntity<AreaEmployeeTimeListResponse> saveAreaEmployeeTimeList(@RequestBody AreaEmployeeTimeListRequest areaEmployeeTimeListRequest);
+    ResponseEntity<AreaEmployeeTimeListResponse> saveAreaEmployeeTimeList(@RequestHeader("token") String token, @RequestBody AreaEmployeeTimeListRequest areaEmployeeTimeListRequest);
 
     @DeleteMapping("/areaRestriction/areaEmployeeTime/employee/{employeeId}")
-    ResponseEntity<BaseResponse> deleteAreaEmployeeTimeList(@PathVariable Integer employeeId);
+    ResponseEntity<BaseResponse> deleteAreaEmployeeTimeList(@RequestHeader("token") String token, @PathVariable Integer employeeId);
 }

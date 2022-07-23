@@ -1,17 +1,20 @@
-package com.comit.services.account.controller.response;
+package com.comit.services.account.client.response;
 
+import com.comit.services.account.controller.response.BaseResponse;
 import com.comit.services.account.model.entity.Metadata;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class MetadataResponse extends BaseResponse {
     @JsonProperty(value = "metadata")
     private Metadata metadata;
 
-    public MetadataResponse(int code, String message) {
-        super(code, message);
-    }
+
 }

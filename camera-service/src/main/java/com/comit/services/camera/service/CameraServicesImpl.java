@@ -231,7 +231,7 @@ public class CameraServicesImpl implements CameraServices {
 
     @Override
     public AreaRestriction getAreaRestriction(Integer locationId, Integer areaRestrictionId) {
-        AreaRestrictionResponse areaRestrictionResponse = areaRestrictionClient.getAreaRestriction(areaRestrictionId).getBody();
+        AreaRestrictionResponse areaRestrictionResponse = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
         if (areaRestrictionResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
@@ -243,7 +243,7 @@ public class CameraServicesImpl implements CameraServices {
 
     @Override
     public List<Location> getLocationListByOrganizationId(Integer organizationId) {
-        LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(organizationId).getBody();
+        LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
         if (locationListResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
@@ -252,7 +252,7 @@ public class CameraServicesImpl implements CameraServices {
 
     @Override
     public Location getLocation(Integer organizationId, Integer locationId) {
-        LocationResponse locationResponse = locationClient.getLocationById(locationId).getBody();
+        LocationResponse locationResponse = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
         if (locationResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }

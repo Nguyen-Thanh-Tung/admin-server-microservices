@@ -22,6 +22,10 @@
 		<module>camera-service</module>
 		<module>employee-service</module>
 		<module>mail-service</module>
+		<module>area-restriction-service</module>
+		<module>history-service</module>
+		<module>time-keeping-service</module>
+		<module>metadata-service</module>
 	</modules>
 	
 </project>

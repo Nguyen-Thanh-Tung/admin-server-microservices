@@ -6,13 +6,14 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "mail-service")
 public interface MailClient {
 
 	@PostMapping("/mails/create-user")
-	ResponseEntity<BaseResponse> sendMailConfirmCreateUser(@RequestBody MailRequest request);
+	ResponseEntity<BaseResponse> sendMailConfirmCreateUser(@RequestHeader("token") String token, @RequestBody MailRequest request);
 
 	@PostMapping("/mails/forget-password")
-	ResponseEntity<BaseResponse> sendMailForgetPassword(@RequestBody MailRequest mailRequest);
+	ResponseEntity<BaseResponse> sendMailForgetPassword(@RequestHeader("token") String token, @RequestBody MailRequest mailRequest);
 }

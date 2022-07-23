@@ -262,8 +262,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         Location location = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, location.getId());
         if (employee == null) {
-//            throw new TimeKeepingCommonException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
-            return null;
+            throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
         return EmployeeDto.convertEmployeeToEmployeeDto(employee);

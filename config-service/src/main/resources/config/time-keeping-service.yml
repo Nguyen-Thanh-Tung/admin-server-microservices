@@ -1,0 +1,23 @@
+server:
+  port: 8089
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
+      
+logging:
+  pattern: 
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+
+springdoc:
+  packagesToScan: com.comit.services.timeKeeping
+
+spring:
+  datasource:
+    username: tung
+    url: jdbc:mysql://localhost:3306/time_keeping_db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update

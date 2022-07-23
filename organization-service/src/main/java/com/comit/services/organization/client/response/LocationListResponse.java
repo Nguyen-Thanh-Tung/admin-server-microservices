@@ -22,7 +22,8 @@ public class LocationListResponse extends BasePagingResponse {
             int currentPage,
             long totalItems,
             int totalPages) {
-        super(code, message);
+        this.code = code;
+        this.message = message;
         this.locations = locations;
         this.currentPage = currentPage;
         this.totalItems = totalItems;

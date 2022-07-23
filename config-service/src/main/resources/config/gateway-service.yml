@@ -53,6 +53,31 @@ spring:
           - Path=/mails/**
         filters:
           - RewritePath=/mails/(?<path>.*), /$\{path}
+      - id: area-restriction-service
+        uri: lb://area-restriction-service
+        predicates:
+          - Path=/area-restrictions/**
+        filters:
+          - RewritePath=/area-restrictions/(?<path>.*), /$\{path}
+      - id: history-service
+        uri: lb://history-service
+        predicates:
+          - Path=/histories/**
+        filters:
+          - RewritePath=/histories/(?<path>.*), /$\{path}
+      - id: time-keeping-service
+        uri: lb://time-keeping-service
+        predicates:
+          - Path=/time-keepings/**
+        filters:
+          - RewritePath=/time-keepings/(?<path>.*), /$\{path}
+     - id: metadata-service
+        uri: lb://metadata-service
+        predicates:
+          - Path=/metadatas/**
+        filters:
+          - RewritePath=/metadatas/(?<path>.*), /$\{path}
+
       - id: openapi
         uri: http://localhost:${server.port}
         predicates:

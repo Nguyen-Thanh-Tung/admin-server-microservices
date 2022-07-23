@@ -23,9 +23,7 @@ public class LocationServicesImpl implements LocationServices {
     @Autowired
     private AccountClient accountClient;
     @Autowired
-    private ShiftClient shiftClient;
-    @Autowired
-    private TimeKeepingNotificationClient timeKeepingNotificationClient;
+    private TimeKeepingClient timeKeepingClient;
     @Autowired
     private EmployeeClient employeeClient;
     @Autowired
@@ -115,7 +113,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void addShiftsForLocation(int locationId) {
-        BaseResponse response = shiftClient.addShiftsForLocation(locationId).getBody();
+        BaseResponse response = timeKeepingClient.addShiftsForLocation(httpServletRequest.getHeader("token"), locationId).getBody();
         if (response == null || response.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -123,7 +121,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void addTimeKeepingNotification(int locationId) {
-        BaseResponse tkResponse = timeKeepingNotificationClient.addTimeKeepingNotification(locationId).getBody();
+        BaseResponse tkResponse = timeKeepingClient.addTimeKeepingNotification(httpServletRequest.getHeader("token"), locationId).getBody();
         if (tkResponse == null || tkResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -131,7 +129,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public List<Employee> getEmployeeOfLocation(int locationId) {
-        EmployeeListResponse employeeListResponse = employeeClient.getEmployeeOfLocation(locationId).getBody();
+        EmployeeListResponse employeeListResponse = employeeClient.getEmployeeOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
         if (employeeListResponse == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -141,7 +139,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public List<Camera> getCameraOfLocation(int locationId) {
-        CameraListResponse cameraListResponse = cameraClient.getCameraOfLocation(locationId).getBody();
+        CameraListResponse cameraListResponse = cameraClient.getCameraOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
         if (cameraListResponse == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -161,7 +159,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void deleteShiftsOfLocation(int locationId) {
-        BaseResponse shiftResponse = shiftClient.deleteShiftsOfLocation(locationId).getBody();
+        BaseResponse shiftResponse = timeKeepingClient.deleteShiftsOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
         if (shiftResponse == null || shiftResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -169,7 +167,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void deleteTimeKeepingNotification(int locationId) {
-        BaseResponse tkResponse = timeKeepingNotificationClient.deleteTimeKeepingNotification(locationId).getBody();
+        BaseResponse tkResponse = timeKeepingClient.deleteTimeKeepingNotification(httpServletRequest.getHeader("token"), locationId).getBody();
         if (tkResponse == null || tkResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
