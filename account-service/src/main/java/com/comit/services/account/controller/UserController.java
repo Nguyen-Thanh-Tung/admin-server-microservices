@@ -1,6 +1,8 @@
 package com.comit.services.account.controller;
 
 import com.comit.services.account.business.UserBusiness;
+import com.comit.services.account.constant.RoleErrorCode;
+import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
@@ -8,8 +10,8 @@ import com.comit.services.account.controller.response.*;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.model.dto.LocationDto;
 import com.comit.services.account.model.dto.OrganizationDto;
+import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
-import com.comit.services.account.constant.UserErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -166,4 +168,23 @@ public class UserController {
         OrganizationDto organizationDto = userBusiness.getOrganizationOfCurrentUser();
         return new ResponseEntity<>(new OrganizationResponse(UserErrorCode.SUCCESS, organizationDto), HttpStatus.OK);
     }
+
+    @GetMapping("/current/user")
+    ResponseEntity<UserResponse> getCurrentUser() {
+        UserDto userDto = userBusiness.getCurrentUser();
+        return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/current/users")
+    ResponseEntity<UserListResponse> getUsersOfCurrentUser() {
+        List<UserDto> userDtos = userBusiness.getUsersOfCurrentUser();
+        return new ResponseEntity<>(new UserListResponse(UserErrorCode.SUCCESS, userDtos), HttpStatus.OK);
+    }
+
+    @GetMapping("/current/roles")
+    ResponseEntity<RoleListResponse> getRolesOfCurrentUser() {
+        List<RoleDto> roleDtos = userBusiness.getRolesOfCurrentUser();
+        return new ResponseEntity<>(new RoleListResponse(RoleErrorCode.SUCCESS, roleDtos), HttpStatus.OK);
+    }
+
 }

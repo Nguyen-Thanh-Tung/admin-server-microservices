@@ -1,7 +1,10 @@
 package com.comit.services.history.service;
 
 import com.comit.services.history.client.*;
-import com.comit.services.history.client.response.*;
+import com.comit.services.history.client.response.AreaRestrictionResponse;
+import com.comit.services.history.client.response.CameraResponse;
+import com.comit.services.history.client.response.EmployeeResponse;
+import com.comit.services.history.client.response.LocationResponse;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.entity.AreaRestriction;

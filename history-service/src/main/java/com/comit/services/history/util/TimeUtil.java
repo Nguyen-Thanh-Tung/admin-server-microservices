@@ -1,7 +1,6 @@
 package com.comit.services.history.util;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Component;

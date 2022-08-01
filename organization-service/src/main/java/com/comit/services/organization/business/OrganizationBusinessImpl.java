@@ -7,8 +7,8 @@ import com.comit.services.organization.middleware.OrganizationVerifyRequestServi
 import com.comit.services.organization.model.dto.OrganizationDto;
 import com.comit.services.organization.model.entity.Location;
 import com.comit.services.organization.model.entity.Organization;
-import com.comit.services.organization.service.OrganizationServices;
 import com.comit.services.organization.model.entity.User;
+import com.comit.services.organization.service.OrganizationServices;
 import com.comit.services.organization.util.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

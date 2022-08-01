@@ -1,6 +1,5 @@
 package com.comit.services.camera.client.response;
 
-import com.comit.services.camera.constant.CameraErrorCode;
 import com.comit.services.camera.controller.response.BasePagingResponse;
 import com.comit.services.camera.model.entity.Location;
 import com.fasterxml.jackson.annotation.JsonProperty;

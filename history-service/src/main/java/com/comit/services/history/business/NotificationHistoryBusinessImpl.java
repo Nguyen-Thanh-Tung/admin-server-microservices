@@ -1,6 +1,5 @@
 package com.comit.services.history.business;
 
-import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.NotificationHistoryRequest;
 import com.comit.services.history.exception.RestApiException;
@@ -14,13 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class NotificationHistoryBusinessImpl implements NotificationHistoryBusiness {

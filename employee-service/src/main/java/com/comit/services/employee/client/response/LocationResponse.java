@@ -1,6 +1,5 @@
 package com.comit.services.employee.client.response;
 
-import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.response.BaseResponse;
 import com.comit.services.employee.model.entity.Location;
 import com.fasterxml.jackson.annotation.JsonProperty;

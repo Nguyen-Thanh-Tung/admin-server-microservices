@@ -5,6 +5,7 @@ import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.model.dto.LocationDto;
 import com.comit.services.account.model.dto.OrganizationDto;
+import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,4 +40,10 @@ public interface UserBusiness {
     LocationDto getLocationOfCurrentUser();
 
     OrganizationDto getOrganizationOfCurrentUser();
+
+    UserDto getCurrentUser();
+
+    List<UserDto> getUsersOfCurrentUser();
+
+    List<RoleDto> getRolesOfCurrentUser();
 }

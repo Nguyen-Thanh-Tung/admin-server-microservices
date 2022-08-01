@@ -1,4 +1,5 @@
 package com.comit.services.employee.model.entity;
+
 import lombok.Getter;
 import lombok.Setter;
 

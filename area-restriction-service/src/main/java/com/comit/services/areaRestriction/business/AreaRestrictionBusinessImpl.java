@@ -6,12 +6,15 @@ import com.comit.services.areaRestriction.controller.request.AreaRestrictionRequ
 import com.comit.services.areaRestriction.exception.AreaRestrictionCommonException;
 import com.comit.services.areaRestriction.model.dto.AreaRestrictionDto;
 import com.comit.services.areaRestriction.model.dto.NotificationMethodDto;
-import com.comit.services.areaRestriction.model.entity.*;
+import com.comit.services.areaRestriction.model.entity.AreaRestriction;
+import com.comit.services.areaRestriction.model.entity.Location;
+import com.comit.services.areaRestriction.model.entity.NotificationMethod;
 import com.comit.services.areaRestriction.service.AreaRestrictionServices;
 import com.comit.services.areaRestriction.service.NotificationMethodServices;
 import com.comit.services.areaRestriction.service.VerifyAreaRestrictionRequestServices;
 import com.comit.services.areaRestriction.util.TimeUtil;
 import org.joda.time.DateTime;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,12 +47,8 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
     @Override
     public List<AreaRestrictionDto> getAllAreaRestriction(List<AreaRestriction> areaRestrictions) {
         List<AreaRestrictionDto> areaRestrictionDtos = new ArrayList<>();
-        Date startDay = TimeUtil.getDateTimeFromTimeString("00:00:00");
-        DateTime now = new DateTime(TimeUtil.asiaHoChiMinh);
         areaRestrictions.forEach(areaRestriction -> {
-            AreaRestrictionDto areaRestrictionDto = AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
-            int numberHistories = areaRestrictionService.getNumberNotificationOfAreaRestriction(areaRestriction, startDay, now.toDate());
-            areaRestrictionDto.setNumberNotification(numberHistories);
+            AreaRestrictionDto areaRestrictionDto = convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
             areaRestrictionDtos.add(areaRestrictionDto);
         });
         return areaRestrictionDtos;
@@ -86,7 +85,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         notificationMethod.setAreaRestrictionId(areaRestriction.getId());
         NotificationMethod newNotificationMethod = notificationMethodServices.saveNotificationMethod(notificationMethod);
 
-        return AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
+        return convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
     }
 
     @Override
@@ -109,7 +108,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         areaRestriction.setTimeStart(request.getTimeStart());
         areaRestriction.setTimeEnd(request.getTimeEnd());
         AreaRestriction newAreaRestriction = areaRestrictionService.updateAreaRestriction(areaRestriction);
-        return AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
+        return convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
     }
 
     @Override
@@ -144,12 +143,30 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
                 areaRestrictionManagerNotificationBusiness.saveAreaManagerTimeList(request.getManagerTimeSkips(), areaRestrictionId);
             }
         }
-        return AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
+        return convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
     }
 
     @Override
     public NotificationMethodDto getNotificationMethodOfAreaRestriction(Integer id) {
         NotificationMethod notificationMethod = notificationMethodServices.getNotificationMethodOfAreaRestriction(id);
         return NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod);
+    }
+
+    public AreaRestrictionDto convertAreaRestrictionToAreaRestrictionDto(AreaRestriction areaRestriction) {
+        if (areaRestriction == null) return null;
+        Date startDay = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        DateTime now = new DateTime(TimeUtil.asiaHoChiMinh);
+        AreaRestrictionDto areaRestrictionDto = new AreaRestrictionDto();
+        areaRestrictionDto.setCode(areaRestriction.getCode());
+        areaRestrictionDto.setName(areaRestriction.getName());
+        areaRestrictionDto.setTimeStart(areaRestriction.getTimeStart());
+        areaRestrictionDto.setTimeEnd(areaRestriction.getTimeEnd());
+        int numberCamera = areaRestrictionService.getNumberCameraOfAreaRestriction(areaRestriction.getId());
+        areaRestrictionDto.setNumberCamera(numberCamera);
+        int numberAreaEmployeeTime = areaRestrictionService.getNumberAreaEmployeeTimeOfAreaRestriction(areaRestriction.getId());
+        areaRestrictionDto.setNumberEmployeeAllow(numberAreaEmployeeTime);
+        int numberHistories = areaRestrictionService.getNumberNotificationOfAreaRestriction(areaRestriction, startDay, now.toDate());
+        areaRestrictionDto.setNumberNotification(numberHistories);
+        return areaRestrictionDto;
     }
 }

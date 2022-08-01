@@ -1,9 +1,9 @@
 package com.comit.services.organization.controller;
 
-import com.comit.services.organization.controller.response.BaseResponse;
 import com.comit.services.organization.business.OrganizationBusiness;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
+import com.comit.services.organization.controller.response.BaseResponse;
 import com.comit.services.organization.controller.response.OrganizationListResponse;
 import com.comit.services.organization.controller.response.OrganizationResponse;
 import com.comit.services.organization.model.dto.OrganizationDto;

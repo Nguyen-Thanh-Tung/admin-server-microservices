@@ -1,13 +1,12 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.MailClient;
-import com.comit.services.account.client.OrganizationClient;
-import com.comit.services.account.client.request.MailRequest;
-import com.comit.services.account.client.response.OrganizationResponse;
 import com.comit.services.account.constant.AuthErrorCode;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
-import com.comit.services.account.controller.request.*;
+import com.comit.services.account.controller.request.ChangePasswordRequest;
+import com.comit.services.account.controller.request.ForgetPasswordRequest;
+import com.comit.services.account.controller.request.LoginRequest;
+import com.comit.services.account.controller.request.SignUpRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.exeption.AuthException;
 import com.comit.services.account.jwt.JwtProvider;
@@ -30,7 +29,9 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class AuthBusinessImpl implements AuthBusiness {
@@ -138,6 +139,11 @@ public class AuthBusinessImpl implements AuthBusiness {
                 roleServices.addRole(new Role(role));
             }
         });
+
+        // Add feature
+        roleServices.addFeature(Const.TIME_KEEPING_MODULE);
+        roleServices.addFeature(Const.AREA_RESTRICTION_CONTROL_MODULE);
+        roleServices.addFeature(Const.BEHAVIOR_CONTROL_MODULE);
 
         // Add supper admin
         Set<String> roles = new HashSet<>();

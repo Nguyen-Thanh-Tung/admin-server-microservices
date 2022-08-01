@@ -7,9 +7,9 @@ eureka:
       defaultZone: http://localhost:8061/eureka/
 
 logging:
-  pattern: 
+  pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
-              
+
 spring:
   cloud:
     gateway:
@@ -44,40 +44,51 @@ spring:
       - id: employee-service
         uri: lb://employee-service
         predicates:
-          - Path=/employees/**
+        - Path=/employees/**
         filters:
-          - RewritePath=/employees/(?<path>.*), /$\{path}
+        - RewritePath=/employees/(?<path>.*), /$\{path}
       - id: mail-service
         uri: lb://mail-service
         predicates:
-          - Path=/mails/**
+        - Path=/mails/**
         filters:
-          - RewritePath=/mails/(?<path>.*), /$\{path}
+        - RewritePath=/mails/(?<path>.*), /$\{path}
       - id: area-restriction-service
         uri: lb://area-restriction-service
         predicates:
-          - Path=/area-restrictions/**
+        - Path=/area-restrictions/**
         filters:
-          - RewritePath=/area-restrictions/(?<path>.*), /$\{path}
+        - RewritePath=/area-restrictions/(?<path>.*), /$\{path}
       - id: history-service
         uri: lb://history-service
         predicates:
-          - Path=/histories/**
+        - Path=/histories/**
         filters:
-          - RewritePath=/histories/(?<path>.*), /$\{path}
+        - RewritePath=/histories/(?<path>.*), /$\{path}
       - id: time-keeping-service
         uri: lb://time-keeping-service
         predicates:
-          - Path=/time-keepings/**
+        - Path=/time-keepings/**
         filters:
-          - RewritePath=/time-keepings/(?<path>.*), /$\{path}
-     - id: metadata-service
+        - RewritePath=/time-keepings/(?<path>.*), /$\{path}
+      - id: metadata-service
         uri: lb://metadata-service
         predicates:
-          - Path=/metadatas/**
+        - Path=/metadatas/**
         filters:
-          - RewritePath=/metadatas/(?<path>.*), /$\{path}
-
+        - RewritePath=/metadatas/(?<path>.*), /$\{path}
+      - id: user-log-service
+        uri: lb://user-log-service
+        predicates:
+        - Path=/user-logs/**
+        filters:
+        - RewritePath=/user-logs/(?<path>.*), /$\{path}
+      - id: feature-service
+        uri: lb://feature-service
+        predicates:
+        - Path=/features/**
+        filters:
+        - RewritePath=/features/(?<path>.*), /$\{path}
       - id: openapi
         uri: http://localhost:${server.port}
         predicates:

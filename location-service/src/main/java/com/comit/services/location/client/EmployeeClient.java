@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "employee-service")
 public interface EmployeeClient {
-	@GetMapping("/employees/location/{locationId}")
-	ResponseEntity<EmployeeListResponse> getEmployeeOfLocation(@RequestHeader("token") String token, @PathVariable Integer locationId);
+    @GetMapping("/employees/location/{locationId}")
+    ResponseEntity<EmployeeListResponse> getEmployeeOfLocation(@RequestHeader("token") String token, @PathVariable Integer locationId);
 }

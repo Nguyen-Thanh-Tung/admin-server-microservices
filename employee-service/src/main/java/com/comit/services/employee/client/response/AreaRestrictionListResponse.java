@@ -1,6 +1,5 @@
 package com.comit.services.employee.client.response;
 
-import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.response.BasePagingResponse;
 import com.comit.services.employee.model.entity.AreaRestriction;
 import com.fasterxml.jackson.annotation.JsonProperty;

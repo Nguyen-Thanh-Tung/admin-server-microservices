@@ -1,13 +1,14 @@
 package com.comit.services.areaRestriction.model.dto;
 
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -30,11 +31,4 @@ public class AreaRestrictionDto extends BaseModelDto {
 
     @JsonProperty(value = "number_notification")
     private int numberNotification;
-
-    public static AreaRestrictionDto convertAreaRestrictionToAreaRestrictionDto(AreaRestriction areaRestriction) {
-        if (areaRestriction == null) return null;
-        ModelMapper modelMapper = new ModelMapper();
-        AreaRestrictionDto areaRestrictionDto = modelMapper.map(areaRestriction, AreaRestrictionDto.class);
-        return areaRestrictionDto;
-    }
 }

@@ -1,4 +1,5 @@
 package com.comit.services.organization.util;
+
 import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.exception.RestApiException;

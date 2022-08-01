@@ -1,11 +1,12 @@
 package com.comit.services.history.business;
 
-import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
 import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.dto.InOutHistoryDto;
-import com.comit.services.history.model.entity.*;
+import com.comit.services.history.model.entity.Camera;
+import com.comit.services.history.model.entity.InOutHistory;
+import com.comit.services.history.model.entity.Location;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.InOutHistoryServices;
 import com.comit.services.history.util.TimeUtil;
@@ -16,8 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {

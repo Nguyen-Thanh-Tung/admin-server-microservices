@@ -2,7 +2,6 @@ package com.comit.services.account.exeption;
 
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.response.BaseResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

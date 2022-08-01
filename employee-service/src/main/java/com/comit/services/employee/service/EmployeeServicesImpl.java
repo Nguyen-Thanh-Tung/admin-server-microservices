@@ -1,6 +1,9 @@
 package com.comit.services.employee.service;
 
-import com.comit.services.employee.client.*;
+import com.comit.services.employee.client.AccountClient;
+import com.comit.services.employee.client.AreaRestrictionClient;
+import com.comit.services.employee.client.MailClient;
+import com.comit.services.employee.client.MetadataClient;
 import com.comit.services.employee.client.request.AreaEmployeeTimeListRequest;
 import com.comit.services.employee.client.request.MailRequest;
 import com.comit.services.employee.client.request.MetadataRequest;

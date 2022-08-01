@@ -6,7 +6,6 @@ import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.entity.NotificationHistory;
-import com.comit.services.history.model.entity.NotificationMethod;
 import com.comit.services.history.repository.NotificationHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

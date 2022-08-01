@@ -1,6 +1,5 @@
 package com.comit.services.history.model.excel;
 
-import com.comit.services.history.model.entity.AreaRestriction;
 import com.comit.services.history.model.entity.Camera;
 import com.comit.services.history.model.entity.Employee;
 import com.comit.services.history.model.entity.InOutHistory;

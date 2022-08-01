@@ -25,11 +25,13 @@ public class MailController {
         boolean sendQrCodeMailSuccess = mailBusiness.sendQrCodeMail(mailQrCodeRequest);
         return new ResponseEntity<>(new BaseResponse(sendQrCodeMailSuccess ? MailErrorCode.SUCCESS : MailErrorCode.FAIL), HttpStatus.OK);
     }
+
     @PostMapping("/create-user")
     public ResponseEntity<BaseResponse> sendCreateUserMail(@RequestBody MailCreateUserRequest mailCreateUserRequest) {
         boolean sendCreateUserMailSuccess = mailBusiness.sendConfirmCreateUserMail(mailCreateUserRequest);
         return new ResponseEntity<>(new BaseResponse(sendCreateUserMailSuccess ? MailErrorCode.SUCCESS : MailErrorCode.FAIL), HttpStatus.OK);
     }
+
     @PostMapping("/forget-password")
     public ResponseEntity<BaseResponse> sendForgetPasswordMail(@RequestBody MailForgetPasswordRequest mailForgetPasswordRequest) {
         boolean sendForgetPasswordMailSuccess = mailBusiness.sendForgetPasswordMail(mailForgetPasswordRequest);

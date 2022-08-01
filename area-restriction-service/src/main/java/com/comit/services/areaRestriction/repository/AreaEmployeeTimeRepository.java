@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AreaEmployeeTimeRepository extends JpaRepository<AreaEmployeeTime, Integer> {
     AreaEmployeeTime findByEmployeeIdAndAreaRestrictionId(Integer employeeId, Integer areaRestrictionId);
+
     void deleteByEmployeeId(Integer employeeId);
 }

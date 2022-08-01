@@ -1,23 +1,19 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.LocationClient;
-import com.comit.services.account.client.MailClient;
-import com.comit.services.account.client.MetadataClient;
-import com.comit.services.account.client.OrganizationClient;
-import com.comit.services.account.client.response.OrganizationResponse;
-import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
+import com.comit.services.account.controller.request.AddUserRequest;
+import com.comit.services.account.controller.request.LockOrUnlockRequest;
+import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
+import com.comit.services.account.middleware.UserVerifyRequestServices;
 import com.comit.services.account.model.dto.LocationDto;
 import com.comit.services.account.model.dto.OrganizationDto;
+import com.comit.services.account.model.dto.RoleDto;
+import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.*;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
-import com.comit.services.account.controller.request.AddUserRequest;
-import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
-import com.comit.services.account.middleware.UserVerifyRequestServices;
-import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.util.IDGeneratorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -355,5 +351,42 @@ public class UserBusinessImpl implements UserBusiness {
             return OrganizationDto.convertOrganizationToOrganizationDto(organization);
         }
         return null;
+    }
+
+    @Override
+    public UserDto getCurrentUser() {
+        User currentUser = commonBusiness.getCurrentUser();
+        try {
+            return UserDto.convertUserToUserDto(currentUser);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public List<UserDto> getUsersOfCurrentUser() {
+        User currentUser = commonBusiness.getCurrentUser();
+        List<User> users = userServices.getUsersByParentId(currentUser.getId());
+        List<UserDto> userDtos = new ArrayList<>();
+        users.forEach(user -> {
+            try {
+                userDtos.add(UserDto.convertUserToUserDto(user));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        return userDtos;
+    }
+
+    @Override
+    public List<RoleDto> getRolesOfCurrentUser() {
+        User user = commonBusiness.getCurrentUser();
+        Set<Role> roles = user.getRoles();
+        List<RoleDto> roleDtos = new ArrayList<>();
+        roles.forEach(role -> {
+            roleDtos.add(RoleDto.convertRoleToRoleDto(role));
+        });
+        return roleDtos;
     }
 }

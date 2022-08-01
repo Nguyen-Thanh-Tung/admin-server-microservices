@@ -17,8 +17,8 @@ public class LocationResponse extends BaseResponse {
     private LocationDto locationDto;
 
     public LocationResponse(UserErrorCode userErrorCode, LocationDto locationDto) {
-       this.locationDto = locationDto;
-       this.code = userErrorCode.getCode();
-       this.message = userErrorCode.getMessage();
+        this.locationDto = locationDto;
+        this.code = userErrorCode.getCode();
+        this.message = userErrorCode.getMessage();
     }
 }

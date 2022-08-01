@@ -4,7 +4,6 @@ import com.comit.services.account.model.entity.Location;
 import com.comit.services.account.model.entity.Metadata;
 import com.comit.services.account.model.entity.Organization;
 import com.comit.services.account.model.entity.User;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -54,4 +53,6 @@ public interface UserServices {
     void sendConfirmCreateUserMail(User newUser);
 
     Metadata saveMetadata(MultipartFile file);
+
+    List<User> getUsersByParentId(int id);
 }

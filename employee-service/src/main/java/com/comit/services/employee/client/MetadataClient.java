@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "metadata-service")
 public interface MetadataClient {
-	@PostMapping("/metadatas/save-path")
+    @PostMapping("/metadatas/save-path")
     ResponseEntity<MetadataResponse> saveMetadata(@RequestHeader("token") String token, @RequestBody MetadataRequest metadataRequest);
 }

@@ -1,8 +1,6 @@
 package com.comit.services.metadata.business;
 
-import com.comit.services.metadata.constant.MetadataErrorCode;
 import com.comit.services.metadata.controller.request.MetadataRequest;
-import com.comit.services.metadata.exception.RestApiException;
 import com.comit.services.metadata.model.dto.MetadataDto;
 import com.comit.services.metadata.model.entity.Metadata;
 import com.comit.services.metadata.service.MetadataServices;
@@ -17,7 +15,7 @@ public class MetadataBusinessImpl implements MetadataBusiness {
 
     @Override
     public MetadataDto saveMetadata(MultipartFile file) {
-        Metadata metadata =  metadataServices.saveMetadata(file);
+        Metadata metadata = metadataServices.saveMetadata(file);
         if (metadata == null) {
             return null;
         }

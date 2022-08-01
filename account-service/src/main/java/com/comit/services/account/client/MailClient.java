@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "mail-service")
 public interface MailClient {
 
-	@PostMapping("/mails/create-user")
-	ResponseEntity<BaseResponse> sendMailConfirmCreateUser(@RequestHeader("token") String token, @RequestBody MailRequest request);
+    @PostMapping("/mails/create-user")
+    ResponseEntity<BaseResponse> sendMailConfirmCreateUser(@RequestHeader("token") String token, @RequestBody MailRequest request);
 
-	@PostMapping("/mails/forget-password")
-	ResponseEntity<BaseResponse> sendMailForgetPassword(@RequestHeader("token") String token, @RequestBody MailRequest mailRequest);
+    @PostMapping("/mails/forget-password")
+    ResponseEntity<BaseResponse> sendMailForgetPassword(@RequestHeader("token") String token, @RequestBody MailRequest mailRequest);
 }

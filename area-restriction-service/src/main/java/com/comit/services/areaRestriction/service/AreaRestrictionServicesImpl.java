@@ -85,4 +85,14 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
         }
         return Objects.equals(employeeResponse.getEmployee().getLocationId(), locationId) ? employeeResponse.getEmployee() : null;
     }
+
+    @Override
+    public int getNumberCameraOfAreaRestriction(int areaRestrictionId) {
+        return 0;
+    }
+
+    @Override
+    public int getNumberAreaEmployeeTimeOfAreaRestriction(int areaRestrictionId) {
+        return 0;
+    }
 }

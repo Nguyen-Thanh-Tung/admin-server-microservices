@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "location-service")
 public interface LocationClient {
-	@GetMapping("/locations/organization/{organizationId}")
-	ResponseEntity<LocationListResponse> getLocationsByOrganizationId(@RequestHeader("token") String token, @PathVariable(name = "organizationId") int organizationId);
+    @GetMapping("/locations/organization/{organizationId}")
+    ResponseEntity<LocationListResponse> getLocationsByOrganizationId(@RequestHeader("token") String token, @PathVariable(name = "organizationId") int organizationId);
 
-	@GetMapping("/locations/{id}")
-	ResponseEntity<LocationResponse> getLocationById(@RequestHeader("token") String token, @PathVariable Integer id);
+    @GetMapping("/locations/{id}")
+    ResponseEntity<LocationResponse> getLocationById(@RequestHeader("token") String token, @PathVariable Integer id);
 }

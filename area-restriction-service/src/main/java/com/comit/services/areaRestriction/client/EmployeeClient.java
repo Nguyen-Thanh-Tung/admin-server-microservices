@@ -1,8 +1,6 @@
 package com.comit.services.areaRestriction.client;
 
 import com.comit.services.areaRestriction.client.response.EmployeeResponse;
-import com.comit.services.areaRestriction.client.response.LocationResponse;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,6 +1,5 @@
 package com.comit.services.history.repository;
 
-import com.comit.services.history.constant.Const;
 import com.comit.services.history.model.entity.InOutHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

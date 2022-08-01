@@ -2,7 +2,6 @@ package com.comit.services.organization.service;
 
 import com.comit.services.organization.client.AccountClient;
 import com.comit.services.organization.client.LocationClient;
-import com.comit.services.organization.client.response.CheckRoleResponse;
 import com.comit.services.organization.client.response.LocationListResponse;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.response.UserListResponse;
@@ -11,7 +10,6 @@ import com.comit.services.organization.model.entity.Location;
 import com.comit.services.organization.model.entity.Organization;
 import com.comit.services.organization.model.entity.User;
 import com.comit.services.organization.repository.OrganizationRepository;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

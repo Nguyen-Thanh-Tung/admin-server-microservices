@@ -1,6 +1,11 @@
 package com.comit.services.account.service;
 
+import com.comit.services.account.client.FeatureClient;
+import com.comit.services.account.client.request.FeatureRequest;
 import com.comit.services.account.constant.Const;
+import com.comit.services.account.constant.RoleErrorCode;
+import com.comit.services.account.controller.response.BaseResponse;
+import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.model.entity.Role;
 import com.comit.services.account.model.entity.User;
 import com.comit.services.account.repository.RoleRepository;
@@ -20,6 +25,9 @@ public class RoleServicesImpl implements RoleServices {
 
     @Autowired
     RequestHelper requestHelper;
+
+    @Autowired
+    FeatureClient featureClient;
 
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
@@ -79,5 +87,23 @@ public class RoleServicesImpl implements RoleServices {
     public boolean isSuperAdminOrganization(User user) {
         if (user.getUsername().equals(superAdminUsername)) return false;
         return Objects.equals(user.getParent().getUsername(), superAdminUsername);
+    }
+
+    @Override
+    public boolean isCurrentUserSuperAdmin() {
+        return requestHelper.hasRole(Const.ROLE_SUPER_ADMIN);
+    }
+
+    @Override
+    public Role getRole(int roleId) {
+        return roleRepository.findById(roleId);
+    }
+
+    @Override
+    public void addFeature(String moduleName) {
+        BaseResponse baseResponse = featureClient.addFeature(new FeatureRequest(moduleName, moduleName)).getBody();
+        if (baseResponse == null) {
+            throw new AccountRestApiException(RoleErrorCode.INTERNAL_ERROR);
+        }
     }
 }

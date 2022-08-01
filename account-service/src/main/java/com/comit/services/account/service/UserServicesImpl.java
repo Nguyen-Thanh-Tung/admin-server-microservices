@@ -9,11 +9,11 @@ import com.comit.services.account.client.request.OrganizationRequest;
 import com.comit.services.account.client.response.LocationResponse;
 import com.comit.services.account.client.response.MetadataResponse;
 import com.comit.services.account.client.response.OrganizationResponse;
+import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.model.entity.*;
 import com.comit.services.account.repository.UserRepository;
-import com.comit.services.account.constant.Const;
 import com.comit.services.account.util.RequestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -246,6 +246,11 @@ public class UserServicesImpl implements UserServices {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
         return metadataResponse.getMetadata();
+    }
+
+    @Override
+    public List<User> getUsersByParentId(int id) {
+        return userRepository.findAllByParentId(id);
     }
 
     public boolean belongOrganization(User user, Integer organizationId) {

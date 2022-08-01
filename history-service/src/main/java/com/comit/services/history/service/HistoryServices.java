@@ -5,8 +5,6 @@ import com.comit.services.history.model.entity.Camera;
 import com.comit.services.history.model.entity.Employee;
 import com.comit.services.history.model.entity.Location;
 
-import java.util.List;
-
 public interface HistoryServices {
 
     Location getLocation(Integer locationId);

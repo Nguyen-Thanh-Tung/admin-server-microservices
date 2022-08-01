@@ -3,7 +3,6 @@ package com.comit.services.areaRestriction.service;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import com.comit.services.areaRestriction.model.entity.Employee;
 import com.comit.services.areaRestriction.model.entity.Location;
-import com.comit.services.areaRestriction.model.entity.NotificationMethod;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,4 +24,8 @@ public interface AreaRestrictionServices {
     int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate);
 
     Employee getEmployee(Integer managerId, Integer locationId);
+
+    int getNumberCameraOfAreaRestriction(int areaRestrictionId);
+
+    int getNumberAreaEmployeeTimeOfAreaRestriction(int areaRestrictionId);
 }

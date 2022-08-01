@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
-import java.util.Objects;
-
 @Getter
 @Setter
-public class LocationDto extends BaseModelDto{
+public class LocationDto extends BaseModelDto {
     private String name;
     private String code;
     private String type;

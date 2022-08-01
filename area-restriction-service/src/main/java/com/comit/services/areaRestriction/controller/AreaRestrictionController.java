@@ -11,7 +11,6 @@ import com.comit.services.areaRestriction.controller.response.NotificationMethod
 import com.comit.services.areaRestriction.model.dto.AreaRestrictionDto;
 import com.comit.services.areaRestriction.model.dto.NotificationMethodDto;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
-import com.comit.services.areaRestriction.model.entity.NotificationMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

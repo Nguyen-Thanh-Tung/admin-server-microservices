@@ -18,7 +18,7 @@ public class NotificationMethodResponse extends BaseResponse {
 
     public NotificationMethodResponse(AreaRestrictionErrorCode areaRestrictionErrorCode, NotificationMethodDto notificationMethodDto) {
         this.code = areaRestrictionErrorCode.getCode();
-        this.message =areaRestrictionErrorCode.getMessage();
+        this.message = areaRestrictionErrorCode.getMessage();
         this.notificationMethodDto = notificationMethodDto;
     }
 }

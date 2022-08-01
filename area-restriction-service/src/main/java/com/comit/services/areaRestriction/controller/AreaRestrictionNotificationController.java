@@ -6,7 +6,6 @@ import com.comit.services.areaRestriction.controller.request.AreaRestrictionNoti
 import com.comit.services.areaRestriction.controller.response.AreaRestrictionResponse;
 import com.comit.services.areaRestriction.controller.response.BaseResponse;
 import com.comit.services.areaRestriction.model.dto.AreaRestrictionDto;
-import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

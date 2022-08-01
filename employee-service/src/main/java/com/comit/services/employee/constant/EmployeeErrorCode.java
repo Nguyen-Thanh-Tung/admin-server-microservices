@@ -23,8 +23,8 @@ public enum EmployeeErrorCode {
     MISSING_SHIFT_IDS_FIELD(0, "Danh sách ca làm việc là bắt buộc"),
     SHIFT_IDS_IS_INVALID(0, "Danh sách ca làm việc không hợp lệ"),
     INTERNAL_ERROR(0, "Có lỗi xảy ra, vui lòng thử lại sau!"),
-    PERMISSION_DENIED(0, "Bạn không có quyền thực hiện chức năng này"), 
-    MISSING_FILE_FIELD(0, "File là bắt buộc"), 
+    PERMISSION_DENIED(0, "Bạn không có quyền thực hiện chức năng này"),
+    MISSING_FILE_FIELD(0, "File là bắt buộc"),
     UN_SUPPORT_FILE_UPLOAD(0, "Không hỗ trợ kiểu file");
 
     private final int code;
