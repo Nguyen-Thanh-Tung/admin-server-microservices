@@ -7,6 +7,8 @@ import java.util.List;
 public interface ShiftServices {
     Shift getShift(Integer locationId, int shiftId);
 
+    Shift getShift(int shiftId);
+
     List<Shift> getAllShift(Integer locationId);
 
     Shift saveShift(Shift shift);

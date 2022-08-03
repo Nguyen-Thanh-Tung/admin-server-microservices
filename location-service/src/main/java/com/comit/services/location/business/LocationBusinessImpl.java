@@ -8,6 +8,7 @@ import com.comit.services.location.middleware.LocationVerifyRequestServices;
 import com.comit.services.location.model.dto.LocationDto;
 import com.comit.services.location.model.entity.*;
 import com.comit.services.location.service.LocationServices;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,7 +45,12 @@ public class LocationBusinessImpl implements LocationBusiness {
     public List<LocationDto> getAllLocation(List<Location> locations) {
         List<LocationDto> locationDtos = new ArrayList<>();
         locations.forEach(location -> {
-            locationDtos.add(LocationDto.convertLocationToLocationDto(location));
+            LocationDto locationDto = convertLocationToLocationDto(location);
+            int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
+            int numberCameraOfLocation = locationServices.getNumberCameraOfLocation(location.getId());
+            locationDto.setNumberCamera(numberCameraOfLocation);
+            locationDto.setNumberEmployees(numberEmployeeOfLocation);
+            locationDtos.add(locationDto);
         });
         return locationDtos;
     }
@@ -81,7 +87,10 @@ public class LocationBusinessImpl implements LocationBusiness {
         } else if (Objects.equals(newLocation.getType(), Const.AREA_RESTRICTION_TYPE)) {
 
         }
-        return LocationDto.convertLocationToLocationDto(newLocation);
+        LocationDto locationDto = convertLocationToLocationDto(newLocation);
+        locationDto.setNumberEmployees(0);
+        locationDto.setNumberCamera(0);
+        return locationDto;
     }
 
     @Override
@@ -104,7 +113,12 @@ public class LocationBusinessImpl implements LocationBusiness {
         location.setCode(request.getCode());
         location.setOrganizationId(organization.getId());
         Location newLocation = locationServices.saveLocation(location);
-        return LocationDto.convertLocationToLocationDto(newLocation);
+        LocationDto locationDto = convertLocationToLocationDto(newLocation);
+        int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
+        int numberCameraOfLocation = locationServices.getNumberCameraOfLocation(location.getId());
+        locationDto.setNumberCamera(numberCameraOfLocation);
+        locationDto.setNumberEmployees(numberEmployeeOfLocation);
+        return locationDto;
     }
 
     @Override
@@ -118,10 +132,10 @@ public class LocationBusinessImpl implements LocationBusiness {
             throw new RestApiException(LocationErrorCode.PERMISSION_DENIED);
         }
 
-        List<Employee> employees = locationServices.getEmployeeOfLocation(location.getId());
-        List<Camera> cameras = locationServices.getCameraOfLocation(location.getId());
-        List<User> users = locationServices.getUserOfLocation(location.getId());
-        if (!employees.isEmpty() || !cameras.isEmpty() || !users.isEmpty()) {
+        int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
+        int numberCameraOfLocation = locationServices.getNumberCameraOfLocation(location.getId());
+        int numberUserOfLocation = locationServices.getNumberUserOfLocation(location.getId());
+        if (numberCameraOfLocation != 0 || numberEmployeeOfLocation != 0 || numberUserOfLocation != 0) {
             return false;
         }
 
@@ -143,7 +157,7 @@ public class LocationBusinessImpl implements LocationBusiness {
             return null;
         }
 
-        return LocationDto.convertLocationToLocationDto(location);
+        return convertLocationToLocationDto(location);
     }
 
     @Override
@@ -151,8 +165,18 @@ public class LocationBusinessImpl implements LocationBusiness {
         List<Location> locations = locationServices.getAllLocationByOrganizationId(organizationId);
         List<LocationDto> locationDtos = new ArrayList<>();
         locations.forEach(location -> {
-            locationDtos.add(LocationDto.convertLocationToLocationDto(location));
+            locationDtos.add(convertLocationToLocationDto(location));
         });
         return locationDtos;
+    }
+
+    public LocationDto convertLocationToLocationDto(Location location) {
+        if (location == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(location, LocationDto.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

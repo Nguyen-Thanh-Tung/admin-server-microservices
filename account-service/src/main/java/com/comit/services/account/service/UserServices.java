@@ -55,4 +55,8 @@ public interface UserServices {
     Metadata saveMetadata(MultipartFile file);
 
     List<User> getUsersByParentId(int id);
+
+    Metadata getMetadata(int id);
+
+    int getNumberUserOfLocation(Integer locationId);
 }

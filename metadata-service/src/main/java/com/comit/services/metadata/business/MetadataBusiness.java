@@ -8,4 +8,6 @@ public interface MetadataBusiness {
     MetadataDto saveMetadata(MultipartFile file);
 
     MetadataDto saveMetadata(MetadataRequest metadataRequest);
+
+    MetadataDto getMetadata(int id);
 }

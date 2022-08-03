@@ -22,4 +22,6 @@ public interface UserLogServices {
     User getCurrentUser();
 
     List<User> getAllUserOfCurrentUser();
+
+    User getUserById(Integer userId);
 }

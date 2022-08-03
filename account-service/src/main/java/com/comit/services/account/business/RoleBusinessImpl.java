@@ -18,6 +18,8 @@ import java.util.Set;
 @Service
 public class RoleBusinessImpl implements RoleBusiness {
     @Autowired
+    UserBusiness userBusiness;
+    @Autowired
     RoleServices roleServices;
     @Autowired
     private CommonBusiness commonBusiness;
@@ -49,11 +51,7 @@ public class RoleBusinessImpl implements RoleBusiness {
         Set<User> users = role.getUsers();
         List<UserDto> userDtos = new ArrayList<>();
         users.forEach(user -> {
-            try {
-                userDtos.add(UserDto.convertUserToUserDto(user));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            userDtos.add(userBusiness.convertUserToUserDto(user));
         });
         return userDtos;
     }

@@ -98,6 +98,9 @@ spring:
   main:
     web-application-type: reactive
 
+cors:
+  allow: http://localhost:3005,*
+
 springdoc:
   swagger-ui:
     urls:

@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "area-restriction-service")
 public interface AreaRestrictionClient {
-    @GetMapping("/areaRestrictions/{areaRestrictionId}")
+    @GetMapping("/area-restrictions/{areaRestrictionId}")
     ResponseEntity<AreaRestrictionResponse> getAreaRestriction(@RequestHeader("token") String token, @PathVariable Integer areaRestrictionId);
 }

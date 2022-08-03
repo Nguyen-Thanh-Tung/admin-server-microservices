@@ -28,11 +28,10 @@ public class FeatureBusinessImpl implements FeatureBusiness {
         List<FeatureDto> featureDtos = new ArrayList<>();
         Set<Feature> features = new HashSet<>();
         if (featureServices.currentUserIsSuperAdmin()) {
-            features = new HashSet<>(featureServices.getAllFeature());
+            features.addAll(featureServices.getAllFeature());
         } else {
-            Set<Feature> finalFeatures = features;
             featureServices.getRolesOfCurrentUser().forEach(role -> {
-                finalFeatures.addAll(featureServices.getFeaturesOfRole(role.getId()));
+                features.addAll(featureServices.getFeaturesOfRole(role.getId()));
             });
         }
         features.forEach(feature -> {

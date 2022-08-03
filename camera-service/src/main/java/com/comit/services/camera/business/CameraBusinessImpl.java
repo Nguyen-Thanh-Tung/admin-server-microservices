@@ -6,12 +6,15 @@ import com.comit.services.camera.controller.request.CameraPolygonsRequest;
 import com.comit.services.camera.controller.request.CameraRequest;
 import com.comit.services.camera.exception.RestApiException;
 import com.comit.services.camera.middleware.CameraVerifyRequestServices;
+import com.comit.services.camera.model.dto.AreaRestrictionDto;
 import com.comit.services.camera.model.dto.CameraDto;
+import com.comit.services.camera.model.dto.LocationDto;
 import com.comit.services.camera.model.entity.AreaRestriction;
 import com.comit.services.camera.model.entity.Camera;
 import com.comit.services.camera.model.entity.Location;
 import com.comit.services.camera.model.entity.Organization;
 import com.comit.services.camera.service.CameraServices;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -111,7 +114,7 @@ public class CameraBusinessImpl implements CameraBusiness {
     public List<CameraDto> getAllCamera(List<Camera> cameras) {
         List<CameraDto> cameraDtos = new ArrayList<>();
         cameras.forEach(camera -> {
-            cameraDtos.add(CameraDto.convertCameraToCameraDto(camera));
+            cameraDtos.add(convertCameraToCameraDto(camera));
         });
         return cameraDtos;
     }
@@ -162,7 +165,7 @@ public class CameraBusinessImpl implements CameraBusiness {
         camera.setStreamState(Const.ON);
         camera.setStatus(Const.ACTIVE);
         Camera newCamera = cameraServices.saveCamera(camera);
-        return CameraDto.convertCameraToCameraDto(newCamera);
+        return convertCameraToCameraDto(newCamera);
     }
 
     @Override
@@ -218,7 +221,7 @@ public class CameraBusinessImpl implements CameraBusiness {
         camera.setName(request.getName());
         camera.setUpdated(true);
         Camera newCamera = cameraServices.saveCamera(camera);
-        return CameraDto.convertCameraToCameraDto(newCamera);
+        return convertCameraToCameraDto(newCamera);
     }
 
     @Override
@@ -240,7 +243,7 @@ public class CameraBusinessImpl implements CameraBusiness {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
         }
 
-        return CameraDto.convertCameraToCameraDto(camera);
+        return convertCameraToCameraDto(camera);
     }
 
     @Override
@@ -256,6 +259,34 @@ public class CameraBusinessImpl implements CameraBusiness {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    @Override
+    public int getNumberCameraOfLocation(int locationId) {
+        return cameraServices.getNumberCameraOfLocation(locationId);
+    }
+
+    public CameraDto convertCameraToCameraDto(Camera camera) {
+        if (camera == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            CameraDto cameraDto = modelMapper.map(camera, CameraDto.class);
+            if (camera.getLocationId() != null) {
+                Location location = cameraServices.getLocationById(camera.getLocationId());
+                if (location != null) {
+                    cameraDto.setLocation(LocationDto.convertLocationToLocationDto(location));
+                }
+                if (camera.getAreaRestrictionId() != null) {
+                    AreaRestriction areaRestriction = cameraServices.getAreaRestriction(camera.getLocationId(), camera.getAreaRestrictionId());
+                    if (areaRestriction != null){
+                        cameraDto.setAreaRestriction(AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(areaRestriction));
+                    }
+                }
+            }
+            return cameraDto;
+        } catch (Exception e) {
+            return null;
         }
     }
 }

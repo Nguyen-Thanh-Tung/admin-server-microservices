@@ -1,9 +1,6 @@
 package com.comit.services.employee.service;
 
-import com.comit.services.employee.client.AccountClient;
-import com.comit.services.employee.client.AreaRestrictionClient;
-import com.comit.services.employee.client.MailClient;
-import com.comit.services.employee.client.MetadataClient;
+import com.comit.services.employee.client.*;
 import com.comit.services.employee.client.request.AreaEmployeeTimeListRequest;
 import com.comit.services.employee.client.request.MailRequest;
 import com.comit.services.employee.client.request.MetadataRequest;
@@ -42,6 +39,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
     MetadataClient metadataClient;
     @Autowired
     MailClient mailClient;
+    @Autowired
+    TimeKeepingClient timeKeepingClient;
 
     @Value("${core.api.add-employee-image}")
     private String addEmployeeImageUrl;
@@ -116,12 +115,12 @@ public class EmployeeServicesImpl implements EmployeeServices {
                 .build();
 
         try {
-            Response response = client.newCall(request).execute();
-            if (response.body() != null) {
-                return response.body().string();
-            }
-//            return "{\"code\": 200, \"data\": {\"embedding_id\":1, \"location_id\": 1, \"image_path\": \"test\"}}";
-            return null;
+//            Response response = client.newCall(request).execute();
+//            if (response.body() != null) {
+//                return response.body().string();
+//            }
+            return "{\"code\": 200, \"data\": {\"embedding_id\":1, \"location_id\": 2, \"image_path\": \"https://picsum.photos/200\"}}";
+//            return null;
         } catch (Exception e) {
             throw new RestApiException(EmployeeErrorCode.CAN_NOT_ADD_EMPLOYEE);
         }
@@ -298,5 +297,28 @@ public class EmployeeServicesImpl implements EmployeeServices {
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
+    }
+
+    @Override
+    public int getNumberEmployeeOfLocation(Integer locationId) {
+        return employeeRepository.countEmployeeByLocationIdAndStatus(locationId, Const.ACTIVE);
+    }
+
+    @Override
+    public Shift getShift(int shiftId) {
+        ShiftResponse shiftResponse = timeKeepingClient.getShift(httpServletRequest.getHeader("token"), shiftId).getBody();
+        if (shiftResponse == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        return shiftResponse.getShift();
+    }
+
+    @Override
+    public Metadata getMetadata(Integer imageId) {
+        MetadataResponse metadataResponse = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
+        if (metadataResponse == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        return metadataResponse.getMetadata();
     }
 }

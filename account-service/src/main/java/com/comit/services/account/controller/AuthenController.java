@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @RestController
@@ -27,12 +28,16 @@ public class AuthenController {
     JwtProvider jwtProvider;
 
     @Autowired
+    HttpServletRequest httpServletRequest;
+
+    @Autowired
     VerifyAdminRequestServicesImpl verifyRequestServices;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<BaseResponse> login(@RequestBody LoginRequest request) throws IOException {
-        UserDto userDto = authBusiness.login(request);
+    public ResponseEntity<BaseResponse> login(@RequestBody LoginRequest request) {
         String token = authBusiness.getTokenLogin(request);
+        httpServletRequest.setAttribute("token", token);
+        UserDto userDto = authBusiness.login(request);
         return new ResponseEntity<>(new LoginResponse(UserErrorCode.SUCCESS, userDto, token), HttpStatus.OK);
     }
 

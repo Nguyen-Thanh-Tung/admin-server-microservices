@@ -25,4 +25,6 @@ public interface CameraBusiness {
     CameraDto getCamera(int id, String status);
 
     boolean updatePolygonCamera(int id, CameraPolygonsRequest cameraRequest);
+
+    int getNumberCameraOfLocation(int locationId);
 }

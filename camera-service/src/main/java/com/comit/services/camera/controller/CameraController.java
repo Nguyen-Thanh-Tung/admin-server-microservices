@@ -8,6 +8,7 @@ import com.comit.services.camera.controller.request.CameraRequest;
 import com.comit.services.camera.controller.response.BaseResponse;
 import com.comit.services.camera.controller.response.CameraListResponse;
 import com.comit.services.camera.controller.response.CameraResponse;
+import com.comit.services.camera.controller.response.CountResponse;
 import com.comit.services.camera.model.dto.CameraDto;
 import com.comit.services.camera.model.entity.Camera;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,5 +112,11 @@ public class CameraController {
             return new ResponseEntity<>(new BaseResponse(CameraErrorCode.SUCCESS), HttpStatus.OK);
         }
         return new ResponseEntity<>(new BaseResponse(CameraErrorCode.CAN_NOT_DELETE_CAMERA), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/location/{locationId}")
+    public ResponseEntity<BaseResponse> getNumberCameraOfLocation(@PathVariable int locationId) {
+        int numberCameraOfLocation = cameraBusiness.getNumberCameraOfLocation(locationId);
+        return new ResponseEntity<>(new CountResponse(CameraErrorCode.SUCCESS, numberCameraOfLocation), HttpStatus.OK);
     }
 }

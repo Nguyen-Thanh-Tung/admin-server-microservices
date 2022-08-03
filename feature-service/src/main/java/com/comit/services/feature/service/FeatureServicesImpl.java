@@ -6,7 +6,6 @@ import com.comit.services.feature.client.response.RoleListResponse;
 import com.comit.services.feature.client.response.RoleResponse;
 import com.comit.services.feature.client.response.UserListResponse;
 import com.comit.services.feature.constant.FeatureErrorCode;
-import com.comit.services.feature.controller.response.BaseResponse;
 import com.comit.services.feature.exception.RestApiException;
 import com.comit.services.feature.model.entity.Feature;
 import com.comit.services.feature.model.entity.Role;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -43,10 +41,7 @@ public class FeatureServicesImpl implements FeatureServices {
 
     @Override
     public List<Feature> getAllFeature() {
-        Iterable<Feature> featureIterable = featureRepository.findAll();
-        List<Feature> features = new ArrayList<>();
-        featureIterable.forEach(features::add);
-        return features;
+        return featureRepository.findAllByOrderByIdDesc();
     }
 
     @Override

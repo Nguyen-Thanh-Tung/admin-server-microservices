@@ -30,4 +30,13 @@ public class MetadataBusinessImpl implements MetadataBusiness {
         }
         return MetadataDto.convertMetadataToMetadataDto(metadata);
     }
+
+    @Override
+    public MetadataDto getMetadata(int id) {
+        Metadata metadata = metadataServices.getMetadata(id);
+        if (metadata == null) {
+            return null;
+        }
+        return MetadataDto.convertMetadataToMetadataDto(metadata);
+    }
 }

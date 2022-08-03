@@ -42,5 +42,9 @@ public interface CameraServices {
 
     List<Location> getLocationListByOrganizationId(Integer organizationId);
 
-    Location getLocation(Integer id, Integer locationId);
+    Location getLocation(Integer organizationId, Integer locationId);
+
+    Location getLocationById(Integer locationId);
+
+    int getNumberCameraOfLocation(int locationId);
 }

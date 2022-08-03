@@ -87,4 +87,13 @@ public class UserLogServicesImpl implements UserLogServices {
         }
         return userListResponse.getUsers();
     }
+
+    @Override
+    public User getUserById(Integer userId) {
+        UserResponse userResponse = accountClient.getUserById(httpServletRequest.getHeader("token"), userId).getBody();
+        if (userResponse == null) {
+            throw new RestApiException(UserLogErrorCode.INTERNAL_ERROR);
+        }
+        return userResponse.getUser();
+    }
 }

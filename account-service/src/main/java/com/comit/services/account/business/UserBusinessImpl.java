@@ -7,14 +7,12 @@ import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.middleware.UserVerifyRequestServices;
-import com.comit.services.account.model.dto.LocationDto;
-import com.comit.services.account.model.dto.OrganizationDto;
-import com.comit.services.account.model.dto.RoleDto;
-import com.comit.services.account.model.dto.UserDto;
+import com.comit.services.account.model.dto.*;
 import com.comit.services.account.model.entity.*;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
 import com.comit.services.account.util.IDGeneratorUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -48,18 +46,14 @@ public class UserBusinessImpl implements UserBusiness {
         // Filter list user
         users.forEach(user -> {
             if (userServices.hasPermissionManageUser(currentUser, user)) {
-                try {
-                    userDtos.add(UserDto.convertUserToUserDto(user));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                userDtos.add(convertUserToUserDto(user));
             }
         });
         return userDtos;
     }
 
     @Override
-    public UserDto getUser(int id) throws IOException {
+    public UserDto getUser(int id) {
         User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
         // Check permission red info user
@@ -68,14 +62,14 @@ public class UserBusinessImpl implements UserBusiness {
         }
 
         // Remove information parent user if parent user is super admin
-        if (Objects.equals(user.getParent().getUsername(), superAdminUsername)) {
+        if (user.getParent() != null && Objects.equals(user.getParent().getUsername(), superAdminUsername)) {
             user.setParent(null);
         }
-        return UserDto.convertUserToUserDto(user);
+        return convertUserToUserDto(user);
     }
 
     @Override
-    public UserDto addUser(AddUserRequest request) throws IOException {
+    public UserDto addUser(AddUserRequest request) {
         verifyRequestServices.verifyAddUserRequest(request);
         User currentUser = commonBusiness.getCurrentUser();
         String username = userServices.convertFullnameToUsername(request.getFullname());
@@ -132,11 +126,11 @@ public class UserBusinessImpl implements UserBusiness {
         User newUser = userServices.saveUser(currentUser, user);
         // Send mail
         userServices.sendConfirmCreateUserMail(newUser);
-        return UserDto.convertUserToUserDto(newUser);
+        return convertUserToUserDto(newUser);
     }
 
     @Override
-    public UserDto updateRoleUser(int id, UpdateRoleForUserRequest request) throws IOException {
+    public UserDto updateRoleUser(int id, UpdateRoleForUserRequest request) {
         verifyRequestServices.verifyUpdateRoleForUserRequest(request);
         User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
@@ -152,7 +146,7 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public UserDto updateUser(int id, HttpServletRequest httpServletRequest) throws IOException {
+    public UserDto updateUser(int id, HttpServletRequest httpServletRequest) {
         User user = userServices.getUser(id);
         if (user == null) {
             throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
@@ -223,14 +217,14 @@ public class UserBusinessImpl implements UserBusiness {
                 }
             }
             User newUser = userServices.saveUser(user);
-            return UserDto.convertUserToUserDto(newUser);
+            return convertUserToUserDto(newUser);
         } else {
             return null;
         }
     }
 
     @Override
-    public UserDto addRoleToUser(int id, Set<String> roles) throws IOException {
+    public UserDto addRoleToUser(int id, Set<String> roles) {
         User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
         if (user != null && roles.size() > 0) {
@@ -245,7 +239,7 @@ public class UserBusinessImpl implements UserBusiness {
             user.setRoles(roleSet);
         }
         User newUser = userServices.saveUser(currentUser, user);
-        return UserDto.convertUserToUserDto(newUser);
+        return convertUserToUserDto(newUser);
     }
 
     @Override
@@ -263,7 +257,7 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public UserDto lockOrUnlockUser(int id, LockOrUnlockRequest request) throws IOException {
+    public UserDto lockOrUnlockUser(int id, LockOrUnlockRequest request) {
         verifyRequestServices.verifyLockOrUnlockRequest(request);
         User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
@@ -273,11 +267,11 @@ public class UserBusinessImpl implements UserBusiness {
 
         user.setStatus(request.getIsLock() ? Const.LOCK : Const.ACTIVE);
         User newUser = userServices.saveUser(currentUser, user);
-        return UserDto.convertUserToUserDto(newUser);
+        return convertUserToUserDto(newUser);
     }
 
     @Override
-    public UserDto uploadAvatar(int userId, HttpServletRequest httpServletRequest) throws IOException {
+    public UserDto uploadAvatar(int userId, HttpServletRequest httpServletRequest) {
         User user = userServices.getUser(userId);
         if (user == null) {
             throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
@@ -295,7 +289,7 @@ public class UserBusinessImpl implements UserBusiness {
                 user.setAvatarId(metadata.getId());
             }
             User newUser = userServices.saveUser(user);
-            return UserDto.convertUserToUserDto(newUser);
+            return convertUserToUserDto(newUser);
         } else {
             return null;
         }
@@ -321,11 +315,7 @@ public class UserBusinessImpl implements UserBusiness {
         List<User> users = userServices.getUsersByOrganization(organizationId);
         List<UserDto> userDtos = new ArrayList<>();
         users.forEach(user -> {
-            try {
-                userDtos.add(UserDto.convertUserToUserDto(user));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            userDtos.add(convertUserToUserDto(user));
         });
         return userDtos;
     }
@@ -356,12 +346,7 @@ public class UserBusinessImpl implements UserBusiness {
     @Override
     public UserDto getCurrentUser() {
         User currentUser = commonBusiness.getCurrentUser();
-        try {
-            return UserDto.convertUserToUserDto(currentUser);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return convertUserToUserDto(currentUser);
     }
 
     @Override
@@ -370,11 +355,7 @@ public class UserBusinessImpl implements UserBusiness {
         List<User> users = userServices.getUsersByParentId(currentUser.getId());
         List<UserDto> userDtos = new ArrayList<>();
         users.forEach(user -> {
-            try {
-                userDtos.add(UserDto.convertUserToUserDto(user));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            userDtos.add(convertUserToUserDto(user));
         });
         return userDtos;
     }
@@ -388,5 +369,37 @@ public class UserBusinessImpl implements UserBusiness {
             roleDtos.add(RoleDto.convertRoleToRoleDto(role));
         });
         return roleDtos;
+    }
+
+    public UserDto convertUserToUserDto(User user) {
+        if (user == null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        try {
+            UserDto userDto = modelMapper.map(user, UserDto.class);
+            Organization organization = userServices.getOrganizationById(user.getOrganizationId());
+            if (organization != null) {
+                userDto.setOrganization(OrganizationDto.convertOrganizationToOrganizationDto(organization));
+            }
+            if (user.getLocationId() != null) {
+                Location location = userServices.getLocation(user.getLocationId());
+                if (location != null) {
+                    userDto.setLocation(LocationDto.convertLocationToLocationDto(location));
+                }
+            }
+            if (user.getAvatarId() != null) {
+                Metadata metadata = userServices.getMetadata(user.getAvatarId());
+                if (metadata != null) {
+                    userDto.setAvatar(MetadataDto.convertMetadataToMetadataDto(metadata));
+                }
+            }
+            return userDto;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int getNumberUserOfLocation(Integer locationId) {
+        return userServices.getNumberUserOfLocation(locationId);
     }
 }

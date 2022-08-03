@@ -2,6 +2,7 @@ package com.comit.services.employee.model.dto;
 
 import com.comit.services.employee.model.entity.Employee;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,13 +27,13 @@ public class EmployeeDto extends BaseModelDto {
     @JsonIncludeProperties(value = {"id", "code", "name", "image", "email", "phone", "status"})
     private EmployeeDto manager;
 
-    public static EmployeeDto convertEmployeeToEmployeeDto(Employee employee) {
-        if (employee == null) return null;
-        try {
-            ModelMapper modelMapper = new ModelMapper();
-            return modelMapper.map(employee, EmployeeDto.class);
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    @JsonIncludeProperties(value = {"id", "path", "type"})
+    private MetadataDto image;
+
+    @JsonIncludeProperties(value = {"id", "name", "time_start", "time_end"})
+    private List<ShiftDto> shifts;
+
+    @JsonIncludeProperties(value = {"id", "area_restriction", "time_start", "time_end"})
+    @JsonProperty(value = "area_employees")
+    private List<AreaEmployeeTimeDto> areaEmployeeTimes;
 }

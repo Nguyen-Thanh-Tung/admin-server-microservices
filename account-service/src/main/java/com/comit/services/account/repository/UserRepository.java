@@ -27,4 +27,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllByStatusNotIn(List<String> deleted);
 
     List<User> findAllByParentId(int parentId);
+
+    int countByLocationIdAndStatus(Integer locationId, String active);
 }

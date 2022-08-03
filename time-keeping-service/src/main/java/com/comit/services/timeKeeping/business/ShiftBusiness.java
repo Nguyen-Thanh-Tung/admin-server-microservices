@@ -13,4 +13,6 @@ public interface ShiftBusiness {
     boolean addShiftsForLocation(Integer locationId);
 
     boolean deleteShiftsOfLocation(Integer locationId);
+
+    ShiftDto getShift(Integer id);
 }

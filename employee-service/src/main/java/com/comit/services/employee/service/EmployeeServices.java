@@ -52,6 +52,11 @@ public interface EmployeeServices {
 
     Organization getOrganizationOfCurrentUser();
 
-
     void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode);
+
+    int getNumberEmployeeOfLocation(Integer locationId);
+
+    Shift getShift(int shiftId);
+
+    Metadata getMetadata(Integer imageId);
 }

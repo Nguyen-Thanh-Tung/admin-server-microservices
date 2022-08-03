@@ -18,6 +18,11 @@ public class ShiftServicesImpl implements ShiftServices {
     }
 
     @Override
+    public Shift getShift(int shiftId) {
+        return shiftRepository.findById(shiftId);
+    }
+
+    @Override
     public List<Shift> getAllShift(Integer locationId) {
         if (locationId == null) {
             return null;

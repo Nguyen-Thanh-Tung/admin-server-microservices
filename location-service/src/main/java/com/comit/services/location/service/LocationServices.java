@@ -35,13 +35,13 @@ public interface LocationServices {
 
     void addTimeKeepingNotification(int locationId);
 
-    List<Employee> getEmployeeOfLocation(int locationId);
-
-    List<Camera> getCameraOfLocation(int locationId);
-
-    List<User> getUserOfLocation(int locationId);
-
     void deleteShiftsOfLocation(int locationId);
 
     void deleteTimeKeepingNotification(int locationId);
+
+    int getNumberEmployeeOfLocation(int locationId);
+
+    int getNumberCameraOfLocation(int locationId);
+
+    int getNumberUserOfLocation(int id);
 }

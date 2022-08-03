@@ -226,7 +226,13 @@ public class UserServicesImpl implements UserServices {
         if (locationId == null) {
             return null;
         }
-        LocationResponse locationResponse = locationClient.getLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        String token;
+        if (httpServletRequest.getHeader("token") != null) {
+            token = httpServletRequest.getHeader("token");
+        } else {
+            token = httpServletRequest.getAttribute("token").toString();
+        }
+        LocationResponse locationResponse = locationClient.getLocation(token, locationId).getBody();
         if (locationResponse == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
@@ -251,6 +257,20 @@ public class UserServicesImpl implements UserServices {
     @Override
     public List<User> getUsersByParentId(int id) {
         return userRepository.findAllByParentId(id);
+    }
+
+    @Override
+    public Metadata getMetadata(int id) {
+        MetadataResponse metadataResponse = metadataClient.getMetadata(httpServletRequest.getHeader("token"), id).getBody();
+        if (metadataResponse == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return metadataResponse.getMetadata();
+    }
+
+    @Override
+    public int getNumberUserOfLocation(Integer locationId) {
+        return userRepository.countByLocationIdAndStatus(locationId, Const.ACTIVE);
     }
 
     public boolean belongOrganization(User user, Integer organizationId) {

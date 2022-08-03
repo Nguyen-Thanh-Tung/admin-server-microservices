@@ -6,6 +6,7 @@ import com.comit.services.userLog.util.TimeUtil;
 import com.comit.services.userLog.model.entity.User;
 import com.comit.services.userLog.model.entity.UserLog;
 import com.comit.services.userLog.service.UserLogServices;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -55,7 +56,7 @@ public class UserLogBusinessImpl implements UserLogBusiness {
     public List<UserLogDto> getAllUserLog(List<UserLog> userLogs) {
         List<UserLogDto> userLogDtos = new ArrayList<>();
         userLogs.forEach(userLog -> {
-            userLogDtos.add(UserLogDto.convertUserLogToUserLogDto(userLog));
+            userLogDtos.add(convertUserLogToUserLogDto(userLog));
         });
         return userLogDtos;
     }
@@ -67,5 +68,13 @@ public class UserLogBusinessImpl implements UserLogBusiness {
         userLog.setTime(userLogRequest.getTime());
         userLog.setUserId(userLogRequest.getUserId());
         return userLogServices.saveUserLog(userLog);
+    }
+
+    public UserLogDto convertUserLogToUserLogDto(UserLog userLog) {
+        ModelMapper modelMapper = new ModelMapper();
+        UserLogDto userLogDto = modelMapper.map(userLog, UserLogDto.class);
+        User user = userLogServices.getUserById(userLog.getUserId());
+        userLogDto.setUsername(user.getUsername());
+        return userLogDto;
     }
 }

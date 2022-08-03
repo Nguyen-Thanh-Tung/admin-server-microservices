@@ -25,4 +25,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     Page<Employee> findByLocationIdAndStatusOrderByIdDescIdDesc(Integer locationId, String status, Pageable pageable);
 
     List<Employee> getByManagerId(int managerId);
+
+    int countEmployeeByLocationIdAndStatus(Integer locationId, String status);
 }

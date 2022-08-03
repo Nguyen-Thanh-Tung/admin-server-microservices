@@ -7,6 +7,7 @@ import com.comit.services.account.model.dto.LocationDto;
 import com.comit.services.account.model.dto.OrganizationDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
+import com.comit.services.account.model.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -17,21 +18,21 @@ public interface UserBusiness {
     // For user services
     List<UserDto> getAllUser();
 
-    UserDto getUser(int id) throws IOException;
+    UserDto getUser(int id);
 
-    UserDto addUser(AddUserRequest addUserRequest) throws IOException;
+    UserDto addUser(AddUserRequest addUserRequest);
 
     boolean deleteUser(int id);
 
-    UserDto addRoleToUser(int id, Set<String> roles) throws IOException;
+    UserDto addRoleToUser(int id, Set<String> roles);
 
-    UserDto updateRoleUser(int id, UpdateRoleForUserRequest updateRoleForUserRequest) throws IOException;
+    UserDto updateRoleUser(int id, UpdateRoleForUserRequest updateRoleForUserRequest);
 
-    UserDto updateUser(int id, HttpServletRequest servletRequest) throws IOException;
+    UserDto updateUser(int id, HttpServletRequest servletRequest);
 
-    UserDto lockOrUnlockUser(int id, LockOrUnlockRequest request) throws IOException;
+    UserDto lockOrUnlockUser(int id, LockOrUnlockRequest request);
 
-    UserDto uploadAvatar(int id, HttpServletRequest httpServletRequest) throws IOException;
+    UserDto uploadAvatar(int id, HttpServletRequest httpServletRequest);
 
     int getNumberAccount();
 
@@ -46,4 +47,8 @@ public interface UserBusiness {
     List<UserDto> getUsersOfCurrentUser();
 
     List<RoleDto> getRolesOfCurrentUser();
+
+    UserDto convertUserToUserDto(User user);
+
+    int getNumberUserOfLocation(Integer locationId);
 }

@@ -3,12 +3,12 @@ package com.comit.services.history.business;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.NotificationHistoryRequest;
 import com.comit.services.history.exception.RestApiException;
-import com.comit.services.history.model.dto.NotificationHistoryDto;
-import com.comit.services.history.model.entity.Location;
-import com.comit.services.history.model.entity.NotificationHistory;
+import com.comit.services.history.model.dto.*;
+import com.comit.services.history.model.entity.*;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.NotificationHistoryServices;
 import com.comit.services.history.util.TimeUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -137,7 +137,7 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     public List<NotificationHistoryDto> getAllNotificationHistory(List<NotificationHistory> notificationHistories) {
         List<NotificationHistoryDto> notificationHistoryDtos = new ArrayList<>();
         notificationHistories.forEach(notificationHistory -> {
-            notificationHistoryDtos.add(NotificationHistoryDto.convertNotificationHistoryToNotificationHistoryDto(notificationHistory));
+            notificationHistoryDtos.add(convertNotificationHistoryToNotificationHistoryDto(notificationHistory));
         });
         return notificationHistoryDtos;
     }
@@ -151,7 +151,7 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         notificationHistory.setType(request.getType());
         notificationHistory.setImageId(request.getImageId());
         NotificationHistory newNotificationHistory = notificationHistoryServices.saveNotificationHistory(notificationHistory);
-        return NotificationHistoryDto.convertNotificationHistoryToNotificationHistoryDto(newNotificationHistory);
+        return convertNotificationHistoryToNotificationHistoryDto(newNotificationHistory);
     }
 
     @Override
@@ -199,6 +199,46 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
         if (!notificationHistoryServices.hasPermissionManageNotificationHistory(location != null ? location.getType() : null)) {
             throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
+        }
+    }
+
+    public NotificationHistoryDto convertNotificationHistoryToNotificationHistoryDto(NotificationHistory notificationHistory) {
+        if (notificationHistory == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            NotificationHistoryDto notificationHistoryDto = modelMapper.map(notificationHistory, NotificationHistoryDto.class);
+            Employee employee = historyServices.getEmployee(notificationHistory.getEmployeeId());
+            if (employee != null) {
+                EmployeeDto employeeDto = EmployeeDto.convertEmployeeToEmployeeDto(employee);
+                notificationHistoryDto.setEmployee(employeeDto);
+            }
+
+            Camera camera = historyServices.getCamera(notificationHistory.getCameraId());
+            if (camera != null) {
+                CameraDto cameraDto = CameraDto.convertCameraToCameraDto(camera);
+                if (camera.getAreaRestrictionId() != null) {
+                    AreaRestriction areaRestriction = historyServices.getAreaRestriction(camera.getLocationId(), camera.getAreaRestrictionId());
+                    if (areaRestriction != null) {
+                        AreaRestrictionDto areaRestrictionDto = AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
+                        cameraDto.setAreaRestriction(areaRestrictionDto);
+                        NotificationMethod notificationMethod = historyServices.getNotificationMethodOfAreaRestriction(areaRestriction.getId());
+                        if (notificationMethod != null) {
+                            notificationHistoryDto.setNotificationMethod(NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod));
+                        }
+                    }
+                }
+                notificationHistoryDto.setCamera(cameraDto);
+            }
+
+            Metadata metadata = historyServices.getMetadata(notificationHistory.getImageId());
+            if (metadata != null) {
+                MetadataDto metadataDto = MetadataDto.convertMetadataToMetadataDto(metadata);
+                notificationHistoryDto.setImage(metadataDto);
+            }
+
+            return notificationHistoryDto;
+        } catch (Exception e) {
+            return null;
         }
     }
 }

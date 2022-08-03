@@ -5,6 +5,7 @@ import com.comit.services.userLog.client.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "account-service")
@@ -14,4 +15,7 @@ public interface AccountClient {
 
     @GetMapping("/users/current/user")
     ResponseEntity<UserResponse> getCurrentUser(@RequestHeader String token);
+
+    @GetMapping("/users/{userId}")
+    ResponseEntity<UserResponse> getUserById(@RequestHeader String token, @PathVariable Integer userId);
 }

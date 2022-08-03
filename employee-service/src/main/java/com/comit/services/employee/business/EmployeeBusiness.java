@@ -27,4 +27,6 @@ public interface EmployeeBusiness {
     List<String> importEmployee(HttpServletRequest httpServletRequest) throws IOException;
 
     boolean sendQrCode(SendQrCodeRequest request);
+
+    int getNumberEmployeeOfLocation(Integer locationId);
 }

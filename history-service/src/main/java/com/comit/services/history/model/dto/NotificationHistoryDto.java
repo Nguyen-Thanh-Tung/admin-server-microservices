@@ -1,9 +1,9 @@
 package com.comit.services.history.model.dto;
 
-import com.comit.services.history.model.entity.NotificationHistory;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
 
 import java.util.Date;
 
@@ -15,13 +15,16 @@ public class NotificationHistoryDto extends BaseModelDto {
     private Date time;
     private String status;
 
-    public static NotificationHistoryDto convertNotificationHistoryToNotificationHistoryDto(NotificationHistory notificationHistory) {
-        if (notificationHistory == null) return null;
-        try {
-            ModelMapper modelMapper = new ModelMapper();
-            return modelMapper.map(notificationHistory, NotificationHistoryDto.class);
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    @JsonIncludeProperties({"id", "name", "area_restriction"})
+    private CameraDto camera;
+
+    @JsonIncludeProperties({"id", "code", "name", "manager", "image"})
+    private EmployeeDto employee;
+
+    @JsonIncludeProperties({"id", "path", "type"})
+    private MetadataDto image;
+
+    @JsonIncludeProperties({"use_ott", "use_email", "use_screen", "use_ring"})
+    @JsonProperty(value = "notification_method")
+    private NotificationMethodDto notificationMethod;
 }

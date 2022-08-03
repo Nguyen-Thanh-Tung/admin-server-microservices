@@ -32,6 +32,11 @@ public class ShiftController {
         return new ResponseEntity<>(new ShiftListResponse(TimeKeepingErrorCode.SUCCESS, shiftDtos), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<BaseResponse> getShift(@PathVariable Integer id) {
+        ShiftDto shiftDto = shiftBusiness.getShift(id);
+        return new ResponseEntity<>(new ShiftResponse(TimeKeepingErrorCode.SUCCESS, shiftDto), HttpStatus.OK);
+    }
     /**
      * Update shift
      *

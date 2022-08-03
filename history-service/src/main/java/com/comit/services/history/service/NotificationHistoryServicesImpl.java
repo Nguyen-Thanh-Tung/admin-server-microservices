@@ -114,7 +114,7 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
         List<Integer> areaRestrictionIds = notificationHistoryRepository.getAreaRestrictionHasNotifyNotResolve(locationId, timeStart, timeEnd, "Chưa xử lý");
         AtomicInteger numberARHasNotifyNotResolveAndUsingRing = new AtomicInteger(0);
         areaRestrictionIds.forEach(areaRestrictionId -> {
-            NotificationMethodResponse notificationMethodResponse = areaRestrictionClient.getNotificationOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+            NotificationMethodResponse notificationMethodResponse = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
             if (notificationMethodResponse != null && notificationMethodResponse.getNotificationMethod().isUseRing()) {
                 numberARHasNotifyNotResolveAndUsingRing.getAndIncrement();
             }

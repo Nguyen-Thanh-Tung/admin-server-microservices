@@ -1,9 +1,6 @@
 package com.comit.services.history.service;
 
-import com.comit.services.history.model.entity.AreaRestriction;
-import com.comit.services.history.model.entity.Camera;
-import com.comit.services.history.model.entity.Employee;
-import com.comit.services.history.model.entity.Location;
+import com.comit.services.history.model.entity.*;
 
 public interface HistoryServices {
 
@@ -16,4 +13,8 @@ public interface HistoryServices {
     Camera getCamera(Integer cameraId);
 
     Employee getEmployee(Integer employeeId);
+
+    NotificationMethod getNotificationMethodOfAreaRestriction(Integer areaRestrictionId);
+
+    Metadata getMetadata(Integer imageId);
 }

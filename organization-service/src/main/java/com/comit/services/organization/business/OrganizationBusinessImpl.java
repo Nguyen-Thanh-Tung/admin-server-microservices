@@ -1,5 +1,6 @@
 package com.comit.services.organization.business;
 
+import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.exception.RestApiException;
@@ -10,6 +11,7 @@ import com.comit.services.organization.model.entity.Organization;
 import com.comit.services.organization.model.entity.User;
 import com.comit.services.organization.service.OrganizationServices;
 import com.comit.services.organization.util.ExcelUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class OrganizationBusinessImpl implements OrganizationBusiness {
@@ -46,7 +49,16 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         List<OrganizationDto> organizationDtos = new ArrayList<>();
         organizations.forEach(organization -> {
             if (!Objects.equals(organization.getName(), superAdminOrganization)) {
-                organizationDtos.add(OrganizationDto.convertOrganizationToOrganizationDto(organization));
+                OrganizationDto organizationDto = convertOrganizationToOrganizationDto(organization);
+                List<User> users = organizationServices.getUsersByOrganizationId(organization.getId());
+                AtomicInteger numberUser = new AtomicInteger();
+                users.forEach(user -> {
+                    if (Objects.equals(user.getStatus(), Const.ACTIVE)) {
+                        numberUser.getAndIncrement();
+                    }
+                });
+                organizationDto.setNumberUser(numberUser.get());
+                organizationDtos.add(organizationDto);
             }
         });
         return organizationDtos;
@@ -63,7 +75,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         }
 
         if (organization != null) {
-            return OrganizationDto.convertOrganizationToOrganizationDto(organization);
+            return convertOrganizationToOrganizationDto(organization);
         } else {
             return null;
         }
@@ -80,7 +92,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         }
 
         if (organization != null) {
-            return OrganizationDto.convertOrganizationToOrganizationDto(organization);
+            return convertOrganizationToOrganizationDto(organization);
         } else {
             return null;
         }
@@ -100,7 +112,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         organization.setAddress(request.getAddress());
         organization.setDescription(request.getDescription());
         Organization newOrganization = organizationServices.addOrganization(organization);
-        return OrganizationDto.convertOrganizationToOrganizationDto(newOrganization);
+        return convertOrganizationToOrganizationDto(newOrganization);
     }
 
     @Override
@@ -116,7 +128,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         organization.setAddress(request.getAddress());
         organization.setDescription(request.getDescription());
         Organization newOrganization = organizationServices.addOrganization(organization);
-        return OrganizationDto.convertOrganizationToOrganizationDto(newOrganization);
+        return convertOrganizationToOrganizationDto(newOrganization);
     }
 
     @Override
@@ -166,11 +178,30 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
                 List<Organization> newOrganizations = organizationServices.addOrganizationList(organizations);
                 List<OrganizationDto> organizationDtos = new ArrayList<>();
                 newOrganizations.forEach(newOrganization -> {
-                    organizationDtos.add(OrganizationDto.convertOrganizationToOrganizationDto(newOrganization));
+                    organizationDtos.add(convertOrganizationToOrganizationDto(newOrganization));
                 });
                 return organizationDtos;
             }
         }
         return null;
+    }
+
+    public OrganizationDto convertOrganizationToOrganizationDto(Organization organization) {
+        if (organization == null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        try {
+            OrganizationDto organizationDto = modelMapper.map(organization, OrganizationDto.class);
+//            List<User> users = organizationServices.getUsersByOrganizationId(organization.getId());
+//            AtomicInteger numberUser = new AtomicInteger();
+//            users.forEach(user -> {
+//                if (user.getStatus() == Const.ACTIVE) {
+//                    numberUser.getAndIncrement();
+//                }
+//            });
+//            organizationDto.setNumberUser(0);
+            return organizationDto;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

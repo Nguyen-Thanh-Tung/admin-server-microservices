@@ -5,6 +5,7 @@ import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.request.SendQrCodeRequest;
 import com.comit.services.employee.controller.response.BaseResponse;
+import com.comit.services.employee.controller.response.CountResponse;
 import com.comit.services.employee.controller.response.EmployeeListResponse;
 import com.comit.services.employee.controller.response.EmployeeResponse;
 import com.comit.services.employee.model.dto.EmployeeDto;
@@ -104,5 +105,11 @@ public class EmployeeController {
     public ResponseEntity<BaseResponse> sendQrCode(@RequestBody SendQrCodeRequest request) {
         boolean sendQrCodeSuccess = employeeBusiness.sendQrCode(request);
         return new ResponseEntity<>(new BaseResponse(sendQrCodeSuccess ? EmployeeErrorCode.SUCCESS : EmployeeErrorCode.FAIL), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/location/{locationId}")
+    public ResponseEntity<BaseResponse> getNumberEmployeesOfLocation(@PathVariable Integer locationId) {
+        int numberEmployeeOfLocation = employeeBusiness.getNumberEmployeeOfLocation(locationId);
+        return new ResponseEntity<>(new CountResponse(EmployeeErrorCode.SUCCESS, numberEmployeeOfLocation), HttpStatus.OK);
     }
 }

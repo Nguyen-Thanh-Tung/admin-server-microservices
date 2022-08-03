@@ -4,8 +4,10 @@ import com.comit.services.timeKeeping.model.entity.TimeKeepingNotification;
 import com.comit.services.timeKeeping.repository.TimeKeepingNotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class TimeKeepingNotificationServicesImpl implements TimeKeepingNotificationServices {
     @Autowired
     private TimeKeepingNotificationRepository timeKeepingNotificationRepository;

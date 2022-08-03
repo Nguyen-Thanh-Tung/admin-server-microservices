@@ -36,6 +36,9 @@ import java.util.Set;
 @Service
 public class AuthBusinessImpl implements AuthBusiness {
     @Autowired
+    UserBusiness userBusiness;
+
+    @Autowired
     UserServices userServices;
 
     @Autowired
@@ -66,7 +69,7 @@ public class AuthBusinessImpl implements AuthBusiness {
     }
 
     @Override
-    public UserDto login(LoginRequest request) throws IOException {
+    public UserDto login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -77,14 +80,14 @@ public class AuthBusinessImpl implements AuthBusiness {
         if (Objects.equals(user.getStatus(), Const.PENDING)) {
             user.setStatus(Const.ACTIVE);
             User newUser = userServices.saveUser(user);
-            return UserDto.convertUserToUserDto(newUser);
+            return userBusiness.convertUserToUserDto(newUser);
         } else {
-            return UserDto.convertUserToUserDto(user);
+            return userBusiness.convertUserToUserDto(user);
         }
     }
 
     @Override
-    public UserDto register(SignUpRequest signUpRequest) throws IOException {
+    public UserDto register(SignUpRequest signUpRequest) {
         verifyRequestServices.verifyRegisterRequest(signUpRequest);
         String currentUsername = tokenProvider.getUserNameFromJwtToken(httpServletRequest.getHeader("token"));
         User currentUser = userServices.getUser(currentUsername);
@@ -128,11 +131,11 @@ public class AuthBusinessImpl implements AuthBusiness {
         }
         User newUser = userServices.saveUser(currentUser, user);
 
-        return UserDto.convertUserToUserDto(newUser);
+        return userBusiness.convertUserToUserDto(newUser);
     }
 
     @Override
-    public UserDto init(String organizationName, String username, String email, String password) throws IOException {
+    public UserDto init(String organizationName, String username, String email, String password) {
         // Add all Role to system
         Const.ROLES.forEach(role -> {
             if (!roleServices.existsByName(role)) {
@@ -181,9 +184,9 @@ public class AuthBusinessImpl implements AuthBusiness {
             user.setStatus(Const.PENDING);
 
             User newUser = userServices.saveUser(user);
-            return UserDto.convertUserToUserDto(newUser);
+            return userBusiness.convertUserToUserDto(newUser);
         }
-        return UserDto.convertUserToUserDto(user);
+        return userBusiness.convertUserToUserDto(user);
     }
 
     @Override

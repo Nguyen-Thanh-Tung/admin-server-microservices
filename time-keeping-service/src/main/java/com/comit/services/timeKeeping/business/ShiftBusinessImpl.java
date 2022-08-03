@@ -74,4 +74,10 @@ public class ShiftBusinessImpl implements ShiftBusiness {
         });
         return true;
     }
+
+    @Override
+    public ShiftDto getShift(Integer id) {
+        Shift shift = shiftServices.getShift(id);
+        return ShiftDto.convertShiftToShiftDto(shift);
+    }
 }

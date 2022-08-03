@@ -6,11 +6,14 @@ import com.comit.services.employee.controller.request.SendQrCodeRequest;
 import com.comit.services.employee.exception.RestApiException;
 import com.comit.services.employee.middleware.EmployeeVerifyRequestServices;
 import com.comit.services.employee.model.dto.EmployeeDto;
+import com.comit.services.employee.model.dto.MetadataDto;
+import com.comit.services.employee.model.dto.ShiftDto;
 import com.comit.services.employee.model.entity.*;
 import com.comit.services.employee.service.EmployeeServices;
 import com.comit.services.employee.util.ExcelUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
@@ -49,7 +52,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     public List<EmployeeDto> getAllEmployee(List<Employee> employees) {
         List<EmployeeDto> employeeDtos = new ArrayList<>();
         employees.forEach(employee -> {
-            employeeDtos.add(EmployeeDto.convertEmployeeToEmployeeDto(employee));
+            employeeDtos.add(convertEmployeeToEmployeeDto(employee));
         });
         return employeeDtos;
     }
@@ -121,7 +124,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                                     employee.setImageId(metadata.getId());
 
                                     if (Objects.equals(location.getType(), Const.TIME_KEEPING_TYPE)) {
-                                        employee.setShiftIds(shiftIds);
+                                        employee.setShiftIds(shiftIds.substring(1, shiftIds.length() - 1));
                                     }
 
                                     Employee newEmployee = employeeServices.saveEmployee(employee);
@@ -132,7 +135,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                                         }
                                     }
 
-                                    return EmployeeDto.convertEmployeeToEmployeeDto(newEmployee);
+                                    return convertEmployeeToEmployeeDto(newEmployee);
                                 } catch (Exception e) {
                                     if (e instanceof RestApiException) {
                                         throw e;
@@ -235,7 +238,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             }
 
             if (Objects.equals(location.getType(), Const.TIME_KEEPING_TYPE)) {
-                employee.setShiftIds(shiftIds);
+                employee.setShiftIds(shiftIds.substring(1, shiftIds.length() - 1));
             }
 
             if (employeeServices.isAreaRestrictionModule() || employeeServices.isBehaviorModule()) {
@@ -248,7 +251,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
             Employee newEmployee = employeeServices.saveEmployee(employee);
 
-            return EmployeeDto.convertEmployeeToEmployeeDto(newEmployee);
+            return convertEmployeeToEmployeeDto(newEmployee);
         }
         return null;
     }
@@ -265,7 +268,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
-        return EmployeeDto.convertEmployeeToEmployeeDto(employee);
+        return convertEmployeeToEmployeeDto(employee);
     }
 
     @Override
@@ -335,7 +338,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             employee.setManagerId(newManager.getId());
             employeeServices.saveEmployee(employee);
         }
-        return EmployeeDto.convertEmployeeToEmployeeDto(newManager);
+        return convertEmployeeToEmployeeDto(newManager);
     }
 
     private void permissionManageEmployee() {
@@ -438,7 +441,59 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         return true;
     }
 
+    @Override
+    public int getNumberEmployeeOfLocation(Integer locationId) {
+        return employeeServices.getNumberEmployeeOfLocation(locationId);
+    }
+
     private void sendMailQrCode(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode) {
         employeeServices.sendQrCodeEmail(mailTo, fullname, employeeCode, organizationName, locationName, locationCode);
+    }
+
+    public EmployeeDto convertEmployeeToEmployeeDto(Employee employee) {
+        if (employee == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
+            // Manager of employee
+            if (employee.getManagerId() != null && employee.getLocationId() != null) {
+                Employee manager = employeeServices.getEmployee(employee.getManagerId(), employee.getLocationId());
+                if (manager != null) {
+                    employeeDto.setManager(modelMapper.map(manager, EmployeeDto.class));
+                }
+            }
+            // Employees of employee
+            List<Employee> employeesOfEmployee = employeeServices.getEmployeeOfManager(employee.getId());
+            List<EmployeeDto> employeesOfEmployeeDto = new ArrayList<>();
+            employeesOfEmployee.forEach(tmp -> {
+                employeesOfEmployeeDto.add(modelMapper.map(tmp, EmployeeDto.class));
+            });
+            employeeDto.setEmployees(employeesOfEmployeeDto);
+            // Shift of employee
+            String[] tmp = employee.getShiftIds().split(",");
+            List<ShiftDto> shiftDtos = new ArrayList<>();
+            for (String shiftId : tmp) {
+                try {
+                    Shift shift = employeeServices.getShift(Integer.parseInt(shiftId));
+                    if (shift != null) {
+                        shiftDtos.add(ShiftDto.convertShiftToShiftDto(shift));
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+            employeeDto.setShifts(shiftDtos);
+            // Image of employee
+            if (employee.getImageId() != null) {
+                Metadata metadata = employeeServices.getMetadata(employee.getImageId());
+                if (metadata != null) {
+                    employeeDto.setImage(MetadataDto.convertMetadataToMetadataDto(metadata));
+                }
+            }
+
+            return employeeDto;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -262,4 +262,18 @@ public class CameraServicesImpl implements CameraServices {
         }
         return locationResponse.getLocation();
     }
+
+    @Override
+    public Location getLocationById(Integer locationId) {
+        LocationResponse locationResponse = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (locationResponse == null) {
+            throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+        }
+        return locationResponse.getLocation();
+    }
+
+    @Override
+    public int getNumberCameraOfLocation(int locationId) {
+        return cameraRepository.countByLocationIdAndStatus(locationId, Const.ACTIVE);
+    }
 }

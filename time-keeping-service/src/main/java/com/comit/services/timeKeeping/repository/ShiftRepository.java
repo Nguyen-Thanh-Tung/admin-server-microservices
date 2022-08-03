@@ -11,4 +11,6 @@ public interface ShiftRepository extends JpaRepository<Shift, Integer> {
     Shift findByIdAndLocationId(int id, Integer locationId);
 
     List<Shift> findShiftsByLocationId(Integer locationId);
+
+    Shift findById(int id);
 }

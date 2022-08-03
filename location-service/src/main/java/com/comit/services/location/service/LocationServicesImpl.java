@@ -128,33 +128,33 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
-    public List<Employee> getEmployeeOfLocation(int locationId) {
-        EmployeeListResponse employeeListResponse = employeeClient.getEmployeeOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (employeeListResponse == null) {
+    public int getNumberEmployeeOfLocation(int locationId) {
+        CountResponse countResponse = employeeClient.getNumberEmployeeOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (countResponse == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return employeeListResponse.getEmployees();
+        return countResponse.getNumber();
     }
 
     @Override
-    public List<Camera> getCameraOfLocation(int locationId) {
-        CameraListResponse cameraListResponse = cameraClient.getCameraOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (cameraListResponse == null) {
+    public int getNumberCameraOfLocation(int locationId) {
+        CountResponse countResponse = cameraClient.getNumberCameraOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (countResponse == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return cameraListResponse.getCameras();
+        return countResponse.getNumber();
     }
 
     @Override
-    public List<User> getUserOfLocation(int locationId) {
-        UserListResponse userListResponse = accountClient.getUserOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (userListResponse == null) {
+    public int getNumberUserOfLocation(int locationId) {
+        CountResponse countResponse = accountClient.getNumberUserOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (countResponse == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return userListResponse.getUsers();
+        return countResponse.getNumber();
     }
 
     @Override

@@ -57,7 +57,7 @@ public class UserController {
      * @return UserResponse
      */
     @GetMapping(value = "/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable int id) throws IOException {
+    public ResponseEntity<UserResponse> getUser(@PathVariable int id) {
         UserDto userDto = userBusiness.getUser(id);
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
@@ -72,7 +72,7 @@ public class UserController {
      */
 
     @PostMapping(value = "")
-    public ResponseEntity<BaseResponse> addUser(@Valid @RequestBody AddUserRequest addUserRequest) throws IOException {
+    public ResponseEntity<BaseResponse> addUser(@Valid @RequestBody AddUserRequest addUserRequest) {
         UserDto userDto = userBusiness.addUser(addUserRequest);
 
         if (userDto != null) {
@@ -92,7 +92,7 @@ public class UserController {
      * @return UserResponse
      */
     @PutMapping(value = "/{id}/roles")
-    public ResponseEntity<UserResponse> updateRoleUser(@PathVariable int id, @RequestBody UpdateRoleForUserRequest updateRoleForUserRequest) throws IOException {
+    public ResponseEntity<UserResponse> updateRoleUser(@PathVariable int id, @RequestBody UpdateRoleForUserRequest updateRoleForUserRequest) {
         UserDto userDto = userBusiness.updateRoleUser(id, updateRoleForUserRequest);
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
@@ -123,7 +123,7 @@ public class UserController {
      * @return UserResponse
      */
     @PutMapping(value = "/{id}/lock")
-    public ResponseEntity<BaseResponse> lockOrUnlockUser(@PathVariable int id, @RequestBody LockOrUnlockRequest lockOrUnlockRequest) throws IOException {
+    public ResponseEntity<BaseResponse> lockOrUnlockUser(@PathVariable int id, @RequestBody LockOrUnlockRequest lockOrUnlockRequest) {
         UserDto userDto = userBusiness.lockOrUnlockUser(id, lockOrUnlockRequest);
         return new ResponseEntity<>(new UserResponse(userDto != null ? UserErrorCode.SUCCESS : UserErrorCode.FAIL, userDto), HttpStatus.OK);
     }
@@ -135,14 +135,14 @@ public class UserController {
      * @throws IOException
      */
     @PutMapping(value = "/{id}/avatar")
-    public ResponseEntity<BaseResponse> uploadAvatar(@PathVariable int id, HttpServletRequest servletRequest) throws IOException {
+    public ResponseEntity<BaseResponse> uploadAvatar(@PathVariable int id, HttpServletRequest servletRequest) {
         UserDto userDto = userBusiness.uploadAvatar(id, servletRequest);
 
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<BaseResponse> updateUser(@PathVariable int id, HttpServletRequest servletRequest) throws IOException {
+    public ResponseEntity<BaseResponse> updateUser(@PathVariable int id, HttpServletRequest servletRequest) {
         UserDto userDto = userBusiness.updateUser(id, servletRequest);
 
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
@@ -187,4 +187,9 @@ public class UserController {
         return new ResponseEntity<>(new RoleListResponse(RoleErrorCode.SUCCESS, roleDtos), HttpStatus.OK);
     }
 
+    @GetMapping("/location/{locationId}")
+    ResponseEntity<BaseResponse> getNumberUserOfLocation(@PathVariable Integer locationId) {
+        int numberUserOfLocation = userBusiness.getNumberUserOfLocation(locationId);
+        return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUserOfLocation), HttpStatus.OK);
+    }
 }
