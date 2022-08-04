@@ -4,6 +4,7 @@ import com.comit.services.history.business.NotificationHistoryBusiness;
 import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.response.BaseResponse;
+import com.comit.services.history.controller.response.CountResponse;
 import com.comit.services.history.controller.response.NotificationHistoryListResponse;
 import com.comit.services.history.model.dto.NotificationHistoryDto;
 import com.comit.services.history.model.entity.NotificationHistory;
@@ -110,5 +111,11 @@ public class NotificationHistoryController {
     public ResponseEntity<BaseResponse> updateStatusNotificationHistory(@PathVariable Integer id) {
         boolean updateSuccess = notificationHistoryBusiness.updateStatusNotificationHistory(id);
         return new ResponseEntity<>(new BaseResponse(updateSuccess ? HistoryErrorCode.SUCCESS : HistoryErrorCode.FAIL), HttpStatus.OK);
+    }
+
+    @GetMapping("/area-restriction/{areaRestrictionId}")
+    public ResponseEntity<BaseResponse> getNumberNotificationOfAreaRestriction(@PathVariable Integer areaRestrictionId) {
+        int numberNotificationOfAreaRestriction = notificationHistoryBusiness.getNumberNotificationOfAreaRestriction(areaRestrictionId);
+        return new ResponseEntity<>(new CountResponse(HistoryErrorCode.SUCCESS, numberNotificationOfAreaRestriction), HttpStatus.OK);
     }
 }

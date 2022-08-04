@@ -1,7 +1,9 @@
 package com.comit.services.history.business;
 
 import com.comit.services.history.client.data.CameraDto;
+import com.comit.services.history.client.data.EmployeeDto;
 import com.comit.services.history.client.data.LocationDto;
+import com.comit.services.history.client.data.MetadataDto;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
 import com.comit.services.history.exception.RestApiException;
@@ -10,6 +12,7 @@ import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.InOutHistoryServices;
 import com.comit.services.history.util.TimeUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +49,7 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
 
         if (cameraIdStrs == null && employeeId == null) {
-            return inOutHistoryServices.getInOutHistoryPageOfLocation(locationId, timeStart, timeEnd, paging);
+            return inOutHistoryServices.getInOutHistoryPageOfLocation(locationDto.getId(), timeStart, timeEnd, paging);
         } else if (employeeId == null) {
             String[] tmp = cameraIdStrs.split(",");
             List<Integer> cameraIds = new ArrayList<>();
@@ -69,12 +72,10 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     @Override
     public Page<InOutHistory> getInOutHistoryPage(String cameraIdStrs, String areaRestrictionIdStrs, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
         // Is user and has role manage employee (Ex: Time keeping user)
-        LocationDto locationDto;
         if (locationId == null) {
             permissionManageInOutHistory();
-            locationDto = historyServices.getLocationOfCurrentUser();
-        } else {
-            locationDto = historyServices.getLocation(locationId);
+            LocationDto locationDto = historyServices.getLocationOfCurrentUser();
+            locationId = locationDto.getId();
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -106,7 +107,7 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     public List<InOutHistoryDto> getAllInOutHistory(List<InOutHistory> inOutHistories) {
         List<InOutHistoryDto> inOutHistoryDtos = new ArrayList<>();
         inOutHistories.forEach(inOutHistory -> {
-            inOutHistoryDtos.add(InOutHistoryDto.convertInOutHistoryToInOutHistoryDto(inOutHistory));
+            inOutHistoryDtos.add(convertInOutHistoryToInOutHistoryDto(inOutHistory));
         });
         return inOutHistoryDtos;
     }
@@ -126,7 +127,7 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         inOutHistory.setLocationId(cameraDto.getLocation().getId());
         inOutHistory.setAreaRestrictionId(cameraDto.getAreaRestriction().getId());
         InOutHistory newInOutHistory = inOutHistoryServices.saveInOutHistory(inOutHistory);
-        return InOutHistoryDto.convertInOutHistoryToInOutHistoryDto(newInOutHistory);
+        return convertInOutHistoryToInOutHistoryDto(newInOutHistory);
     }
 
 
@@ -148,5 +149,26 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         if (!inOutHistoryServices.hasPermissionManageInOutHistory(locationDto != null ? locationDto.getType() : null)) {
             throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
         }
+    }
+
+    public InOutHistoryDto convertInOutHistoryToInOutHistoryDto(InOutHistory inOutHistory) {
+        if (inOutHistory == null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        InOutHistoryDto inOutHistoryDto = modelMapper.map(inOutHistory, InOutHistoryDto.class);
+        if (inOutHistory.getCameraId() != null) {
+            CameraDto cameraDto = historyServices.getCamera(inOutHistory.getCameraId());
+            inOutHistoryDto.setCamera(cameraDto);
+        }
+
+        if (inOutHistory.getEmployeeId() != null) {
+            EmployeeDto employeeDto = historyServices.getEmployee(inOutHistory.getEmployeeId());
+            inOutHistoryDto.setEmployee(employeeDto);
+        }
+
+        if (inOutHistory.getImageId() != null) {
+            MetadataDto metadataDto = historyServices.getMetadata(inOutHistory.getImageId());
+            inOutHistoryDto.setImage(metadataDto);
+        }
+        return inOutHistoryDto;
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     Page<Employee> findByLocationIdOrderByStatusAscIdDescIdDesc(Integer locationId, Pageable pageable);
 
-    Employee findByIdAndLocationIdOrderByStatusAsc(int id, Integer locationId);
+    Employee findByIdAndLocationId(int id, Integer locationId);
 
     Employee findByCodeAndLocationId(String code, Integer locationId);
 

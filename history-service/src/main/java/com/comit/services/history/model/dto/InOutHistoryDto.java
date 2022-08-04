@@ -1,6 +1,12 @@
 package com.comit.services.history.model.dto;
 
+import com.comit.services.history.client.data.CameraDto;
+import com.comit.services.history.client.data.EmployeeDto;
+import com.comit.services.history.client.data.MetadataDto;
+import com.comit.services.history.client.data.NotificationMethodDto;
 import com.comit.services.history.model.entity.InOutHistory;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
@@ -14,9 +20,12 @@ public class InOutHistoryDto extends BaseModelDto {
 
     private Date time;
 
-    public static InOutHistoryDto convertInOutHistoryToInOutHistoryDto(InOutHistory inOutHistory) {
-        if (inOutHistory == null) return null;
-        ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(inOutHistory, InOutHistoryDto.class);
-    }
+    @JsonIncludeProperties({"id", "name"})
+    private CameraDto camera;
+
+    @JsonIncludeProperties({"id", "code", "name", "manager"})
+    private EmployeeDto employee;
+
+    @JsonIncludeProperties({"id", "path", "type"})
+    private MetadataDto image;
 }

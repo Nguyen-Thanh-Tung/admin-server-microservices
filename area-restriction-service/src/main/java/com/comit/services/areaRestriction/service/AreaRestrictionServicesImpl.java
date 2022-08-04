@@ -3,6 +3,7 @@ package com.comit.services.areaRestriction.service;
 import com.comit.services.areaRestriction.client.AccountClient;
 import com.comit.services.areaRestriction.client.CameraClient;
 import com.comit.services.areaRestriction.client.EmployeeClient;
+import com.comit.services.areaRestriction.client.HistoryClient;
 import com.comit.services.areaRestriction.client.data.EmployeeDto;
 import com.comit.services.areaRestriction.client.data.LocationDto;
 import com.comit.services.areaRestriction.client.response.CountResponse;
@@ -34,6 +35,8 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     private HttpServletRequest httpServletRequest;
     @Autowired
     private CameraClient cameraClient;
+    @Autowired
+    private HistoryClient historyClient;
 
     @Override
     public Page<AreaRestriction> getAreaRestrictionPage(Integer locationId, String search, Pageable paging) {
@@ -79,7 +82,11 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
 
     @Override
     public int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate) {
-        return 0;
+        CountResponse countResponse = historyClient.getNumberNotificationOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestriction.getId()).getBody();
+        if (countResponse == null) {
+            throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
+        }
+        return countResponse.getNumber();
     }
 
     @Override

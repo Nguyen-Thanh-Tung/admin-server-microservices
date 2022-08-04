@@ -3,8 +3,9 @@ package com.comit.services.history.controller;
 import com.comit.services.history.business.InOutHistoryBusiness;
 import com.comit.services.history.business.NotificationHistoryBusiness;
 import com.comit.services.history.constant.HistoryErrorCode;
+import com.comit.services.history.controller.response.AreaRestrictionCountResponse;
 import com.comit.services.history.controller.response.BaseResponse;
-import com.comit.services.history.controller.response.CountResponse;
+import com.comit.services.history.controller.response.TimeKeepingCountResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +22,20 @@ public class HistoryController {
     @Autowired
     NotificationHistoryBusiness notificationHistoryBusiness;
 
-    @GetMapping(value = "/count")
+    @GetMapping(value = "/time-keepings/count")
     public ResponseEntity<BaseResponse> getTimeKeepingCount() {
         int numberCheckInCurrentDay = inOutHistoryBusiness.getNumberCheckInCurrentDay();
         int numberUserNotificationInCurrenDay = notificationHistoryBusiness.getNumberUserNotificationInCurrenDay();
         int numberUserLateInMonth = notificationHistoryBusiness.getNumberLateInMonth();
-        return new ResponseEntity<>(new CountResponse(HistoryErrorCode.SUCCESS, numberCheckInCurrentDay, numberUserNotificationInCurrenDay, numberUserLateInMonth), HttpStatus.OK);
+        return new ResponseEntity<>(new TimeKeepingCountResponse(HistoryErrorCode.SUCCESS, numberCheckInCurrentDay, numberUserNotificationInCurrenDay, numberUserLateInMonth), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/area-restrictions/count")
+    public ResponseEntity<BaseResponse> getAreaRestrictionCount(){
+        int numberNotificationInDay = notificationHistoryBusiness.getNumberNotificationInDay();
+        int numberNotificationNotResolve = notificationHistoryBusiness.getNumberNotificationNotResolve();
+        int numberAreaRestrictionHasNotify = notificationHistoryBusiness.getNumberAreaRestrictionHasNotify();
+        int numberAreaRestrictionHasNotifyNotResolveAndUsingRing = notificationHistoryBusiness.getNumberARHasNotifyNotResolveAndUsingRing();
+        return new ResponseEntity<>(new AreaRestrictionCountResponse(HistoryErrorCode.SUCCESS, numberAreaRestrictionHasNotify, numberNotificationInDay, numberNotificationNotResolve, numberAreaRestrictionHasNotifyNotResolveAndUsingRing), HttpStatus.OK);
     }
 }

@@ -69,7 +69,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public Employee getEmployee(int employeeId, Integer locationId) {
-        return employeeRepository.findByIdAndLocationIdOrderByStatusAsc(employeeId, locationId);
+        return employeeRepository.findByIdAndLocationId(employeeId, locationId);
     }
 
     @Override

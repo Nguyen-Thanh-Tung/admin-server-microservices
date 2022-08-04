@@ -15,5 +15,6 @@ public class EmployeeDto extends BaseModelDto {
     private String phone;
     private String status;
     private EmployeeDto manager;
+    private MetadataDto image;
 }
 

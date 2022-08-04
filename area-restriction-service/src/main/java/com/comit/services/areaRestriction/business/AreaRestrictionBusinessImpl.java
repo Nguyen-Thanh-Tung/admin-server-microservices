@@ -19,6 +19,7 @@ import com.comit.services.areaRestriction.service.NotificationMethodServices;
 import com.comit.services.areaRestriction.service.VerifyAreaRestrictionRequestServices;
 import com.comit.services.areaRestriction.util.TimeUtil;
 import org.joda.time.DateTime;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -163,8 +164,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public AreaRestrictionDto getAreaRestriction(Integer id) {
-        LocationDto locationDto = areaRestrictionService.getLocationOfCurrentUser();
-        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDto.getId(), id);
+        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(id);
         if (areaRestriction != null) {
             return convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
         }
@@ -216,12 +216,8 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         if (areaRestriction == null) return null;
         Date startDay = TimeUtil.getDateTimeFromTimeString("00:00:00");
         DateTime now = new DateTime(TimeUtil.asiaHoChiMinh);
-        AreaRestrictionDto areaRestrictionDto = new AreaRestrictionDto();
-        areaRestrictionDto.setId(areaRestriction.getId());
-        areaRestrictionDto.setCode(areaRestriction.getCode());
-        areaRestrictionDto.setName(areaRestriction.getName());
-        areaRestrictionDto.setTimeStart(areaRestriction.getTimeStart());
-        areaRestrictionDto.setTimeEnd(areaRestriction.getTimeEnd());
+        ModelMapper modelMapper = new ModelMapper();
+        AreaRestrictionDto areaRestrictionDto = modelMapper.map(areaRestriction, AreaRestrictionDto.class);
         int numberCamera = areaRestrictionService.getNumberCameraOfAreaRestriction(areaRestriction.getId());
         areaRestrictionDto.setNumberCamera(numberCamera);
         int numberAreaEmployeeTime = areaEmployeeTimeService.getNumberAreaEmployeeTimeOfAreaRestriction(areaRestriction.getId());

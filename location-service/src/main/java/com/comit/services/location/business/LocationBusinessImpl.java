@@ -148,14 +148,9 @@ public class LocationBusinessImpl implements LocationBusiness {
 
     @Override
     public LocationDto getLocation(int id) {
-        OrganizationDto organizationDto = locationServices.getOrganizationOfCurrentUser();
-        Location location = locationServices.getLocation(organizationDto.getId(), id);
+        Location location = locationServices.getLocation(id);
         if (location == null) {
             throw new RestApiException(LocationErrorCode.LOCATION_NOT_EXIST);
-        }
-        if (!locationServices.hasPermissionManagerLocation(location.getType())) {
-//            throw new CommonException(ErrorCode.PERMISSION_DENIED);
-            return null;
         }
 
         return convertLocationToLocationDto(location);

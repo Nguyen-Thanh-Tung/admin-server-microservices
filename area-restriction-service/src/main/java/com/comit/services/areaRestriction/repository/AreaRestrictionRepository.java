@@ -16,6 +16,8 @@ public interface AreaRestrictionRepository extends JpaRepository<AreaRestriction
 
     AreaRestriction findByLocationIdAndName(Integer location, String name);
 
+    AreaRestriction findById(int id);
+
     Page<AreaRestriction> findByLocationIdAndNameContainingOrLocationIdAndCodeContainingOrderByUpdateAtDesc(Integer location, String search, Integer location1, String search1, Pageable pageable);
 
     List<AreaRestriction> findByManagerIdsOrManagerIdsContaining(String managerId, String managerIdWithComma);

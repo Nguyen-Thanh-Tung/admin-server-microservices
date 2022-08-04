@@ -1,8 +1,6 @@
 package com.comit.services.history.model.excel;
 
-import com.comit.services.history.client.data.AreaRestrictionDto;
-import com.comit.services.history.client.data.CameraDto;
-import com.comit.services.history.client.data.EmployeeDto;
+import com.comit.services.history.client.data.*;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.*;
@@ -20,13 +18,12 @@ public class AreaRestrictionExcelExporter {
     private final XSSFWorkbook workbook;
     private final List<InOutHistory> inOutHistories;
     private XSSFSheet sheet;
+    private final HistoryServices historyServices;
 
-    @Autowired
-    private HistoryServices historyServices;
-
-    public AreaRestrictionExcelExporter(List<InOutHistory> inOutHistories) {
+    public AreaRestrictionExcelExporter(List<InOutHistory> inOutHistories, HistoryServices historyServices) {
         this.inOutHistories = inOutHistories;
         workbook = new XSSFWorkbook();
+        this.historyServices = historyServices;
     }
 
 

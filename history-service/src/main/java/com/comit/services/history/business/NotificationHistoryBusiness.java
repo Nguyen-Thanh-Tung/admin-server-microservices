@@ -28,4 +28,14 @@ public interface NotificationHistoryBusiness {
     int getNumberUserNotificationInCurrenDay();
 
     int getNumberLateInMonth();
+
+    int getNumberNotificationInDay();
+
+    int getNumberNotificationNotResolve();
+
+    int getNumberAreaRestrictionHasNotify();
+
+    int getNumberARHasNotifyNotResolveAndUsingRing();
+
+    int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId);
 }

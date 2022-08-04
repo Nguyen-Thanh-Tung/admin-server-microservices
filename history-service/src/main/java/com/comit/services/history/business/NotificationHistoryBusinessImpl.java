@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class NotificationHistoryBusinessImpl implements NotificationHistoryBusiness {
@@ -192,6 +193,55 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         Date timeStart = TimeUtil.getFirstDayOfCurrentMonth();
         Date timeEnd = TimeUtil.getLastDayOfCurrentMonth();
         return notificationHistoryServices.getNumberLateInMonth(locationDto.getId(), timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberNotificationInDay() {
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
+        return notificationHistoryServices.getNumberNotificationInDay(locationDto.getId(), timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberNotificationNotResolve() {
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
+        return notificationHistoryServices.getNumberNotificationNotResolve(locationDto.getId(), timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberAreaRestrictionHasNotify() {
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
+        return notificationHistoryServices.getNumberAreaRestrictionHasNotify(locationDto.getId(), timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberARHasNotifyNotResolveAndUsingRing() {
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
+        return notificationHistoryServices.getNumberARHasNotifyNotResolveAndUsingRing(locationDto.getId(), timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId) {
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
+
+        return notificationHistoryServices.getNumberNotificationOfAreaRestriction(areaRestrictionId, timeStart, timeEnd);
     }
 
     private void permissionManageNotificationHistory() {

@@ -9,6 +9,7 @@ import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.model.excel.AreaRestrictionExcelExporter;
 import com.comit.services.history.model.excel.TimeKeepingExcelExporter;
+import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,8 @@ import java.util.List;
 public class InOutHistoryController {
     @Autowired
     InOutHistoryBusiness inOutHistoryBusiness;
+    @Autowired
+    HistoryServices historyServices;
 
     @GetMapping(value = "")
     public ResponseEntity<BaseResponse> getAllInOutHistory(
@@ -90,7 +93,7 @@ public class InOutHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=area_restriction_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        AreaRestrictionExcelExporter excelExporter = new AreaRestrictionExcelExporter(historyPage.getContent());
+        AreaRestrictionExcelExporter excelExporter = new AreaRestrictionExcelExporter(historyPage.getContent(), historyServices);
         excelExporter.export(response);
     }
 }

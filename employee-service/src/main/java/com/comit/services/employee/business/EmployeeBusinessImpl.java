@@ -257,12 +257,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public EmployeeDto getEmployee(int id) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
-        // Get employee in location
-        LocationDto locationDto = employeeServices.getLocationOfCurrentUser();
-        Employee employee = employeeServices.getEmployee(id, locationDto.getId());
+        Employee employee = employeeServices.getEmployee(id);
         if (employee == null) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }

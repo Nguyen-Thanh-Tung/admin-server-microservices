@@ -21,6 +21,9 @@ public class AreaRestrictionDto extends BaseModelDto {
     @JsonProperty(value = "time_end")
     private String timeEnd;
 
+    @JsonProperty(value = "location_id")
+    private Integer locationId;
+
     @JsonIncludeProperties(value = {"id", "code", "name"})
     private List<EmployeeDto> managers;
 
