@@ -1,10 +1,10 @@
 package com.comit.services.history.service;
 
 import com.comit.services.history.client.*;
+import com.comit.services.history.client.data.*;
 import com.comit.services.history.client.response.*;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.exception.RestApiException;
-import com.comit.services.history.model.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ public class HistoryServicesImpl implements HistoryServices {
     private MetadataClient metadataClient;
 
     @Override
-    public Location getLocation(Integer locationId) {
+    public LocationDto getLocation(Integer locationId) {
         if (locationId == null) {
             return null;
         }
@@ -36,21 +36,21 @@ public class HistoryServicesImpl implements HistoryServices {
         if (locationResponse == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocation();
+        return locationResponse.getLocationDto();
     }
 
     @Override
-    public Location getLocationOfCurrentUser() {
+    public LocationDto getLocationOfCurrentUser() {
         LocationResponse locationResponse = accountClient.getLocationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (locationResponse == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocation();
+        return locationResponse.getLocationDto();
     }
 
 
     @Override
-    public AreaRestriction getAreaRestriction(Integer locationId, int areaRestrictionId) {
+    public AreaRestrictionDto getAreaRestriction(Integer locationId, int areaRestrictionId) {
         if (locationId == null) {
             return null;
         }
@@ -62,7 +62,7 @@ public class HistoryServicesImpl implements HistoryServices {
     }
 
     @Override
-    public Camera getCamera(Integer cameraId) {
+    public CameraDto getCamera(Integer cameraId) {
         if (cameraId == null) {
             return null;
         }
@@ -74,7 +74,7 @@ public class HistoryServicesImpl implements HistoryServices {
     }
 
     @Override
-    public Employee getEmployee(Integer employeeId) {
+    public EmployeeDto getEmployee(Integer employeeId) {
         if (employeeId == null) {
             return null;
         }
@@ -86,7 +86,7 @@ public class HistoryServicesImpl implements HistoryServices {
     }
 
     @Override
-    public NotificationMethod getNotificationMethodOfAreaRestriction(Integer areaRestrictionId) {
+    public NotificationMethodDto getNotificationMethodOfAreaRestriction(Integer areaRestrictionId) {
         if (areaRestrictionId == null) {
             return null;
         }
@@ -98,7 +98,7 @@ public class HistoryServicesImpl implements HistoryServices {
     }
 
     @Override
-    public Metadata getMetadata(Integer imageId) {
+    public MetadataDto getMetadata(Integer imageId) {
         if (imageId == null) {
             return null;
         }

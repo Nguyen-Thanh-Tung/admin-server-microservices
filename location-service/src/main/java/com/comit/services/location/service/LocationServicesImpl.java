@@ -1,11 +1,18 @@
 package com.comit.services.location.service;
-import com.comit.services.location.client.*;
-import com.comit.services.location.client.response.*;
+
+import com.comit.services.location.client.AccountClient;
+import com.comit.services.location.client.CameraClient;
+import com.comit.services.location.client.EmployeeClient;
+import com.comit.services.location.client.TimeKeepingClient;
+import com.comit.services.location.client.data.OrganizationDto;
+import com.comit.services.location.client.response.CheckRoleResponse;
+import com.comit.services.location.client.response.CountResponse;
+import com.comit.services.location.client.response.OrganizationResponse;
 import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.response.BaseResponse;
 import com.comit.services.location.exception.RestApiException;
-import com.comit.services.location.model.entity.*;
+import com.comit.services.location.model.entity.Location;
 import com.comit.services.location.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -75,13 +82,13 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
-    public Organization getOrganizationOfCurrentUser() {
+    public OrganizationDto getOrganizationOfCurrentUser() {
         OrganizationResponse organizationResponse = accountClient.getOrganizationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (organizationResponse == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponse.getOrganization();
+        return organizationResponse.getOrganizationDto();
     }
 
     @Override

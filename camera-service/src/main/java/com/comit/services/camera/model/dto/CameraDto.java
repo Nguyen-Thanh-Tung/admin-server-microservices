@@ -1,5 +1,7 @@
 package com.comit.services.camera.model.dto;
 
+import com.comit.services.camera.client.data.AreaRestrictionDto;
+import com.comit.services.camera.client.data.LocationDto;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

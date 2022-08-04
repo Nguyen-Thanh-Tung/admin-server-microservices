@@ -1,7 +1,7 @@
 package com.comit.services.timeKeeping.service;
 
-import com.comit.services.timeKeeping.model.entity.Location;
+import com.comit.services.timeKeeping.client.data.LocationDto;
 
 public interface TimeKeepingServices {
-    Location getLocationOfCurrentUser();
+    LocationDto getLocationOfCurrentUser();
 }

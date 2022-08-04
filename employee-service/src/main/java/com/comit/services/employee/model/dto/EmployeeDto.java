@@ -1,12 +1,13 @@
 package com.comit.services.employee.model.dto;
 
-import com.comit.services.employee.model.entity.Employee;
+import com.comit.services.employee.client.data.AreaEmployeeTimeDto;
+import com.comit.services.employee.client.data.MetadataDto;
+import com.comit.services.employee.client.data.ShiftDto;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
 
@@ -21,15 +22,24 @@ public class EmployeeDto extends BaseModelDto {
     private String phone;
     private String status;
 
-    @JsonIncludeProperties(value = {"id", "code", "name", "image", "email", "phone", "status"})
+    @JsonProperty("location_id")
+    private Integer locationId;
+
+    @JsonProperty("embedding_id")
+    private Integer embeddingId;
+
+    @JsonIncludeProperties(value = {"id", "code", "name", "image", "email", "phone", "status", "shifts"})
     private List<EmployeeDto> employees;
 
+    @JsonProperty("manager")
     @JsonIncludeProperties(value = {"id", "code", "name", "image", "email", "phone", "status"})
     private EmployeeDto manager;
 
+    @JsonProperty("image")
     @JsonIncludeProperties(value = {"id", "path", "type"})
     private MetadataDto image;
 
+    @JsonProperty("shifts")
     @JsonIncludeProperties(value = {"id", "name", "time_start", "time_end"})
     private List<ShiftDto> shifts;
 

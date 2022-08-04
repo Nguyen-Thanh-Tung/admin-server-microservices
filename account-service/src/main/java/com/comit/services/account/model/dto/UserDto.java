@@ -1,11 +1,15 @@
 package com.comit.services.account.model.dto;
 
+import com.comit.services.account.client.data.LocationDto;
+import com.comit.services.account.client.data.MetadataDto;
+import com.comit.services.account.client.data.OrganizationDto;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.util.Set;
 
 @Getter

@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AreaRestrictionRepository extends JpaRepository<AreaRestriction, Integer> {
     Page<AreaRestriction> findByLocationIdOrderByUpdateAtDesc(Integer locationId, Pageable pageable);
@@ -15,4 +17,6 @@ public interface AreaRestrictionRepository extends JpaRepository<AreaRestriction
     AreaRestriction findByLocationIdAndName(Integer location, String name);
 
     Page<AreaRestriction> findByLocationIdAndNameContainingOrLocationIdAndCodeContainingOrderByUpdateAtDesc(Integer location, String search, Integer location1, String search1, Pageable pageable);
+
+    List<AreaRestriction> findByManagerIdsOrManagerIdsContaining(String managerId, String managerIdWithComma);
 }

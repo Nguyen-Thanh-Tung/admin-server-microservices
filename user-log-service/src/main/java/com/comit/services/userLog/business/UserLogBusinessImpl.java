@@ -1,11 +1,11 @@
 package com.comit.services.userLog.business;
 
+import com.comit.services.userLog.client.data.UserDto;
 import com.comit.services.userLog.controller.request.UserLogRequest;
 import com.comit.services.userLog.model.dto.UserLogDto;
-import com.comit.services.userLog.util.TimeUtil;
-import com.comit.services.userLog.model.entity.User;
 import com.comit.services.userLog.model.entity.UserLog;
 import com.comit.services.userLog.service.UserLogServices;
+import com.comit.services.userLog.util.TimeUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,11 +31,11 @@ public class UserLogBusinessImpl implements UserLogBusiness {
 
         Page<UserLog> pageUserLogs;
         if (userId == null && time == null) {
-            User currentUser = userLogServices.getCurrentUser();
+            UserDto currentUserDto = userLogServices.getCurrentUser();
             List<Integer> userOfCurrentUserIds = new ArrayList<>();
-            userOfCurrentUserIds.add(currentUser.getId());
-            List<User> users = userLogServices.getAllUserOfCurrentUser();
-            users.forEach(user -> {
+            userOfCurrentUserIds.add(currentUserDto.getId());
+            List<UserDto> userDtos = userLogServices.getAllUserOfCurrentUser();
+            userDtos.forEach(user -> {
                 userOfCurrentUserIds.add(user.getId());
             });
             pageUserLogs = userLogServices.findByUsers(userOfCurrentUserIds, search, paging);
@@ -73,8 +73,8 @@ public class UserLogBusinessImpl implements UserLogBusiness {
     public UserLogDto convertUserLogToUserLogDto(UserLog userLog) {
         ModelMapper modelMapper = new ModelMapper();
         UserLogDto userLogDto = modelMapper.map(userLog, UserLogDto.class);
-        User user = userLogServices.getUserById(userLog.getUserId());
-        userLogDto.setUsername(user.getUsername());
+        UserDto userDto = userLogServices.getUserById(userLog.getUserId());
+        userLogDto.setUsername(userDto.getUsername());
         return userLogDto;
     }
 }

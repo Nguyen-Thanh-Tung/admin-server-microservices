@@ -1,7 +1,7 @@
 package com.comit.services.userLog.controller.response;
 
-import com.comit.services.userLog.model.dto.UserLogDto;
 import com.comit.services.userLog.constant.UserLogErrorCode;
+import com.comit.services.userLog.model.dto.UserLogDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;

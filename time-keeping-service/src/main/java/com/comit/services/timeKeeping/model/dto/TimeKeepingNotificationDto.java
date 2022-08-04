@@ -1,10 +1,8 @@
 package com.comit.services.timeKeeping.model.dto;
 
-import com.comit.services.timeKeeping.model.entity.TimeKeepingNotification;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
 
 @Getter
 @Setter
@@ -29,10 +27,4 @@ public class TimeKeepingNotificationDto extends BaseModelDto {
 
     @JsonProperty(value = "notification_method")
     private NotificationMethodDto notificationMethod;
-
-    public static TimeKeepingNotificationDto convertTimeKeepingNotificationToDto(TimeKeepingNotification timeKeepingNotification) {
-        if (timeKeepingNotification == null) return null;
-        ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(timeKeepingNotification, TimeKeepingNotificationDto.class);
-    }
 }

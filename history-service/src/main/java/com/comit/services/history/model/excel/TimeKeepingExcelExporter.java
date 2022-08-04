@@ -1,7 +1,7 @@
 package com.comit.services.history.model.excel;
 
-import com.comit.services.history.model.entity.Camera;
-import com.comit.services.history.model.entity.Employee;
+import com.comit.services.history.client.data.CameraDto;
+import com.comit.services.history.client.data.EmployeeDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.Cell;
@@ -80,24 +80,24 @@ public class TimeKeepingExcelExporter {
         for (InOutHistory history : inOutHistories) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-            Camera camera = null;
-            Employee employee = null;
-            Employee manager = null;
+            CameraDto cameraDto = null;
+            EmployeeDto employeeDto = null;
+            EmployeeDto managerDto = null;
             if (history.getCameraId() != null) {
-                camera = historyServices.getCamera(history.getCameraId());
+                cameraDto = historyServices.getCamera(history.getCameraId());
             }
             if (history.getEmployeeId() != null) {
-                employee = historyServices.getEmployee(history.getEmployeeId());
-                if (employee != null) {
-                    manager = historyServices.getEmployee(employee.getManagerId());
+                employeeDto = historyServices.getEmployee(history.getEmployeeId());
+                if (employeeDto != null) {
+                    managerDto = employeeDto.getManager();
                 }
 
             }
-            createCell(row, columnCount++, camera != null ? camera.getName() : "", style);
+            createCell(row, columnCount++, cameraDto != null ? cameraDto.getName() : "", style);
             createCell(row, columnCount++, history.getType(), style);
-            createCell(row, columnCount++, employee != null ? employee.getName() : "", style);
-            createCell(row, columnCount++, employee != null ? employee.getCode() : "", style);
-            createCell(row, columnCount++, manager != null ? manager.getName() : "", style);
+            createCell(row, columnCount++, employeeDto != null ? employeeDto.getName() : "", style);
+            createCell(row, columnCount++, employeeDto != null ? employeeDto.getCode() : "", style);
+            createCell(row, columnCount++, managerDto != null ? managerDto.getName() : "", style);
             createCell(row, columnCount++, history.getTime().toString(), style);
 
         }

@@ -1,6 +1,6 @@
 package com.comit.services.userLog.service;
 
-import com.comit.services.userLog.model.entity.User;
+import com.comit.services.userLog.client.data.UserDto;
 import com.comit.services.userLog.model.entity.UserLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +19,9 @@ public interface UserLogServices {
 
     boolean saveUserLog(UserLog userLog);
 
-    User getCurrentUser();
+    UserDto getCurrentUser();
 
-    List<User> getAllUserOfCurrentUser();
+    List<UserDto> getAllUserOfCurrentUser();
 
-    User getUserById(Integer userId);
+    UserDto getUserById(Integer userId);
 }

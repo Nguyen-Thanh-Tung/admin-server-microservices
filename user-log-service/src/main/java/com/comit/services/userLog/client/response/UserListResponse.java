@@ -1,7 +1,7 @@
 package com.comit.services.userLog.client.response;
 
+import com.comit.services.userLog.client.data.UserDto;
 import com.comit.services.userLog.controller.response.BaseResponse;
-import com.comit.services.userLog.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,11 +12,11 @@ import java.util.List;
 @Setter
 public class UserListResponse extends BaseResponse {
     @JsonProperty(value = "users")
-    private List<User> users;
+    private List<UserDto> userDtos;
 
-    public UserListResponse(int code, String message, List<User> users) {
+    public UserListResponse(int code, String message, List<UserDto> userDtos) {
         this.code = code;
         this.message = message;
-        this.users = users;
+        this.userDtos = userDtos;
     }
 }

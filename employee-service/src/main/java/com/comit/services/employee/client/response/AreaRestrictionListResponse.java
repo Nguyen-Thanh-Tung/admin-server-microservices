@@ -1,7 +1,7 @@
 package com.comit.services.employee.client.response;
 
+import com.comit.services.employee.client.data.AreaRestrictionDto;
 import com.comit.services.employee.controller.response.BasePagingResponse;
-import com.comit.services.employee.model.entity.AreaRestriction;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,12 +12,12 @@ import java.util.List;
 @Setter
 public class AreaRestrictionListResponse extends BasePagingResponse {
     @JsonProperty(value = "area_restrictions")
-    private List<AreaRestriction> areaRestrictions;
+    private List<AreaRestrictionDto> areaRestrictions;
 
     public AreaRestrictionListResponse(
             int code,
             String message,
-            List<AreaRestriction> areaRestrictions,
+            List<AreaRestrictionDto> areaRestrictions,
             int currentPage,
             long totalItems,
             int totalPages

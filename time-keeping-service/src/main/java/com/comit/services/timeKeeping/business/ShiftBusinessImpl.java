@@ -1,12 +1,12 @@
 package com.comit.services.timeKeeping.business;
 
+import com.comit.services.timeKeeping.client.data.LocationDto;
 import com.comit.services.timeKeeping.constant.Const;
 import com.comit.services.timeKeeping.constant.ShiftErrorCode;
 import com.comit.services.timeKeeping.controller.request.ShiftRequest;
 import com.comit.services.timeKeeping.exception.TimeKeepingCommonException;
 import com.comit.services.timeKeeping.middleware.ShiftVerifyRequestServices;
 import com.comit.services.timeKeeping.model.dto.ShiftDto;
-import com.comit.services.timeKeeping.model.entity.Location;
 import com.comit.services.timeKeeping.model.entity.Shift;
 import com.comit.services.timeKeeping.service.ShiftServices;
 import com.comit.services.timeKeeping.service.TimeKeepingServices;
@@ -27,10 +27,10 @@ public class ShiftBusinessImpl implements ShiftBusiness {
 
     @Override
     public List<ShiftDto> getAllShift() {
-        Location location = timeKeepingServices.getLocationOfCurrentUser();
+        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
         List<ShiftDto> shiftDtos = new ArrayList<>();
-        if (location != null) {
-            List<Shift> shifts = shiftServices.getAllShift(location.getId());
+        if (locationDto != null) {
+            List<Shift> shifts = shiftServices.getAllShift(locationDto.getId());
 
             shifts.forEach(shift -> {
                 shiftDtos.add(ShiftDto.convertShiftToShiftDto(shift));
@@ -43,8 +43,8 @@ public class ShiftBusinessImpl implements ShiftBusiness {
     public ShiftDto updateShift(int id, ShiftRequest request) {
         shiftVerifyRequestServices.verifyAddOrUpdateShiftRequest(request);
 
-        Location location = timeKeepingServices.getLocationOfCurrentUser();
-        Shift shift = shiftServices.getShift(location.getId(), id);
+        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
+        Shift shift = shiftServices.getShift(locationDto.getId(), id);
         if (shift == null) {
             throw new TimeKeepingCommonException(ShiftErrorCode.SHIFT_NOT_EXIST);
         }

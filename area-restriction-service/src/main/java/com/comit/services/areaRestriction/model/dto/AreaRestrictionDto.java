@@ -1,14 +1,12 @@
 package com.comit.services.areaRestriction.model.dto;
 
-import com.comit.services.areaRestriction.model.entity.AreaRestriction;
+import com.comit.services.areaRestriction.client.data.EmployeeDto;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -22,6 +20,9 @@ public class AreaRestrictionDto extends BaseModelDto {
 
     @JsonProperty(value = "time_end")
     private String timeEnd;
+
+    @JsonIncludeProperties(value = {"id", "code", "name"})
+    private List<EmployeeDto> managers;
 
     @JsonProperty(value = "number_employee_allow")
     private int numberEmployeeAllow;

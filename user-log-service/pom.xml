@@ -8,7 +8,7 @@
         <version>2.6.1</version>
         <relativePath/>
     </parent>
-    <artifactId>user-log-service</artifactId>
+    <artifactId>userDto-log-service</artifactId>
     <groupId>com.comit.services</groupId>
     <version>1.2-SNAPSHOT</version>
 

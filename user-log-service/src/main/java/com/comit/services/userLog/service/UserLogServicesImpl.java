@@ -1,14 +1,14 @@
 package com.comit.services.userLog.service;
 
+import com.comit.services.userLog.client.AccountClient;
+import com.comit.services.userLog.client.data.UserDto;
+import com.comit.services.userLog.client.response.UserListResponse;
+import com.comit.services.userLog.client.response.UserResponse;
 import com.comit.services.userLog.constant.Const;
 import com.comit.services.userLog.constant.UserLogErrorCode;
 import com.comit.services.userLog.exception.RestApiException;
-import com.comit.services.userLog.repository.UserLogRepository;
-import com.comit.services.userLog.client.AccountClient;
-import com.comit.services.userLog.client.response.UserListResponse;
-import com.comit.services.userLog.client.response.UserResponse;
-import com.comit.services.userLog.model.entity.User;
 import com.comit.services.userLog.model.entity.UserLog;
+import com.comit.services.userLog.repository.UserLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,30 +70,30 @@ public class UserLogServicesImpl implements UserLogServices {
     }
 
     @Override
-    public User getCurrentUser() {
+    public UserDto getCurrentUser() {
         UserResponse userResponse = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (userResponse == null) {
             throw new RestApiException(UserLogErrorCode.INTERNAL_ERROR);
         }
-        return userResponse.getUser();
+        return userResponse.getUserDto();
     }
 
 
     @Override
-    public List<User> getAllUserOfCurrentUser() {
+    public List<UserDto> getAllUserOfCurrentUser() {
         UserListResponse userListResponse = accountClient.getAllUsersOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (userListResponse == null) {
             throw new RestApiException(UserLogErrorCode.INTERNAL_ERROR);
         }
-        return userListResponse.getUsers();
+        return userListResponse.getUserDtos();
     }
 
     @Override
-    public User getUserById(Integer userId) {
+    public UserDto getUserById(Integer userId) {
         UserResponse userResponse = accountClient.getUserById(httpServletRequest.getHeader("token"), userId).getBody();
         if (userResponse == null) {
             throw new RestApiException(UserLogErrorCode.INTERNAL_ERROR);
         }
-        return userResponse.getUser();
+        return userResponse.getUserDto();
     }
 }

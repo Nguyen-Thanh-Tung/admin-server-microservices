@@ -1,9 +1,9 @@
 package com.comit.services.areaRestriction.business;
 
+import com.comit.services.areaRestriction.client.data.EmployeeDto;
+import com.comit.services.areaRestriction.client.data.LocationDto;
 import com.comit.services.areaRestriction.controller.request.ManagerTimeSkip;
 import com.comit.services.areaRestriction.model.entity.AreaRestrictionManagerNotification;
-import com.comit.services.areaRestriction.model.entity.Employee;
-import com.comit.services.areaRestriction.model.entity.Location;
 import com.comit.services.areaRestriction.service.AreaRestrictionManagerNotificationService;
 import com.comit.services.areaRestriction.service.AreaRestrictionServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +22,16 @@ public class AreaRestrictionManagerNotificationBusinessImpl implements AreaRestr
 
     @Override
     public List<AreaRestrictionManagerNotification> saveAreaManagerTimeList(List<ManagerTimeSkip> managerTimeSkips, Integer areaRestrictionId) {
-        Location location = areaRestrictionServices.getLocationOfCurrentUser();
+        LocationDto locationDto = areaRestrictionServices.getLocationOfCurrentUser();
         List<AreaRestrictionManagerNotification> areaRestrictionManagerNotifications = new ArrayList<>();
         managerTimeSkips.forEach(managerTimeSkip -> {
-            Employee manager = areaRestrictionServices.getEmployee(managerTimeSkip.getManagerId(), location.getId());
-            if (manager != null) {
+            EmployeeDto managerDto = areaRestrictionServices.getEmployee(managerTimeSkip.getManagerId(), locationDto.getId());
+            if (managerDto != null) {
                 AreaRestrictionManagerNotification areaRestrictionManagerNotification = new AreaRestrictionManagerNotification();
 
                 areaRestrictionManagerNotification.setAreaRestrictionId(areaRestrictionId);
                 areaRestrictionManagerNotification.setTimeSkip(managerTimeSkip.getTimeSkip());
-                areaRestrictionManagerNotification.setManagerId(manager.getId());
+                areaRestrictionManagerNotification.setManagerId(managerDto.getId());
                 areaRestrictionManagerNotifications.add(areaRestrictionManagerNotification);
             }
 
@@ -40,7 +40,17 @@ public class AreaRestrictionManagerNotificationBusinessImpl implements AreaRestr
     }
 
     @Override
+    public List<AreaRestrictionManagerNotification> getAreaManagerTimeList(Integer areaRestrictionId) {
+        return areaRestrictionManagerNotificationService.getAreaRestrictionManagerNotifications(areaRestrictionId);
+    }
+
+    @Override
     public boolean deleteAreaRestrictionManagerNotificationList(Integer areaRestrictionId) {
         return areaRestrictionManagerNotificationService.deleteAreaRestrictionManagerNotificationListOfAreaRestrictionNotification(areaRestrictionId);
+    }
+
+    @Override
+    public boolean deleteARManagerNotificationOfEmployee(Integer employeeId) {
+        return areaRestrictionManagerNotificationService.deleteAreaRestrictionManagerNotificationListOfEmployee(employeeId);
     }
 }

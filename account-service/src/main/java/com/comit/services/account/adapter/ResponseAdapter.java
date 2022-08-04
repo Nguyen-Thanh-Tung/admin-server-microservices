@@ -60,11 +60,11 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         String method = request.getMethod();
         String content = "";
         if (Objects.equals(method, "POST") && Objects.equals(requestURI, "/users")) {
-                content = "Thêm người dùng";
+            content = "Thêm người dùng";
         } else if (Objects.equals(method, "PUT") && validField(requestURI, "/users/[0-9]+")) {
-                content = "Cập nhật thông tin người dùng";
+            content = "Cập nhật thông tin người dùng";
         } else if (Objects.equals(method, "DELETE") && validField(requestURI, "/users/[0-9]+")) {
-                content = "Xóa người dùng";
+            content = "Xóa người dùng";
         }
         if (!content.equals("")) {
             User currentUser = commonBusiness.getCurrentUser();

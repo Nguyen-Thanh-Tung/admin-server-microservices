@@ -1,20 +1,20 @@
 package com.comit.services.history.service;
 
-import com.comit.services.history.model.entity.*;
+import com.comit.services.history.client.data.*;
 
 public interface HistoryServices {
 
-    Location getLocation(Integer locationId);
+    LocationDto getLocation(Integer locationId);
 
-    Location getLocationOfCurrentUser();
+    LocationDto getLocationOfCurrentUser();
 
-    AreaRestriction getAreaRestriction(Integer locationId, int areaRestrictionId);
+    AreaRestrictionDto getAreaRestriction(Integer locationId, int areaRestrictionId);
 
-    Camera getCamera(Integer cameraId);
+    CameraDto getCamera(Integer cameraId);
 
-    Employee getEmployee(Integer employeeId);
+    EmployeeDto getEmployee(Integer employeeId);
 
-    NotificationMethod getNotificationMethodOfAreaRestriction(Integer areaRestrictionId);
+    NotificationMethodDto getNotificationMethodOfAreaRestriction(Integer areaRestrictionId);
 
-    Metadata getMetadata(Integer imageId);
+    MetadataDto getMetadata(Integer imageId);
 }

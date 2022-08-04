@@ -1,7 +1,7 @@
 package com.comit.services.account.client.response;
 
+import com.comit.services.account.client.data.OrganizationDto;
 import com.comit.services.account.controller.response.BaseResponse;
-import com.comit.services.account.model.entity.Organization;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 public class OrganizationResponse extends BaseResponse {
     @JsonProperty(value = "organization")
-    private Organization organization;
+    private OrganizationDto organization;
 
-    public OrganizationResponse(int code, String message, Organization organization) {
+    public OrganizationResponse(int code, String message, OrganizationDto organization) {
         this.organization = organization;
         this.code = code;
         this.message = message;

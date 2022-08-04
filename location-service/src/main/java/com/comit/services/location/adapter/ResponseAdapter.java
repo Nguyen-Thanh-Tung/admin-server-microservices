@@ -5,7 +5,6 @@ import com.comit.services.location.client.UserLogClient;
 import com.comit.services.location.client.request.UserLogRequest;
 import com.comit.services.location.client.response.UserResponse;
 import com.comit.services.location.controller.response.BaseResponse;
-import com.comit.services.location.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -62,16 +60,16 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         String method = request.getMethod();
         String content = "";
         if (Objects.equals(method, "POST") && Objects.equals(requestURI, "/locations")) {
-                content = "Thêm chi nhánh";
+            content = "Thêm chi nhánh";
         } else if (Objects.equals(method, "PUT") && validField(requestURI, "/locations/[0-9]+")) {
-                content = "Cập nhật thông tin chi nhánh";
+            content = "Cập nhật thông tin chi nhánh";
         } else if (Objects.equals(method, "DELETE") && validField(requestURI, "/locations/[0-9]+")) {
-                content = "Xóa chi nhánh";
+            content = "Xóa chi nhánh";
         }
         if (!content.equals("")) {
             UserResponse userResponse = accountClient.getCurrentUser(request.getHeader("token")).getBody();
             if (userResponse != null && userResponse.getCode() == 1) {
-                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(userResponse.getUser().getId(), content, new Date())).getBody();
+                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(userResponse.getUserDto().getId(), content, new Date())).getBody();
             }
         }
     }

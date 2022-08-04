@@ -1,6 +1,8 @@
 package com.comit.services.feature.service;
 
 import com.comit.services.feature.client.AccountClient;
+import com.comit.services.feature.client.data.RoleDto;
+import com.comit.services.feature.client.data.UserDto;
 import com.comit.services.feature.client.response.CheckRoleResponse;
 import com.comit.services.feature.client.response.RoleListResponse;
 import com.comit.services.feature.client.response.RoleResponse;
@@ -8,8 +10,6 @@ import com.comit.services.feature.client.response.UserListResponse;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.exception.RestApiException;
 import com.comit.services.feature.model.entity.Feature;
-import com.comit.services.feature.model.entity.Role;
-import com.comit.services.feature.model.entity.User;
 import com.comit.services.feature.repository.FeatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,12 +59,12 @@ public class FeatureServicesImpl implements FeatureServices {
     }
 
     @Override
-    public List<Role> getRolesOfCurrentUser() {
+    public List<RoleDto> getRolesOfCurrentUser() {
         RoleListResponse roleListResponse = accountClient.getRolesOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (roleListResponse == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return roleListResponse.getRoles();
+        return roleListResponse.getRoleDtos();
     }
 
     @Override
@@ -81,20 +81,20 @@ public class FeatureServicesImpl implements FeatureServices {
     }
 
     @Override
-    public List<User> getUsersOfRole(Integer roleId) {
+    public List<UserDto> getUsersOfRole(Integer roleId) {
         UserListResponse userListResponse = accountClient.getUsersOfRole(httpServletRequest.getHeader("token"), roleId).getBody();
         if (userListResponse == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return userListResponse.getUsers();
+        return userListResponse.getUserDtos();
     }
 
     @Override
-    public Role findRoleByName(String roleName) {
+    public RoleDto findRoleByName(String roleName) {
         RoleResponse roleResponse = accountClient.getRoleByName(httpServletRequest.getHeader("token"), roleName).getBody();
         if (roleResponse == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return roleResponse.getRole();
+        return roleResponse.getRoleDto();
     }
 }

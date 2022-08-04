@@ -1,6 +1,7 @@
 package com.comit.services.employee.service;
 
-import com.comit.services.employee.model.entity.*;
+import com.comit.services.employee.client.data.*;
+import com.comit.services.employee.model.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +31,9 @@ public interface EmployeeServices {
 
     List<Employee> getEmployeeListById(List<Integer> employeeIds);
 
-    Location getLocationOfCurrentUser();
+    LocationDto getLocationOfCurrentUser();
 
-    Metadata saveMetadata(String image_path);
+    MetadataDto saveMetadata(String image_path);
 
     boolean isTimeKeepingModule();
 
@@ -40,23 +41,25 @@ public interface EmployeeServices {
 
     boolean isBehaviorModule();
 
-    List<AreaEmployeeTime> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId);
+    List<AreaEmployeeTimeDto> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId);
 
     void deleteEmployeeAreaRestrictionList(Integer employeeId);
 
     List<Employee> getEmployeeOfManager(int managerId);
 
-    List<AreaRestriction> getAreaRestrictions(int employeeId);
+    void deleteManagerOnAllAreaRestriction(int employeeId);
 
     void deleteAreaRestrictionManagerNotificationList(Integer employeeId);
 
-    Organization getOrganizationOfCurrentUser();
+    OrganizationDto getOrganizationOfCurrentUser();
 
     void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode);
 
     int getNumberEmployeeOfLocation(Integer locationId);
 
-    Shift getShift(int shiftId);
+    ShiftDto getShift(int shiftId);
 
-    Metadata getMetadata(Integer imageId);
+    MetadataDto getMetadata(Integer imageId);
+
+    List<AreaEmployeeTimeDto> getAreaEmployeeTimesOfEmployee(int employeeId);
 }

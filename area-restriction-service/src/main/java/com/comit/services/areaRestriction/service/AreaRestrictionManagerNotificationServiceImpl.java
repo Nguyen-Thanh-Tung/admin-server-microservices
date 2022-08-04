@@ -38,4 +38,9 @@ public class AreaRestrictionManagerNotificationServiceImpl implements AreaRestri
             return false;
         }
     }
+
+    @Override
+    public List<AreaRestrictionManagerNotification> getAreaRestrictionManagerNotifications(Integer areaRestrictionId) {
+        return areaRestrictionManagerNotificationRepository.findAllByAreaRestrictionId(areaRestrictionId);
+    }
 }

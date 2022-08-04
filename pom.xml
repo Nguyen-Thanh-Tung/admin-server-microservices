@@ -8,17 +8,17 @@
 
     <properties>
         <sonar.projectKey>admin-server-microservices</sonar.projectKey>
-        <sonar.organization>comit</sonar.organization>
+        <sonar.organizationDto>comit</sonar.organizationDto>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <modules>
         <module>discovery-service</module>
         <module>config-service</module>
-        <module>organization-service</module>
+        <module>organizationDto-service</module>
         <module>gateway-service</module>
         <module>account-service</module>
-        <module>location-service</module>
+        <module>locationDto-service</module>
         <module>camera-service</module>
         <module>employee-service</module>
         <module>mail-service</module>
@@ -26,7 +26,7 @@
         <module>history-service</module>
         <module>time-keeping-service</module>
         <module>metadata-service</module>
-        <module>user-log-service</module>
+        <module>userDto-log-service</module>
         <module>feature-service</module>
     </modules>
 

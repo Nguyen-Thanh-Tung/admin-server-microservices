@@ -1,12 +1,12 @@
 package com.comit.services.history.business;
 
+import com.comit.services.history.client.data.CameraDto;
+import com.comit.services.history.client.data.LocationDto;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
 import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.dto.InOutHistoryDto;
-import com.comit.services.history.model.entity.Camera;
 import com.comit.services.history.model.entity.InOutHistory;
-import com.comit.services.history.model.entity.Location;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.InOutHistoryServices;
 import com.comit.services.history.util.TimeUtil;
@@ -31,12 +31,12 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     @Override
     public Page<InOutHistory> getInOutHistoryPage(String cameraIdStrs, Integer employeeId, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
         // Is user and has role manage employee (Ex: Time keeping user)
-        Location location;
+        LocationDto locationDto;
         if (locationId == null) {
             permissionManageInOutHistory();
-            location = historyServices.getLocationOfCurrentUser();
+            locationDto = historyServices.getLocationOfCurrentUser();
         } else {
-            location = historyServices.getLocation(locationId);
+            locationDto = historyServices.getLocation(locationId);
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -69,12 +69,12 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     @Override
     public Page<InOutHistory> getInOutHistoryPage(String cameraIdStrs, String areaRestrictionIdStrs, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
         // Is user and has role manage employee (Ex: Time keeping user)
-        Location location;
+        LocationDto locationDto;
         if (locationId == null) {
             permissionManageInOutHistory();
-            location = historyServices.getLocationOfCurrentUser();
+            locationDto = historyServices.getLocationOfCurrentUser();
         } else {
-            location = historyServices.getLocation(locationId);
+            locationDto = historyServices.getLocation(locationId);
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -117,14 +117,14 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         permissionManageInOutHistory();
 
         InOutHistory inOutHistory = new InOutHistory();
-        Camera camera = historyServices.getCamera(request.getCameraId());
+        CameraDto cameraDto = historyServices.getCamera(request.getCameraId());
         inOutHistory.setCameraId(request.getCameraId());
         inOutHistory.setEmployeeId(request.getEmployeeId());
         inOutHistory.setTime(TimeUtil.stringDateToDate(request.getTime()));
-        inOutHistory.setType(camera.getType());
+        inOutHistory.setType(cameraDto.getType());
         inOutHistory.setImageId(request.getImageId());
-        inOutHistory.setLocationId(camera.getLocationId());
-        inOutHistory.setAreaRestrictionId(camera.getAreaRestrictionId());
+        inOutHistory.setLocationId(cameraDto.getLocation().getId());
+        inOutHistory.setAreaRestrictionId(cameraDto.getAreaRestriction().getId());
         InOutHistory newInOutHistory = inOutHistoryServices.saveInOutHistory(inOutHistory);
         return InOutHistoryDto.convertInOutHistoryToInOutHistoryDto(newInOutHistory);
     }
@@ -132,20 +132,20 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
 
     @Override
     public int getNumberCheckInCurrentDay() {
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
 
         // If param not have timeStart and timeEnd then set default
         Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
 
-        return inOutHistoryServices.getNumberCheckInCurrentDay(location.getId(), timeStart, timeEnd);
+        return inOutHistoryServices.getNumberCheckInCurrentDay(locationDto.getId(), timeStart, timeEnd);
     }
 
     private void permissionManageInOutHistory() {
         // Check role for employee
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
 
-        if (!inOutHistoryServices.hasPermissionManageInOutHistory(location != null ? location.getType() : null)) {
+        if (!inOutHistoryServices.hasPermissionManageInOutHistory(locationDto != null ? locationDto.getType() : null)) {
             throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
         }
     }

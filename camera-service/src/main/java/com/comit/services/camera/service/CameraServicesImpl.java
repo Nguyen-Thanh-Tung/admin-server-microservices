@@ -3,6 +3,9 @@ package com.comit.services.camera.service;
 import com.comit.services.camera.client.AccountClient;
 import com.comit.services.camera.client.AreaRestrictionClient;
 import com.comit.services.camera.client.LocationClient;
+import com.comit.services.camera.client.data.AreaRestrictionDto;
+import com.comit.services.camera.client.data.LocationDto;
+import com.comit.services.camera.client.data.OrganizationDto;
 import com.comit.services.camera.client.response.AreaRestrictionResponse;
 import com.comit.services.camera.client.response.LocationListResponse;
 import com.comit.services.camera.client.response.LocationResponse;
@@ -10,10 +13,7 @@ import com.comit.services.camera.client.response.OrganizationResponse;
 import com.comit.services.camera.constant.CameraErrorCode;
 import com.comit.services.camera.constant.Const;
 import com.comit.services.camera.exception.RestApiException;
-import com.comit.services.camera.model.entity.AreaRestriction;
 import com.comit.services.camera.model.entity.Camera;
-import com.comit.services.camera.model.entity.Location;
-import com.comit.services.camera.model.entity.Organization;
 import com.comit.services.camera.repository.CameraRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -211,17 +211,17 @@ public class CameraServicesImpl implements CameraServices {
     }
 
     @Override
-    public Organization getOrganizationOfCurrentUser() {
+    public OrganizationDto getOrganizationOfCurrentUser() {
         OrganizationResponse organizationResponse = accountClient.getOrganizationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (organizationResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponse.getOrganization();
+        return organizationResponse.getOrganizationDto();
     }
 
     @Override
-    public Location getLocationOfCurrentUser() {
+    public LocationDto getLocationOfCurrentUser() {
         LocationResponse locationResponse = accountClient.getLocationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (locationResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
@@ -230,7 +230,7 @@ public class CameraServicesImpl implements CameraServices {
     }
 
     @Override
-    public AreaRestriction getAreaRestriction(Integer locationId, Integer areaRestrictionId) {
+    public AreaRestrictionDto getAreaRestriction(Integer locationId, Integer areaRestrictionId) {
         AreaRestrictionResponse areaRestrictionResponse = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
         if (areaRestrictionResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
@@ -242,7 +242,7 @@ public class CameraServicesImpl implements CameraServices {
     }
 
     @Override
-    public List<Location> getLocationListByOrganizationId(Integer organizationId) {
+    public List<LocationDto> getLocationListByOrganizationId(Integer organizationId) {
         LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
         if (locationListResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
@@ -251,7 +251,7 @@ public class CameraServicesImpl implements CameraServices {
     }
 
     @Override
-    public Location getLocation(Integer organizationId, Integer locationId) {
+    public LocationDto getLocation(Integer organizationId, Integer locationId) {
         LocationResponse locationResponse = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
         if (locationResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
@@ -264,7 +264,7 @@ public class CameraServicesImpl implements CameraServices {
     }
 
     @Override
-    public Location getLocationById(Integer locationId) {
+    public LocationDto getLocationById(Integer locationId) {
         LocationResponse locationResponse = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
         if (locationResponse == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
@@ -275,5 +275,10 @@ public class CameraServicesImpl implements CameraServices {
     @Override
     public int getNumberCameraOfLocation(int locationId) {
         return cameraRepository.countByLocationIdAndStatus(locationId, Const.ACTIVE);
+    }
+
+    @Override
+    public int getNumberCameraOfAreaRestriction(int areaRestrictionId) {
+        return cameraRepository.countByAreaRestrictionIdAndStatus(areaRestrictionId, Const.ACTIVE);
     }
 }

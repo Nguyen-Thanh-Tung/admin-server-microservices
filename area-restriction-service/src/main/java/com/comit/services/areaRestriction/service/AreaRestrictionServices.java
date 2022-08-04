@@ -1,12 +1,13 @@
 package com.comit.services.areaRestriction.service;
 
+import com.comit.services.areaRestriction.client.data.EmployeeDto;
+import com.comit.services.areaRestriction.client.data.LocationDto;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
-import com.comit.services.areaRestriction.model.entity.Employee;
-import com.comit.services.areaRestriction.model.entity.Location;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
+import java.util.List;
 
 public interface AreaRestrictionServices {
     Page<AreaRestriction> getAreaRestrictionPage(Integer locationId, String search, Pageable paging);
@@ -19,13 +20,13 @@ public interface AreaRestrictionServices {
 
     boolean deleteAreaRestriction(AreaRestriction areaRestriction);
 
-    Location getLocationOfCurrentUser();
+    LocationDto getLocationOfCurrentUser();
 
     int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate);
 
-    Employee getEmployee(Integer managerId, Integer locationId);
+    EmployeeDto getEmployee(Integer employeeId, Integer locationId);
 
     int getNumberCameraOfAreaRestriction(int areaRestrictionId);
 
-    int getNumberAreaEmployeeTimeOfAreaRestriction(int areaRestrictionId);
+    List<AreaRestriction> getAllAreaRestrictionOfManager(Integer managerId);
 }

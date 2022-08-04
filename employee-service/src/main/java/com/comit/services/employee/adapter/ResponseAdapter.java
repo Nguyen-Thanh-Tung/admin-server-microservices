@@ -60,16 +60,16 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         String method = request.getMethod();
         String content = "";
         if (Objects.equals(method, "POST") && Objects.equals(requestURI, "/employees")) {
-                content = "Thêm nhân sự";
+            content = "Thêm nhân sự";
         } else if (Objects.equals(method, "PUT") && validField(requestURI, "/employees/[0-9]+")) {
-                content = "Cập nhật thông tin nhân sự";
+            content = "Cập nhật thông tin nhân sự";
         } else if (Objects.equals(method, "DELETE") && validField(requestURI, "/employees/[0-9]+")) {
-                content = "Xóa nhân sự";
+            content = "Xóa nhân sự";
         }
         if (!content.equals("")) {
             UserResponse userResponse = accountClient.getCurrentUser(request.getHeader("token")).getBody();
             if (userResponse != null && userResponse.getCode() == 1) {
-                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(userResponse.getUser().getId(), content, new Date())).getBody();
+                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(userResponse.getUserDto().getId(), content, new Date())).getBody();
             }
         }
     }

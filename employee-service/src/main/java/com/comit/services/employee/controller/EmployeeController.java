@@ -107,7 +107,7 @@ public class EmployeeController {
         return new ResponseEntity<>(new BaseResponse(sendQrCodeSuccess ? EmployeeErrorCode.SUCCESS : EmployeeErrorCode.FAIL), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/location/{locationId}")
+    @GetMapping(value = "/location/{locationId}/number-employee")
     public ResponseEntity<BaseResponse> getNumberEmployeesOfLocation(@PathVariable Integer locationId) {
         int numberEmployeeOfLocation = employeeBusiness.getNumberEmployeeOfLocation(locationId);
         return new ResponseEntity<>(new CountResponse(EmployeeErrorCode.SUCCESS, numberEmployeeOfLocation), HttpStatus.OK);

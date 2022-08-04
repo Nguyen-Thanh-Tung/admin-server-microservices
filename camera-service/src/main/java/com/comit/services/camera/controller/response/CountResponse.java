@@ -1,7 +1,6 @@
 package com.comit.services.camera.controller.response;
 
 import com.comit.services.camera.constant.CameraErrorCode;
-import com.comit.services.camera.controller.response.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -37,6 +37,7 @@ public class ShiftController {
         ShiftDto shiftDto = shiftBusiness.getShift(id);
         return new ResponseEntity<>(new ShiftResponse(TimeKeepingErrorCode.SUCCESS, shiftDto), HttpStatus.OK);
     }
+
     /**
      * Update shift
      *

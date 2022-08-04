@@ -1,5 +1,8 @@
 package com.comit.services.account.business;
 
+import com.comit.services.account.client.data.LocationDto;
+import com.comit.services.account.client.data.MetadataDto;
+import com.comit.services.account.client.data.OrganizationDto;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
@@ -7,8 +10,10 @@ import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.middleware.UserVerifyRequestServices;
-import com.comit.services.account.model.dto.*;
-import com.comit.services.account.model.entity.*;
+import com.comit.services.account.model.dto.RoleDto;
+import com.comit.services.account.model.dto.UserDto;
+import com.comit.services.account.model.entity.Role;
+import com.comit.services.account.model.entity.User;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
 import com.comit.services.account.util.IDGeneratorUtil;
@@ -21,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -80,7 +84,7 @@ public class UserBusinessImpl implements UserBusiness {
 
         Integer organizationId = request.getOrganizationId();
         if (organizationId != null) {
-            Organization organization = userServices.getOrganizationById(organizationId);
+            OrganizationDto organization = userServices.getOrganizationById(organizationId);
             if (organization == null) {
                 throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
             }
@@ -111,7 +115,7 @@ public class UserBusinessImpl implements UserBusiness {
 
         // Admin create user (in permission, ex: Time Keeping Admin create Time Keeping User)
         if (request.getLocationId() != null) {
-            Location location = userServices.getLocation(request.getLocationId());
+            LocationDto location = userServices.getLocation(request.getLocationId());
             user.setLocationId(location.getId());
         }
 
@@ -172,7 +176,7 @@ public class UserBusinessImpl implements UserBusiness {
             Integer organizationId;
             if (organizationIdStr != null) {
                 organizationId = Integer.parseInt(organizationIdStr);
-                Organization organization = userServices.getOrganizationById(organizationId);
+                OrganizationDto organization = userServices.getOrganizationById(organizationId);
                 if (organization == null) {
                     throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
                 }
@@ -199,7 +203,7 @@ public class UserBusinessImpl implements UserBusiness {
             user.setOrganizationId(organizationId);
 
             if (locationIdStr != null && !locationIdStr.trim().isEmpty()) {
-                Location location = userServices.getLocation(Integer.parseInt(locationIdStr));
+                LocationDto location = userServices.getLocation(Integer.parseInt(locationIdStr));
                 if (location == null) {
                     throw new AccountRestApiException(UserErrorCode.LOCATION_NOT_EXIST);
                 }
@@ -211,7 +215,7 @@ public class UserBusinessImpl implements UserBusiness {
             }
 
             if (file != null) {
-                Metadata metadata = userServices.saveMetadata(file);
+                MetadataDto metadata = userServices.saveMetadata(file);
                 if (metadata != null) {
                     user.setAvatarId(metadata.getId());
                 }
@@ -284,7 +288,7 @@ public class UserBusinessImpl implements UserBusiness {
             MultipartFile file = multipartHttpServletRequest.getFile("file");
 
             verifyRequestServices.verifyUploadAvatar(file);
-            Metadata metadata = userServices.saveMetadata(file);
+            MetadataDto metadata = userServices.saveMetadata(file);
             if (metadata != null) {
                 user.setAvatarId(metadata.getId());
             }
@@ -326,21 +330,17 @@ public class UserBusinessImpl implements UserBusiness {
         if (currentUser == null) {
             return null;
         }
-        Location location = userServices.getLocation(currentUser.getLocationId());
+        LocationDto location = userServices.getLocation(currentUser.getLocationId());
         if (location == null) {
             return null;
         }
-        return LocationDto.convertLocationToLocationDto(location);
+        return location;
     }
 
     @Override
     public OrganizationDto getOrganizationOfCurrentUser() {
         User currentUser = commonBusiness.getCurrentUser();
-        Organization organization = userServices.getOrganizationById(currentUser.getOrganizationId());
-        if (organization != null) {
-            return OrganizationDto.convertOrganizationToOrganizationDto(organization);
-        }
-        return null;
+        return userServices.getOrganizationById(currentUser.getOrganizationId());
     }
 
     @Override
@@ -376,20 +376,20 @@ public class UserBusinessImpl implements UserBusiness {
         ModelMapper modelMapper = new ModelMapper();
         try {
             UserDto userDto = modelMapper.map(user, UserDto.class);
-            Organization organization = userServices.getOrganizationById(user.getOrganizationId());
+            OrganizationDto organization = userServices.getOrganizationById(user.getOrganizationId());
             if (organization != null) {
-                userDto.setOrganization(OrganizationDto.convertOrganizationToOrganizationDto(organization));
+                userDto.setOrganization(organization);
             }
             if (user.getLocationId() != null) {
-                Location location = userServices.getLocation(user.getLocationId());
+                LocationDto location = userServices.getLocation(user.getLocationId());
                 if (location != null) {
-                    userDto.setLocation(LocationDto.convertLocationToLocationDto(location));
+                    userDto.setLocation(location);
                 }
             }
             if (user.getAvatarId() != null) {
-                Metadata metadata = userServices.getMetadata(user.getAvatarId());
+                MetadataDto metadata = userServices.getMetadata(user.getAvatarId());
                 if (metadata != null) {
-                    userDto.setAvatar(MetadataDto.convertMetadataToMetadataDto(metadata));
+                    userDto.setAvatar(metadata);
                 }
             }
             return userDto;

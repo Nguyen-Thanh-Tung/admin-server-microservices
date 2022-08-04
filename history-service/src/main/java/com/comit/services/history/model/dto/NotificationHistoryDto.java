@@ -1,5 +1,9 @@
 package com.comit.services.history.model.dto;
 
+import com.comit.services.history.client.data.CameraDto;
+import com.comit.services.history.client.data.EmployeeDto;
+import com.comit.services.history.client.data.MetadataDto;
+import com.comit.services.history.client.data.NotificationMethodDto;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

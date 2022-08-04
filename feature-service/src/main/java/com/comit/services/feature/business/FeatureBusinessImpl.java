@@ -1,5 +1,7 @@
 package com.comit.services.feature.business;
 
+import com.comit.services.feature.client.data.RoleDto;
+import com.comit.services.feature.client.data.UserDto;
 import com.comit.services.feature.constant.Const;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.controller.request.FeatureRequest;
@@ -7,8 +9,6 @@ import com.comit.services.feature.exception.RestApiException;
 import com.comit.services.feature.middleware.FeatureVerifyRequestServices;
 import com.comit.services.feature.model.dto.FeatureDto;
 import com.comit.services.feature.model.entity.Feature;
-import com.comit.services.feature.model.entity.Role;
-import com.comit.services.feature.model.entity.User;
 import com.comit.services.feature.service.FeatureServices;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +44,13 @@ public class FeatureBusinessImpl implements FeatureBusiness {
     public FeatureDto addFeature(FeatureRequest request) {
         if (Objects.equals(request.getName(), Const.TIME_KEEPING_MODULE)) {
             String featureRoleStrs = "";
-            Role roleTimeKeepingAdmin = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_ADMIN);
-            if (roleTimeKeepingAdmin != null) {
-                featureRoleStrs += roleTimeKeepingAdmin.getId() + ",";
+            RoleDto roleDtoTimeKeepingAdmin = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_ADMIN);
+            if (roleDtoTimeKeepingAdmin != null) {
+                featureRoleStrs += roleDtoTimeKeepingAdmin.getId() + ",";
             }
-            Role roleTimeKeepingUser = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_USER);
-            if (roleTimeKeepingUser != null) {
-                featureRoleStrs += roleTimeKeepingUser.getId();
+            RoleDto roleDtoTimeKeepingUser = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_USER);
+            if (roleDtoTimeKeepingUser != null) {
+                featureRoleStrs += roleDtoTimeKeepingUser.getId();
             }
             Feature feature = featureServices.getFeature(Const.TIME_KEEPING_MODULE);
             if (feature == null) {
@@ -64,13 +64,13 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             return convertFeatureToFeatureDto(newFeature);
         } else if (Objects.equals(request.getName(), Const.AREA_RESTRICTION_CONTROL_MODULE)) {
             String featureRoleStrs = "";
-            Role roleAreaRestrictionAdmin = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
-            if (roleAreaRestrictionAdmin != null) {
-                featureRoleStrs += roleAreaRestrictionAdmin.getId() + ",";
+            RoleDto roleDtoAreaRestrictionAdmin = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
+            if (roleDtoAreaRestrictionAdmin != null) {
+                featureRoleStrs += roleDtoAreaRestrictionAdmin.getId() + ",";
             }
-            Role roleAreaRestrictionUser = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_USER);
-            if (roleAreaRestrictionUser != null) {
-                featureRoleStrs += roleAreaRestrictionUser.getId();
+            RoleDto roleDtoAreaRestrictionUser = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_USER);
+            if (roleDtoAreaRestrictionUser != null) {
+                featureRoleStrs += roleDtoAreaRestrictionUser.getId();
             }
             Feature feature = featureServices.getFeature(Const.AREA_RESTRICTION_CONTROL_MODULE);
             if (feature == null) {
@@ -84,13 +84,13 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             return convertFeatureToFeatureDto(newFeature);
         } else if (Objects.equals(request.getName(), Const.BEHAVIOR_CONTROL_MODULE)) {
             String featureRoleStrs = "";
-            Role roleBehaviorAdmin = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
-            if (roleBehaviorAdmin != null) {
-                featureRoleStrs += roleBehaviorAdmin.getId() + ",";
+            RoleDto roleDtoBehaviorAdmin = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
+            if (roleDtoBehaviorAdmin != null) {
+                featureRoleStrs += roleDtoBehaviorAdmin.getId() + ",";
             }
-            Role roleBehaviorUser = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_USER);
-            if (roleBehaviorUser != null) {
-                featureRoleStrs += roleBehaviorUser.getId();
+            RoleDto roleDtoBehaviorUser = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_USER);
+            if (roleDtoBehaviorUser != null) {
+                featureRoleStrs += roleDtoBehaviorUser.getId();
             }
             Feature feature = featureServices.getFeature(Const.BEHAVIOR_CONTROL_MODULE);
             if (feature == null) {
@@ -135,19 +135,19 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             for (String s : feature.getRoleIds().split(",")) {
                 roleIds.add(Integer.parseInt(s));
             }
-            Set<User> users = new HashSet<>();
+            Set<UserDto> userDtos = new HashSet<>();
             Set<Integer> organizationIds = new HashSet<>();
 
             roleIds.forEach(roleId -> {
-                featureServices.getUsersOfRole(roleId).forEach(user -> {
-                    if (!Objects.equals(user.getStatus(), Const.DELETED)) {
-                        users.add(user);
-                        organizationIds.add(user.getOrganizationId());
+                featureServices.getUsersOfRole(roleId).forEach(userDto -> {
+                    if (!Objects.equals(userDto.getStatus(), Const.DELETED)) {
+                        userDtos.add(userDto);
+                        organizationIds.add(userDto.getOrganizationId());
                     }
                 });
             });
             featureDto.setNumberOrganization(organizationIds.size());
-            featureDto.setNumberAccount(users.size());
+            featureDto.setNumberAccount(userDtos.size());
             return featureDto;
         } catch (Exception e) {
             return null;

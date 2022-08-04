@@ -1,4 +1,5 @@
 package com.comit.services.feature.model.dto;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;

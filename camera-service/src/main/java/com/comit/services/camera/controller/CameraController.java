@@ -114,9 +114,15 @@ public class CameraController {
         return new ResponseEntity<>(new BaseResponse(CameraErrorCode.CAN_NOT_DELETE_CAMERA), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/location/{locationId}")
+    @GetMapping(value = "/location/{locationId}/number-camera")
     public ResponseEntity<BaseResponse> getNumberCameraOfLocation(@PathVariable int locationId) {
         int numberCameraOfLocation = cameraBusiness.getNumberCameraOfLocation(locationId);
         return new ResponseEntity<>(new CountResponse(CameraErrorCode.SUCCESS, numberCameraOfLocation), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/area-restriction/{areaRestrictionId}/number-camera")
+    public ResponseEntity<CountResponse> getNumberCameraOfAreaRestriction(@PathVariable int areaRestrictionId) {
+        int numberCameraOfAreaRestriction = cameraBusiness.getNumberCameraOfAreRestriction(areaRestrictionId);
+        return new ResponseEntity<>(new CountResponse(CameraErrorCode.SUCCESS, numberCameraOfAreaRestriction), HttpStatus.OK);
     }
 }

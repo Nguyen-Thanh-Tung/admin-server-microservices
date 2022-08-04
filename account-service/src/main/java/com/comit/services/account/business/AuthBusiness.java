@@ -7,8 +7,6 @@ import com.comit.services.account.controller.request.SignUpRequest;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.User;
 
-import java.io.IOException;
-
 public interface AuthBusiness {
     String getTokenLogin(LoginRequest request);
 

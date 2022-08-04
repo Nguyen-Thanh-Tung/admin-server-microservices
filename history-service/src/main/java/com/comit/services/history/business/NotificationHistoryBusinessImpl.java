@@ -1,10 +1,11 @@
 package com.comit.services.history.business;
 
+import com.comit.services.history.client.data.*;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.NotificationHistoryRequest;
 import com.comit.services.history.exception.RestApiException;
-import com.comit.services.history.model.dto.*;
-import com.comit.services.history.model.entity.*;
+import com.comit.services.history.model.dto.NotificationHistoryDto;
+import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.NotificationHistoryServices;
 import com.comit.services.history.util.TimeUtil;
@@ -31,12 +32,12 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String typeStrs, String employeeIdStrs, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
         // Is user and has role manage employee (Ex: Time keeping user)
-        Location location;
+        LocationDto locationDto;
         if (locationId == null) {
             permissionManageNotificationHistory();
-            location = historyServices.getLocationOfCurrentUser();
+            locationDto = historyServices.getLocationOfCurrentUser();
         } else {
-            location = historyServices.getLocation(locationId);
+            locationDto = historyServices.getLocation(locationId);
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -46,18 +47,18 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
 
         if (typeStrs == null && employeeIdStrs == null) {
-            return notificationHistoryServices.getNotificationHistoryPage(location.getId(), timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPage(locationDto.getId(), timeStart, timeEnd, paging);
         } else if (employeeIdStrs == null) {
             String[] types = typeStrs.split(",");
 
-            return notificationHistoryServices.getNotificationHistoryPageType(location.getId(), List.of(types), timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPageType(locationDto.getId(), List.of(types), timeStart, timeEnd, paging);
         } else if (typeStrs == null) {
             String[] tmp = employeeIdStrs.split(",");
             List<Integer> employeeIds = new ArrayList<>();
             for (String employeeId : tmp) {
                 employeeIds.add(Integer.parseInt(employeeId));
             }
-            return notificationHistoryServices.getNotificationHistoryPage(location.getId(), employeeIds, timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPage(locationDto.getId(), employeeIds, timeStart, timeEnd, paging);
         } else {
             String[] types = typeStrs.split(",");
             String[] tmp = employeeIdStrs.split(",");
@@ -65,41 +66,41 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
             for (String employeeId : tmp) {
                 employeeIds.add(Integer.parseInt(employeeId));
             }
-            return notificationHistoryServices.getNotificationHistoryPageType(location.getId(), List.of(types), employeeIds, timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPageType(locationDto.getId(), List.of(types), employeeIds, timeStart, timeEnd, paging);
         }
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(boolean hasEmployee, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
         permissionManageNotificationHistory();
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
 
         // If param not have timeStart and timeEnd then set default
         Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
         Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
 
-        return notificationHistoryServices.getNotificationHistoryPage(location.getId(), hasEmployee, timeStart, timeEnd, paging);
+        return notificationHistoryServices.getNotificationHistoryPage(locationDto.getId(), hasEmployee, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String status, int page, int size) throws ParseException {
         permissionManageNotificationHistory();
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
 
-        return notificationHistoryServices.getNotificationHistoryPage(location.getId(), status, paging);
+        return notificationHistoryServices.getNotificationHistoryPage(locationDto.getId(), status, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String typeStrs, String timeStartStr, String timeEndStr, Integer locationId, String areaRestrictionIdStrs, int page, int size) throws ParseException {
         // Is user and has role manage employee (Ex: Time keeping user)
-        Location location;
+        LocationDto locationDto;
         if (locationId == null) {
             permissionManageNotificationHistory();
-            location = historyServices.getLocationOfCurrentUser();
+            locationDto = historyServices.getLocationOfCurrentUser();
         } else {
-            location = historyServices.getLocation(locationId);
+            locationDto = historyServices.getLocation(locationId);
         }
 
         Pageable paging = PageRequest.of(page, size);
@@ -109,18 +110,18 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
 
         if (typeStrs == null && areaRestrictionIdStrs == null) {
-            return notificationHistoryServices.getNotificationHistoryPage(location.getId(), timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPage(locationDto.getId(), timeStart, timeEnd, paging);
         } else if (areaRestrictionIdStrs == null) {
             String[] types = typeStrs.split(",");
 
-            return notificationHistoryServices.getNotificationHistoryPageType(location.getId(), List.of(types), timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPageType(locationDto.getId(), List.of(types), timeStart, timeEnd, paging);
         } else if (typeStrs == null) {
             String[] tmp = areaRestrictionIdStrs.split(",");
             List<Integer> areaRestrictionIds = new ArrayList<>();
             for (String areaRestrictionId : tmp) {
                 areaRestrictionIds.add(Integer.parseInt(areaRestrictionId));
             }
-            return notificationHistoryServices.getNotificationHistoryPageAreaRestriction(location.getId(), areaRestrictionIds, timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPageAreaRestriction(locationDto.getId(), areaRestrictionIds, timeStart, timeEnd, paging);
         } else {
             String[] types = typeStrs.split(",");
             String[] tmp = areaRestrictionIdStrs.split(",");
@@ -128,7 +129,7 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
             for (String areaRestrictionId : tmp) {
                 areaRestrictionIds.add(Integer.parseInt(areaRestrictionId));
             }
-            return notificationHistoryServices.getNotificationHistoryPageTypeAreaRestriction(location.getId(), List.of(types), areaRestrictionIds, timeStart, timeEnd, paging);
+            return notificationHistoryServices.getNotificationHistoryPageTypeAreaRestriction(locationDto.getId(), List.of(types), areaRestrictionIds, timeStart, timeEnd, paging);
         }
     }
 
@@ -157,14 +158,14 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIdStrs, String status, int page, int size) {
         permissionManageNotificationHistory();
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
         String[] areaRestrictionIds = areaRestrictionIdStrs.split(",");
         List<Integer> areaRestrictions = new ArrayList<>();
         for (String areaRestrictionId : areaRestrictionIds) {
             areaRestrictions.add(Integer.parseInt(areaRestrictionId));
         }
-        return notificationHistoryServices.getNotificationHistoryPage(location.getId(), areaRestrictions, status, paging);
+        return notificationHistoryServices.getNotificationHistoryPage(locationDto.getId(), areaRestrictions, status, paging);
     }
 
     @Override
@@ -175,29 +176,29 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
     @Override
     public int getNumberUserNotificationInCurrenDay() {
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
 
         // If param not have timeStart and timeEnd then set default
         Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
-        return notificationHistoryServices.getNumberUserNotificationInDay(location.getId(), timeStart, timeEnd);
+        return notificationHistoryServices.getNumberUserNotificationInDay(locationDto.getId(), timeStart, timeEnd);
     }
 
     @Override
     public int getNumberLateInMonth() {
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
 
         // If param not have timeStart and timeEnd then set default
         Date timeStart = TimeUtil.getFirstDayOfCurrentMonth();
         Date timeEnd = TimeUtil.getLastDayOfCurrentMonth();
-        return notificationHistoryServices.getNumberLateInMonth(location.getId(), timeStart, timeEnd);
+        return notificationHistoryServices.getNumberLateInMonth(locationDto.getId(), timeStart, timeEnd);
     }
 
     private void permissionManageNotificationHistory() {
         // Check role for employee
-        Location location = historyServices.getLocationOfCurrentUser();
+        LocationDto locationDto = historyServices.getLocationOfCurrentUser();
 
-        if (!notificationHistoryServices.hasPermissionManageNotificationHistory(location != null ? location.getType() : null)) {
+        if (!notificationHistoryServices.hasPermissionManageNotificationHistory(locationDto != null ? locationDto.getType() : null)) {
             throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
         }
     }
@@ -207,32 +208,25 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         try {
             ModelMapper modelMapper = new ModelMapper();
             NotificationHistoryDto notificationHistoryDto = modelMapper.map(notificationHistory, NotificationHistoryDto.class);
-            Employee employee = historyServices.getEmployee(notificationHistory.getEmployeeId());
-            if (employee != null) {
-                EmployeeDto employeeDto = EmployeeDto.convertEmployeeToEmployeeDto(employee);
+            EmployeeDto employeeDto = historyServices.getEmployee(notificationHistory.getEmployeeId());
+            if (employeeDto != null) {
                 notificationHistoryDto.setEmployee(employeeDto);
             }
 
-            Camera camera = historyServices.getCamera(notificationHistory.getCameraId());
-            if (camera != null) {
-                CameraDto cameraDto = CameraDto.convertCameraToCameraDto(camera);
-                if (camera.getAreaRestrictionId() != null) {
-                    AreaRestriction areaRestriction = historyServices.getAreaRestriction(camera.getLocationId(), camera.getAreaRestrictionId());
-                    if (areaRestriction != null) {
-                        AreaRestrictionDto areaRestrictionDto = AreaRestrictionDto.convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
-                        cameraDto.setAreaRestriction(areaRestrictionDto);
-                        NotificationMethod notificationMethod = historyServices.getNotificationMethodOfAreaRestriction(areaRestriction.getId());
-                        if (notificationMethod != null) {
-                            notificationHistoryDto.setNotificationMethod(NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod));
-                        }
-                    }
+            CameraDto cameraDto = historyServices.getCamera(notificationHistory.getCameraId());
+            if (cameraDto != null) {
+                if (cameraDto.getAreaRestriction() != null) {
+                    AreaRestrictionDto areaRestrictionDto = cameraDto.getAreaRestriction();
+                    cameraDto.setAreaRestriction(areaRestrictionDto);
+                    NotificationMethodDto notificationMethodDto = historyServices.getNotificationMethodOfAreaRestriction(areaRestrictionDto.getId());
+                    notificationHistoryDto.setNotificationMethod(notificationMethodDto);
+
                 }
                 notificationHistoryDto.setCamera(cameraDto);
             }
 
-            Metadata metadata = historyServices.getMetadata(notificationHistory.getImageId());
-            if (metadata != null) {
-                MetadataDto metadataDto = MetadataDto.convertMetadataToMetadataDto(metadata);
+            MetadataDto metadataDto = historyServices.getMetadata(notificationHistory.getImageId());
+            if (metadataDto != null) {
                 notificationHistoryDto.setImage(metadataDto);
             }
 

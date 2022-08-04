@@ -10,4 +10,6 @@ public interface AreaRestrictionManagerNotificationService {
     boolean deleteAreaRestrictionManagerNotificationListOfAreaRestrictionNotification(Integer areaRestrictionId);
 
     boolean deleteAreaRestrictionManagerNotificationListOfEmployee(Integer employeeId);
+
+    List<AreaRestrictionManagerNotification> getAreaRestrictionManagerNotifications(Integer areaRestrictionId);
 }

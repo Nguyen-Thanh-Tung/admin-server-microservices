@@ -2,13 +2,13 @@ package com.comit.services.organization.service;
 
 import com.comit.services.organization.client.AccountClient;
 import com.comit.services.organization.client.LocationClient;
+import com.comit.services.organization.client.data.LocationDto;
+import com.comit.services.organization.client.data.UserDto;
 import com.comit.services.organization.client.response.LocationListResponse;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.response.UserListResponse;
 import com.comit.services.organization.exception.RestApiException;
-import com.comit.services.organization.model.entity.Location;
 import com.comit.services.organization.model.entity.Organization;
-import com.comit.services.organization.model.entity.User;
 import com.comit.services.organization.repository.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,20 +83,20 @@ public class OrganizationServicesImpl implements OrganizationServices {
     }
 
     @Override
-    public List<User> getUsersByOrganizationId(int organizationId) {
+    public List<UserDto> getUsersByOrganizationId(int organizationId) {
         UserListResponse userListResponse = accountClient.getUsersByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
         if (userListResponse == null) {
             throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
         }
-        return userListResponse.getUsers();
+        return userListResponse.getUserDtos();
     }
 
     @Override
-    public List<Location> getLocationsByOrganizationId(int organizationId) {
+    public List<LocationDto> getLocationsByOrganizationId(int organizationId) {
         LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
         if (locationListResponse == null) {
             throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
         }
-        return locationListResponse.getLocations();
+        return locationListResponse.getLocationDtos();
     }
 }

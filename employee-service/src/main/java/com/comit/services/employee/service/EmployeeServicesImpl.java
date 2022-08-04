@@ -1,6 +1,7 @@
 package com.comit.services.employee.service;
 
 import com.comit.services.employee.client.*;
+import com.comit.services.employee.client.data.*;
 import com.comit.services.employee.client.request.AreaEmployeeTimeListRequest;
 import com.comit.services.employee.client.request.MailRequest;
 import com.comit.services.employee.client.request.MetadataRequest;
@@ -9,7 +10,7 @@ import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.response.BaseResponse;
 import com.comit.services.employee.exception.RestApiException;
-import com.comit.services.employee.model.entity.*;
+import com.comit.services.employee.model.entity.Employee;
 import com.comit.services.employee.repository.EmployeeRepository;
 import com.comit.services.employee.util.ConvertFileUtil;
 import okhttp3.*;
@@ -206,16 +207,16 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Location getLocationOfCurrentUser() {
+    public LocationDto getLocationOfCurrentUser() {
         LocationResponse locationResponse = accountClient.getLocationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (locationResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocation();
+        return locationResponse.getLocationDto();
     }
 
     @Override
-    public Metadata saveMetadata(String imagePath) {
+    public MetadataDto saveMetadata(String imagePath) {
         MetadataResponse metadataResponse = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), new MetadataRequest(imagePath)).getBody();
         if (metadataResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
@@ -242,7 +243,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public List<AreaEmployeeTime> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
+    public List<AreaEmployeeTimeDto> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
         AreaEmployeeTimeListResponse areaEmployeeTimeListResponse = areaRestrictionClient.saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"), new AreaEmployeeTimeListRequest(areaEmployees, newEmployeeId)).getBody();
 
         if (areaEmployeeTimeListResponse == null) {
@@ -265,12 +266,11 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public List<AreaRestriction> getAreaRestrictions(int managerId) {
-        AreaRestrictionListResponse areaRestrictionListResponse = areaRestrictionClient.getAreaRestrictions(httpServletRequest.getHeader("token"), managerId).getBody();
-        if (areaRestrictionListResponse == null) {
+    public void deleteManagerOnAllAreaRestriction(int managerId) {
+        BaseResponse baseResponse = areaRestrictionClient.deleteManagerOnAllAreaRestriction(httpServletRequest.getHeader("token"), managerId).getBody();
+        if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return areaRestrictionListResponse.getAreaRestrictions();
     }
 
     @Override
@@ -282,13 +282,13 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Organization getOrganizationOfCurrentUser() {
+    public OrganizationDto getOrganizationOfCurrentUser() {
         OrganizationResponse organizationResponse = accountClient.getOrganizationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (organizationResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponse.getOrganization();
+        return organizationResponse.getOrganizationDto();
     }
 
     @Override
@@ -305,7 +305,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Shift getShift(int shiftId) {
+    public ShiftDto getShift(int shiftId) {
         ShiftResponse shiftResponse = timeKeepingClient.getShift(httpServletRequest.getHeader("token"), shiftId).getBody();
         if (shiftResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
@@ -314,11 +314,20 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Metadata getMetadata(Integer imageId) {
+    public MetadataDto getMetadata(Integer imageId) {
         MetadataResponse metadataResponse = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
         if (metadataResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
         return metadataResponse.getMetadata();
+    }
+
+    @Override
+    public List<AreaEmployeeTimeDto> getAreaEmployeeTimesOfEmployee(int employeeId) {
+        AreaEmployeeTimeListResponse areaEmployeeTimeListResponse = areaRestrictionClient.getAreaEmployeeTimesOfEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
+        if (areaEmployeeTimeListResponse == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        return areaEmployeeTimeListResponse.getAreaEmployeeTimes();
     }
 }

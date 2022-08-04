@@ -1,7 +1,7 @@
 package com.comit.services.feature.client.response;
 
+import com.comit.services.feature.client.data.RoleDto;
 import com.comit.services.feature.controller.response.BaseResponse;
-import com.comit.services.feature.model.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleListResponse extends BaseResponse {
-    List<Role> roles;
+    List<RoleDto> roleDtos;
 }

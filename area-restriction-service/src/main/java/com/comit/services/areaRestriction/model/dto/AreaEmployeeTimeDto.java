@@ -1,8 +1,11 @@
 package com.comit.services.areaRestriction.model.dto;
 
+import com.comit.services.areaRestriction.client.data.EmployeeDto;
+import com.comit.services.areaRestriction.model.entity.AreaEmployeeTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.modelmapper.ModelMapper;
 
 @Getter
 @Setter
@@ -17,4 +20,14 @@ public class AreaEmployeeTimeDto extends BaseModelDto {
 
     @JsonProperty(value = "time_end")
     private String timeEnd;
+
+    public static AreaEmployeeTimeDto convertAreaEmployeeTimeToAreaEmployeeTimeDto(AreaEmployeeTime areaEmployeeTime) {
+        if (areaEmployeeTime == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(areaEmployeeTime, AreaEmployeeTimeDto.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

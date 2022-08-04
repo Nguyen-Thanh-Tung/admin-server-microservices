@@ -1,7 +1,7 @@
 package com.comit.services.userLog.exception;
 
-import com.comit.services.userLog.controller.response.BaseResponse;
 import com.comit.services.userLog.constant.UserLogErrorCode;
+import com.comit.services.userLog.controller.response.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

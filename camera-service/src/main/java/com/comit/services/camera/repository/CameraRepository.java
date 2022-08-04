@@ -46,5 +46,7 @@ public interface CameraRepository extends JpaRepository<Camera, Integer> {
 
     Camera findByLocationIdAndName(Integer locationId, String name);
 
-    int countByLocationIdAndStatus(int locationId, String active);
+    int countByLocationIdAndStatus(int locationId, String status);
+
+    int countByAreaRestrictionIdAndStatus(int areaRestrictionId, String status);
 }

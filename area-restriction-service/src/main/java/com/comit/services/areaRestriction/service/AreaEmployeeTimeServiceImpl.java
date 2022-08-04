@@ -4,9 +4,11 @@ import com.comit.services.areaRestriction.model.entity.AreaEmployeeTime;
 import com.comit.services.areaRestriction.repository.AreaEmployeeTimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class AreaEmployeeTimeServiceImpl implements AreaEmployeeTimeService {
 
@@ -26,5 +28,15 @@ public class AreaEmployeeTimeServiceImpl implements AreaEmployeeTimeService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public int getNumberAreaEmployeeTimeOfAreaRestriction(int areaRestrictionId) {
+        return areaEmployeeTimeRepository.countByAreaRestrictionId(areaRestrictionId);
+    }
+
+    @Override
+    public List<AreaEmployeeTime> getAreaEmployeeTimeListOfEmployee(Integer employeeId) {
+        return areaEmployeeTimeRepository.findByEmployeeId(employeeId);
     }
 }

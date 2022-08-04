@@ -1,18 +1,20 @@
 package com.comit.services.timeKeeping.business;
 
+import com.comit.services.timeKeeping.client.data.LocationDto;
 import com.comit.services.timeKeeping.constant.Const;
 import com.comit.services.timeKeeping.constant.TimeKeepingErrorCode;
 import com.comit.services.timeKeeping.constant.TimeKeepingNotificationErrorCode;
 import com.comit.services.timeKeeping.controller.request.TimeKeepingNotificationRequest;
 import com.comit.services.timeKeeping.exception.TimeKeepingCommonException;
 import com.comit.services.timeKeeping.middleware.TimeKeepingNotificationVerifyRequestServices;
+import com.comit.services.timeKeeping.model.dto.NotificationMethodDto;
 import com.comit.services.timeKeeping.model.dto.TimeKeepingNotificationDto;
-import com.comit.services.timeKeeping.model.entity.Location;
 import com.comit.services.timeKeeping.model.entity.NotificationMethod;
 import com.comit.services.timeKeeping.model.entity.TimeKeepingNotification;
 import com.comit.services.timeKeeping.service.NotificationMethodServices;
 import com.comit.services.timeKeeping.service.TimeKeepingNotificationServices;
 import com.comit.services.timeKeeping.service.TimeKeepingServices;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +34,10 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
         // Is user and has role manage employee (Ex: Time keeping user)
         permissionManageTimeKeepingNotification();
 
-        Location location = timeKeepingServices.getLocationOfCurrentUser();
+        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
 
-        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(location.getId());
-        return TimeKeepingNotificationDto.convertTimeKeepingNotificationToDto(timeKeepingNotification);
+        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(locationDto.getId());
+        return convertTimeKeepingNotificationToDto(timeKeepingNotification);
     }
 
     @Override
@@ -46,8 +48,8 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
         permissionManageTimeKeepingNotification();
 
         // Get time keeping notification
-        Location location = timeKeepingServices.getLocationOfCurrentUser();
-        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(id, location.getId());
+        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
+        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(id, locationDto.getId());
         if (timeKeepingNotification == null) {
             throw new TimeKeepingCommonException(TimeKeepingNotificationErrorCode.TIME_KEEPING_NOTIFICATION_NOT_EXIST);
         }
@@ -67,7 +69,7 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
 
         timeKeepingNotification.setNotificationMethodId(notificationMethod.getId());
         timeKeepingNotificationServices.saveTimeKeepingNotification(timeKeepingNotification);
-        return TimeKeepingNotificationDto.convertTimeKeepingNotificationToDto(timeKeepingNotification);
+        return convertTimeKeepingNotificationToDto(timeKeepingNotification);
     }
 
     @Override
@@ -97,10 +99,19 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
 
     private void permissionManageTimeKeepingNotification() {
         // Check role for employee
-        Location location = timeKeepingServices.getLocationOfCurrentUser();
+        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
 
-        if (!timeKeepingNotificationServices.hasPermissionManageTimeKeepingNotification(location != null ? location.getType() : null)) {
+        if (!timeKeepingNotificationServices.hasPermissionManageTimeKeepingNotification(locationDto != null ? locationDto.getType() : null)) {
             throw new TimeKeepingCommonException(TimeKeepingErrorCode.PERMISSION_DENIED);
         }
+    }
+
+    public TimeKeepingNotificationDto convertTimeKeepingNotificationToDto(TimeKeepingNotification timeKeepingNotification) {
+        if (timeKeepingNotification == null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        TimeKeepingNotificationDto timeKeepingNotificationDto = modelMapper.map(timeKeepingNotification, TimeKeepingNotificationDto.class);
+        NotificationMethod notificationMethod = notificationMethodServices.getNotification(timeKeepingNotification.getNotificationMethodId());
+        timeKeepingNotificationDto.setNotificationMethod(NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod));
+        return timeKeepingNotificationDto;
     }
 }

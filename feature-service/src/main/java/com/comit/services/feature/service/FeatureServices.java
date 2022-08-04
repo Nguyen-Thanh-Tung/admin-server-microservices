@@ -1,8 +1,8 @@
 package com.comit.services.feature.service;
 
+import com.comit.services.feature.client.data.RoleDto;
+import com.comit.services.feature.client.data.UserDto;
 import com.comit.services.feature.model.entity.Feature;
-import com.comit.services.feature.model.entity.Role;
-import com.comit.services.feature.model.entity.User;
 
 import java.util.List;
 
@@ -17,11 +17,11 @@ public interface FeatureServices {
 
     boolean currentUserIsSuperAdmin();
 
-    List<Role> getRolesOfCurrentUser();
+    List<RoleDto> getRolesOfCurrentUser();
 
     List<Feature> getFeaturesOfRole(Integer roleId);
 
-    List<User> getUsersOfRole(Integer roleId);
+    List<UserDto> getUsersOfRole(Integer roleId);
 
-    Role findRoleByName(String roleTimeKeepingAdmin);
+    RoleDto findRoleByName(String roleTimeKeepingAdmin);
 }

@@ -1,16 +1,15 @@
 package com.comit.services.account.business;
 
+import com.comit.services.account.client.data.LocationDto;
+import com.comit.services.account.client.data.OrganizationDto;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
-import com.comit.services.account.model.dto.LocationDto;
-import com.comit.services.account.model.dto.OrganizationDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 

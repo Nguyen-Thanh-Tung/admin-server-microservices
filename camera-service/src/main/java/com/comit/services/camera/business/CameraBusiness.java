@@ -27,4 +27,6 @@ public interface CameraBusiness {
     boolean updatePolygonCamera(int id, CameraPolygonsRequest cameraRequest);
 
     int getNumberCameraOfLocation(int locationId);
+
+    int getNumberCameraOfAreRestriction(int areaRestrictionId);
 }

@@ -1,9 +1,10 @@
 package com.comit.services.areaRestriction.business;
 
+import com.comit.services.areaRestriction.client.data.LocationDto;
+import com.comit.services.areaRestriction.controller.request.AreaEmployeeTimeListRequest;
+import com.comit.services.areaRestriction.model.dto.AreaEmployeeTimeDto;
 import com.comit.services.areaRestriction.model.entity.AreaEmployeeTime;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
-import com.comit.services.areaRestriction.model.entity.Employee;
-import com.comit.services.areaRestriction.model.entity.Location;
 import com.comit.services.areaRestriction.service.AreaEmployeeTimeService;
 import com.comit.services.areaRestriction.service.AreaRestrictionServices;
 import com.google.gson.JsonArray;
@@ -25,9 +26,9 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
     private AreaEmployeeTimeService areaEmployeeTimeService;
 
     @Override
-    public List<AreaEmployeeTime> saveEmployeeAreaRestrictionList(String employeeAreaRestrictionStr, Employee employee) {
-        Location location = areaRestrictionServices.getLocationOfCurrentUser();
-        JsonArray jsonArray = new JsonParser().parse(employeeAreaRestrictionStr).getAsJsonArray();
+    public List<AreaEmployeeTimeDto> saveAreaEmployeeTimeList(AreaEmployeeTimeListRequest areaEmployeeTimeListRequest) {
+        LocationDto locationDto = areaRestrictionServices.getLocationOfCurrentUser();
+        JsonArray jsonArray = new JsonParser().parse(areaEmployeeTimeListRequest.getAreaEmployees()).getAsJsonArray();
         List<AreaEmployeeTime> areaEmployeeTimes = new ArrayList<>();
         jsonArray.forEach(jsonElement -> {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -35,22 +36,37 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
                 Integer areaRestrictionId = jsonObject.get("area_restriction_id").getAsInt();
                 String timeStart = jsonObject.get("time_start").getAsString();
                 String timeEnd = jsonObject.get("time_end").getAsString();
-                AreaRestriction areaRestriction = areaRestrictionServices.getAreaRestriction(location.getId(), areaRestrictionId);
+                AreaRestriction areaRestriction = areaRestrictionServices.getAreaRestriction(locationDto.getId(), areaRestrictionId);
                 if (areaRestriction != null) {
                     AreaEmployeeTime areaEmployeeTime = new AreaEmployeeTime();
                     areaEmployeeTime.setAreaRestriction(areaRestriction);
                     areaEmployeeTime.setTimeStart(timeStart);
                     areaEmployeeTime.setTimeEnd(timeEnd);
-                    areaEmployeeTime.setEmployeeId(employee.getId());
+                    areaEmployeeTime.setEmployeeId(areaEmployeeTimeListRequest.getEmployeeId());
                     areaEmployeeTimes.add(areaEmployeeTime);
                 }
             }
         });
-        return areaEmployeeTimeService.saveAllAreaEmployeeTime(areaEmployeeTimes);
+        List<AreaEmployeeTime> newAreaEmployeeTimes = areaEmployeeTimeService.saveAllAreaEmployeeTime(areaEmployeeTimes);
+        List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
+        newAreaEmployeeTimes.forEach(areaEmployeeTime -> {
+            areaEmployeeTimeDtos.add(AreaEmployeeTimeDto.convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
+        });
+        return areaEmployeeTimeDtos;
     }
 
     @Override
-    public boolean deleteEmployeeAreaRestrictionList(Employee employee) {
-        return areaEmployeeTimeService.deleteAreaEmployeeTime(employee.getId());
+    public List<AreaEmployeeTimeDto> getAreaEmployeeTimeListOfEmployee(Integer employeeId) {
+        List<AreaEmployeeTime> areaEmployeeTimes = areaEmployeeTimeService.getAreaEmployeeTimeListOfEmployee(employeeId);
+        List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
+        areaEmployeeTimes.forEach(areaEmployeeTime -> {
+            areaEmployeeTimeDtos.add(AreaEmployeeTimeDto.convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
+        });
+        return areaEmployeeTimeDtos;
+    }
+
+    @Override
+    public boolean deleteEmployeeAreaRestrictionList(Integer employeeId) {
+        return areaEmployeeTimeService.deleteAreaEmployeeTime(employeeId);
     }
 }

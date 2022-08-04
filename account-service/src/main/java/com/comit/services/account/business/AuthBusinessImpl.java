@@ -1,5 +1,6 @@
 package com.comit.services.account.business;
 
+import com.comit.services.account.client.data.OrganizationDto;
 import com.comit.services.account.constant.AuthErrorCode;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
@@ -28,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -103,7 +103,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             throw new AccountRestApiException(UserErrorCode.EMAIL_EXISTED);
         }
 
-        Organization organization = userServices.getOrganizationById(signUpRequest.getOrganizationId());
+        OrganizationDto organization = userServices.getOrganizationById(signUpRequest.getOrganizationId());
 
         // Create new user's account
         Set<Role> roleSet = new HashSet<>();
@@ -153,12 +153,12 @@ public class AuthBusinessImpl implements AuthBusiness {
         roles.add(Const.ROLE_SUPER_ADMIN);
 
         // Create organization
-        Organization organization = userServices.getOrganizationByName(organizationName);
+        OrganizationDto organizationDto = userServices.getOrganizationByName(organizationName);
 
-        if (organization == null) {
-            organization = new Organization();
+        if (organizationDto == null) {
+            Organization organization = new Organization();
             organization.setName(organizationName);
-            organization = userServices.addOrganization(organization);
+            organizationDto = userServices.addOrganization(organization);
         }
 
 
@@ -180,7 +180,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode(password));
             user.setRoles(roleSet);
-            user.setOrganizationId(organization.getId());
+            user.setOrganizationId(organizationDto.getId());
             user.setStatus(Const.PENDING);
 
             User newUser = userServices.saveUser(user);

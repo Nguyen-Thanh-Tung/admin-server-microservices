@@ -1,7 +1,7 @@
 package com.comit.services.history.client.response;
 
+import com.comit.services.history.client.data.NotificationMethodDto;
 import com.comit.services.history.controller.response.BaseResponse;
-import com.comit.services.history.model.entity.NotificationMethod;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 public class NotificationMethodResponse extends BaseResponse {
     @JsonProperty("notification_method")
-    private NotificationMethod notificationMethod;
+    private NotificationMethodDto notificationMethod;
 
-    public NotificationMethodResponse(int code, String message, NotificationMethod notificationMethod) {
+    public NotificationMethodResponse(int code, String message, NotificationMethodDto notificationMethod) {
         this.code = code;
         this.message = message;
         this.notificationMethod = notificationMethod;

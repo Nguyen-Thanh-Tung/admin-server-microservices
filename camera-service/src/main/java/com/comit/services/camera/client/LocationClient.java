@@ -14,5 +14,5 @@ public interface LocationClient {
     ResponseEntity<LocationListResponse> getLocationsByOrganizationId(@RequestHeader("token") String token, @PathVariable(name = "organizationId") int organizationId);
 
     @GetMapping("/locations/{id}")
-    ResponseEntity<LocationResponse> getLocationById(@RequestHeader("token") String token, @PathVariable Integer id);
+    ResponseEntity<LocationResponse> getLocationById(@RequestHeader String token, @PathVariable("id") Integer locationId);
 }

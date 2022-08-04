@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface LocationClient {
 
     @GetMapping("/locations/{id}")
-    ResponseEntity<LocationResponse> getLocation(@RequestHeader("token") String token, @PathVariable Integer id);
+    ResponseEntity<LocationResponse> getLocation(@RequestHeader String token, @PathVariable("id") Integer locationId);
 }

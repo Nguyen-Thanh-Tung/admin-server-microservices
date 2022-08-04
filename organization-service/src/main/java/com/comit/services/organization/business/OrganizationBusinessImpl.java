@@ -1,14 +1,14 @@
 package com.comit.services.organization.business;
 
+import com.comit.services.organization.client.data.LocationDto;
+import com.comit.services.organization.client.data.UserDto;
 import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.exception.RestApiException;
 import com.comit.services.organization.middleware.OrganizationVerifyRequestServices;
 import com.comit.services.organization.model.dto.OrganizationDto;
-import com.comit.services.organization.model.entity.Location;
 import com.comit.services.organization.model.entity.Organization;
-import com.comit.services.organization.model.entity.User;
 import com.comit.services.organization.service.OrganizationServices;
 import com.comit.services.organization.util.ExcelUtil;
 import org.modelmapper.ModelMapper;
@@ -50,9 +50,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         organizations.forEach(organization -> {
             if (!Objects.equals(organization.getName(), superAdminOrganization)) {
                 OrganizationDto organizationDto = convertOrganizationToOrganizationDto(organization);
-                List<User> users = organizationServices.getUsersByOrganizationId(organization.getId());
+                List<UserDto> userDtos = organizationServices.getUsersByOrganizationId(organization.getId());
                 AtomicInteger numberUser = new AtomicInteger();
-                users.forEach(user -> {
+                userDtos.forEach(user -> {
                     if (Objects.equals(user.getStatus(), Const.ACTIVE)) {
                         numberUser.getAndIncrement();
                     }
@@ -138,13 +138,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
             throw new RestApiException(OrganizationErrorCode.ORGANIZATION_NOT_EXIST);
         }
 
-        List<User> users = organizationServices.getUsersByOrganizationId(organizationId);
-        if (users.size() > 0) {
+        List<UserDto> userDtos = organizationServices.getUsersByOrganizationId(organizationId);
+        if (userDtos.size() > 0) {
             throw new RestApiException(OrganizationErrorCode.CAN_DELETE_ORGANIZATION_HAS_USER);
         }
-        List<Location> locations = organizationServices.getLocationsByOrganizationId(organizationId);
+        List<LocationDto> locationDtos = organizationServices.getLocationsByOrganizationId(organizationId);
 
-        if (locations.size() > 0) {
+        if (locationDtos.size() > 0) {
             throw new RestApiException(OrganizationErrorCode.CAN_DELETE_ORGANIZATION_HAS_LOCATION);
         }
         return organizationServices.deleteOrganization(organizationId);

@@ -4,7 +4,6 @@ import com.comit.services.feature.client.response.CheckRoleResponse;
 import com.comit.services.feature.client.response.RoleListResponse;
 import com.comit.services.feature.client.response.RoleResponse;
 import com.comit.services.feature.client.response.UserListResponse;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

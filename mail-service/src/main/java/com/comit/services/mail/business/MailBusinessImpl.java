@@ -73,7 +73,11 @@ public class MailBusinessImpl implements MailBusiness {
         model.put("link", env.getProperty("frontendServer") + "?user_id=" + mailCreateUserRequest.getId() + "&code=" + mailCreateUserRequest.getCode());
         mail.setProps(model);
 
-        mailServices.sendEmail(mail, "createUser-template");
-        return true;
+        try {
+            mailServices.sendEmail(mail, "createUser-template");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

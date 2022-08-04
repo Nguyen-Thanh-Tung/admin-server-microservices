@@ -3,7 +3,6 @@ package com.comit.services.account.config;
 import com.comit.services.account.jwt.JwtAuthEntryPoint;
 import com.comit.services.account.jwt.JwtAuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

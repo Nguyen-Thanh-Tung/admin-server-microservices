@@ -2,7 +2,6 @@ package com.comit.services.employee.client;
 
 import com.comit.services.employee.client.request.MetadataRequest;
 import com.comit.services.employee.client.response.MetadataResponse;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

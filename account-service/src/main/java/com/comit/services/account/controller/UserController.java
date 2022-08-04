@@ -1,6 +1,8 @@
 package com.comit.services.account.controller;
 
 import com.comit.services.account.business.UserBusiness;
+import com.comit.services.account.client.data.LocationDto;
+import com.comit.services.account.client.data.OrganizationDto;
 import com.comit.services.account.constant.RoleErrorCode;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
@@ -8,8 +10,6 @@ import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.controller.response.*;
 import com.comit.services.account.exeption.AccountRestApiException;
-import com.comit.services.account.model.dto.LocationDto;
-import com.comit.services.account.model.dto.OrganizationDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +187,7 @@ public class UserController {
         return new ResponseEntity<>(new RoleListResponse(RoleErrorCode.SUCCESS, roleDtos), HttpStatus.OK);
     }
 
-    @GetMapping("/location/{locationId}")
+    @GetMapping("/location/{locationId}/number-user")
     ResponseEntity<BaseResponse> getNumberUserOfLocation(@PathVariable Integer locationId) {
         int numberUserOfLocation = userBusiness.getNumberUserOfLocation(locationId);
         return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUserOfLocation), HttpStatus.OK);

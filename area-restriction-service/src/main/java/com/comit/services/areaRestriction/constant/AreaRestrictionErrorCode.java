@@ -13,7 +13,7 @@ public enum AreaRestrictionErrorCode {
     MANAGERS_NOT_FOUND(0, "Không có người phụ trách thỏa mãn"),
     CAN_NOT_DELETE_AREA_RESTRICTION(0, "Không thể xóa khu vực hạn chế"),
     SUCCESS(1, "Thành công"),
-    INTERNAL_ERROR(0, "Có lỗi xảy ra, hãy thử lại sau!");
+    INTERNAL_ERROR(0, "Có lỗi xảy ra, hãy thử lại sau!"), FAIL(0, "Không thành công");
 
     private final int code;
     private String message;

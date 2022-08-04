@@ -1,8 +1,8 @@
 package com.comit.services.organization.service;
 
-import com.comit.services.organization.model.entity.Location;
+import com.comit.services.organization.client.data.LocationDto;
+import com.comit.services.organization.client.data.UserDto;
 import com.comit.services.organization.model.entity.Organization;
-import com.comit.services.organization.model.entity.User;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public interface OrganizationServices {
 
     boolean hasPermissionManageOrganization();
 
-    List<User> getUsersByOrganizationId(int organizationId);
+    List<UserDto> getUsersByOrganizationId(int organizationId);
 
-    List<Location> getLocationsByOrganizationId(int organizationId);
+    List<LocationDto> getLocationsByOrganizationId(int organizationId);
 }

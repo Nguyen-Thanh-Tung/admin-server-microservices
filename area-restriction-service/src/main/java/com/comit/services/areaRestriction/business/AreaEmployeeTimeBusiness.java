@@ -1,13 +1,15 @@
 package com.comit.services.areaRestriction.business;
 
 
-import com.comit.services.areaRestriction.model.entity.AreaEmployeeTime;
-import com.comit.services.areaRestriction.model.entity.Employee;
+import com.comit.services.areaRestriction.controller.request.AreaEmployeeTimeListRequest;
+import com.comit.services.areaRestriction.model.dto.AreaEmployeeTimeDto;
 
 import java.util.List;
 
 public interface AreaEmployeeTimeBusiness {
-    List<AreaEmployeeTime> saveEmployeeAreaRestrictionList(String employeeAreaRestrictionStr, Employee employee);
+    boolean deleteEmployeeAreaRestrictionList(Integer employeeId);
 
-    boolean deleteEmployeeAreaRestrictionList(Employee employee);
+    List<AreaEmployeeTimeDto> saveAreaEmployeeTimeList(AreaEmployeeTimeListRequest areaEmployeeTimeListRequest);
+
+    List<AreaEmployeeTimeDto> getAreaEmployeeTimeListOfEmployee(Integer employeeId);
 }
