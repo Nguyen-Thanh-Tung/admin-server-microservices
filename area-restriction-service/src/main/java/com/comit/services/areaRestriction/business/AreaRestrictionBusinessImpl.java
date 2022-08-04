@@ -164,7 +164,8 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public AreaRestrictionDto getAreaRestriction(Integer id) {
-        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(id);
+        LocationDto locationDto = areaRestrictionService.getLocationOfCurrentUser();
+        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDto.getId(), id);
         if (areaRestriction != null) {
             return convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
         }
