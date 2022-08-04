@@ -157,9 +157,6 @@ public class UserController {
     @GetMapping("/current/location")
     ResponseEntity<LocationResponse> getLocationOfCurrentUser() {
         LocationDto locationDto = userBusiness.getLocationOfCurrentUser();
-        if (locationDto == null) {
-            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
-        }
         return new ResponseEntity<>(new LocationResponse(UserErrorCode.SUCCESS, locationDto), HttpStatus.OK);
     }
 

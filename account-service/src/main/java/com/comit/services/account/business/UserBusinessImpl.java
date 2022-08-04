@@ -330,11 +330,7 @@ public class UserBusinessImpl implements UserBusiness {
         if (currentUser == null) {
             return null;
         }
-        LocationDto location = userServices.getLocation(currentUser.getLocationId());
-        if (location == null) {
-            return null;
-        }
-        return location;
+        return userServices.getLocation(currentUser.getLocationId());
     }
 
     @Override
