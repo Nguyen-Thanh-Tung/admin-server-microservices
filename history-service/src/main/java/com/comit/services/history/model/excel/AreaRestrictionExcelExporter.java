@@ -22,7 +22,7 @@ public class AreaRestrictionExcelExporter {
 
     public AreaRestrictionExcelExporter(List<InOutHistory> inOutHistories, HistoryServices historyServices) {
         this.inOutHistories = inOutHistories;
-        workbook = new XSSFWorkbook();
+        this.workbook = new XSSFWorkbook();
         this.historyServices = historyServices;
     }
 

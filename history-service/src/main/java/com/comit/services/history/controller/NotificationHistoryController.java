@@ -10,6 +10,7 @@ import com.comit.services.history.model.dto.NotificationHistoryDto;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.model.excel.AreaRestrictionNotificationExcelExporter;
 import com.comit.services.history.model.excel.TimeKeepingNotificationExcelExporter;
+import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,8 @@ import java.util.List;
 public class NotificationHistoryController {
     @Autowired
     NotificationHistoryBusiness notificationHistoryBusiness;
+    @Autowired
+    HistoryServices historyServices;
 
     @GetMapping(value = "")
     public ResponseEntity<BaseResponse> getAllNotificationHistory(
@@ -83,7 +86,7 @@ public class NotificationHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=time_keeping_notification_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        TimeKeepingNotificationExcelExporter excelExporter = new TimeKeepingNotificationExcelExporter(historyPage.getContent());
+        TimeKeepingNotificationExcelExporter excelExporter = new TimeKeepingNotificationExcelExporter(historyPage.getContent(), historyServices);
         excelExporter.export(response);
     }
 
@@ -103,7 +106,7 @@ public class NotificationHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=area_restriction_notification_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        AreaRestrictionNotificationExcelExporter excelExporter = new AreaRestrictionNotificationExcelExporter(historyPage.getContent());
+        AreaRestrictionNotificationExcelExporter excelExporter = new AreaRestrictionNotificationExcelExporter(historyPage.getContent(), historyServices);
         excelExporter.export(response);
     }
 

@@ -20,13 +20,12 @@ public class TimeKeepingNotificationExcelExporter {
     private final XSSFWorkbook workbook;
     private final List<NotificationHistory> notificationHistories;
     private XSSFSheet sheet;
+    private final HistoryServices historyServices;
 
-    @Autowired
-    private HistoryServices historyServices;
-
-    public TimeKeepingNotificationExcelExporter(List<NotificationHistory> notificationHistories) {
+    public TimeKeepingNotificationExcelExporter(List<NotificationHistory> notificationHistories, HistoryServices historyServices) {
         this.notificationHistories = notificationHistories;
-        workbook = new XSSFWorkbook();
+        this.workbook = new XSSFWorkbook();
+        this.historyServices = historyServices;
     }
 
 

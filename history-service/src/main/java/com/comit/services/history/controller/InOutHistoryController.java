@@ -73,7 +73,7 @@ public class InOutHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=time_keeping_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        TimeKeepingExcelExporter excelExporter = new TimeKeepingExcelExporter(historyPage.getContent());
+        TimeKeepingExcelExporter excelExporter = new TimeKeepingExcelExporter(historyPage.getContent(), historyServices);
         excelExporter.export(response);
     }
 

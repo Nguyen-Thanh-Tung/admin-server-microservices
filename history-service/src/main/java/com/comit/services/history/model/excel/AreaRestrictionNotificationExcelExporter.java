@@ -22,13 +22,12 @@ public class AreaRestrictionNotificationExcelExporter {
     private final XSSFWorkbook workbook;
     private final List<NotificationHistory> notificationHistories;
     private XSSFSheet sheet;
+    private final HistoryServices historyServices;
 
-    @Autowired
-    private HistoryServices historyServices;
-
-    public AreaRestrictionNotificationExcelExporter(List<NotificationHistory> notificationHistories) {
+    public AreaRestrictionNotificationExcelExporter(List<NotificationHistory> notificationHistories, HistoryServices historyServices) {
         this.notificationHistories = notificationHistories;
-        workbook = new XSSFWorkbook();
+        this.workbook = new XSSFWorkbook();
+        this.historyServices = historyServices;
     }
 
 

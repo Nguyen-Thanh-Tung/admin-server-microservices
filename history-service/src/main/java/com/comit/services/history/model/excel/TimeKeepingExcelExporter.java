@@ -21,13 +21,12 @@ public class TimeKeepingExcelExporter {
     private final XSSFWorkbook workbook;
     private final List<InOutHistory> inOutHistories;
     private XSSFSheet sheet;
+    private final HistoryServices historyServices;
 
-    @Autowired
-    private HistoryServices historyServices;
-
-    public TimeKeepingExcelExporter(List<InOutHistory> inOutHistories) {
+    public TimeKeepingExcelExporter(List<InOutHistory> inOutHistories, HistoryServices historyServices) {
         this.inOutHistories = inOutHistories;
-        workbook = new XSSFWorkbook();
+        this.workbook = new XSSFWorkbook();
+        this.historyServices = historyServices;
     }
 
 
