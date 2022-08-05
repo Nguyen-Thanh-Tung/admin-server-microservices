@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "account-service")
 public interface AccountClient {
     @GetMapping("/roles/organization")
-    ResponseEntity<CheckRoleResponse> hasPermissionManageOrganization(@RequestHeader("token") String token);
+    ResponseEntity<CheckRoleResponse> hasPermissionManageOrganization(@RequestHeader String token);
 
     @GetMapping("/users/organization/{organizationId}")
-    ResponseEntity<UserListResponse> getUsersByOrganizationId(@RequestHeader("token") String token, @PathVariable(name = "organizationId") int organizationId);
+    ResponseEntity<UserListResponse> getUsersByOrganizationId(@RequestHeader String token, @PathVariable(name = "organizationId") int organizationId);
 
     @GetMapping("/users/current/user")
     ResponseEntity<UserResponse> getCurrentUser(@RequestHeader String token);

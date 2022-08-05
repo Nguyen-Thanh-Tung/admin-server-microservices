@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "camera-service")
 public interface CameraClient {
     @GetMapping("/cameras/location/{locationId}/number-camera")
-    ResponseEntity<CountResponse> getNumberCameraOfLocation(@RequestHeader("token") String token, @PathVariable Integer locationId);
+    ResponseEntity<CountResponse> getNumberCameraOfLocation(@RequestHeader String token, @PathVariable Integer locationId);
 }

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface AreaRestrictionClient {
 
     @GetMapping("/area-restrictions/{id}")
-    ResponseEntity<AreaRestrictionResponse> getAreaRestriction(@RequestHeader("token") String token, @PathVariable Integer id);
+    ResponseEntity<AreaRestrictionResponse> getAreaRestriction(@RequestHeader String token, @PathVariable Integer id);
 
     @GetMapping("/area-restrictions/{areaRestrictionId}/notification-method")
-    ResponseEntity<NotificationMethodResponse> getNotificationMethodOfAreaRestriction(@RequestHeader("token") String token, @PathVariable Integer areaRestrictionId);
+    ResponseEntity<NotificationMethodResponse> getNotificationMethodOfAreaRestriction(@RequestHeader String token, @PathVariable Integer areaRestrictionId);
 }

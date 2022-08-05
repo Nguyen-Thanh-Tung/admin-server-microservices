@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "account-service")
 public interface AccountClient {
     @GetMapping("/users/current/location")
-    ResponseEntity<LocationResponse> getLocationOfCurrentUser(@RequestHeader("token") String token);
+    ResponseEntity<LocationResponse> getLocationOfCurrentUser(@RequestHeader String token);
 
     @GetMapping("/users/current/organization")
-    ResponseEntity<OrganizationResponse> getOrganizationOfCurrentUser(@RequestHeader("token") String token);
+    ResponseEntity<OrganizationResponse> getOrganizationOfCurrentUser(@RequestHeader String token);
 
     @GetMapping("/users/current/user")
     ResponseEntity<UserResponse> getCurrentUser(@RequestHeader String token);

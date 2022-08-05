@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "account-service")
 public interface AccountClient {
     @GetMapping("/roles/is-super-admin")
-    ResponseEntity<CheckRoleResponse> isCurrentUserSuperAdmin(@RequestHeader("token") String token);
+    ResponseEntity<CheckRoleResponse> isCurrentUserSuperAdmin(@RequestHeader String token);
 
     @GetMapping("/users/current/roles")
     ResponseEntity<RoleListResponse> getRolesOfCurrentUser(@RequestHeader(value = "token") String token);
 
     @GetMapping("/roles/{roleId}/users")
-    ResponseEntity<UserListResponse> getUsersOfRole(@RequestHeader("token") String token, @PathVariable Integer roleId);
+    ResponseEntity<UserListResponse> getUsersOfRole(@RequestHeader String token, @PathVariable Integer roleId);
 
     @GetMapping("/roles/name/{roleName}")
-    ResponseEntity<RoleResponse> getRoleByName(@RequestHeader("token") String token, @PathVariable String roleName);
+    ResponseEntity<RoleResponse> getRoleByName(@RequestHeader String token, @PathVariable String roleName);
 }

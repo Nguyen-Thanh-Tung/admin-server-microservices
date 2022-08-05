@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "mail-service")
 public interface MailClient {
     @PostMapping("/mails/qrcode")
-    ResponseEntity<BaseResponse> sendQrCodeMail(@RequestHeader("token") String token, @RequestBody MailRequest mailRequest);
+    ResponseEntity<BaseResponse> sendQrCodeMail(@RequestHeader String token, @RequestBody MailRequest mailRequest);
 }

@@ -13,9 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 public interface MetadataClient {
 
     @PostMapping("/metadatas/save-file")
-    ResponseEntity<MetadataResponse> saveMetadata(@RequestHeader("token") String token, MultipartFile file);
+    ResponseEntity<MetadataResponse> saveMetadata(@RequestHeader String token, MultipartFile file);
 
     @GetMapping("/metadatas/{id}")
-    ResponseEntity<MetadataResponse> getMetadata(@RequestHeader("token") String token, @PathVariable Integer id);
+    ResponseEntity<MetadataResponse> getMetadata(@RequestHeader String token, @PathVariable Integer id);
 
 }
