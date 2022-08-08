@@ -12,4 +12,6 @@ public interface AreaEmployeeTimeBusiness {
     List<AreaEmployeeTimeDto> saveAreaEmployeeTimeList(AreaEmployeeTimeListRequest areaEmployeeTimeListRequest);
 
     List<AreaEmployeeTimeDto> getAreaEmployeeTimeListOfEmployee(Integer employeeId);
+
+    List<AreaEmployeeTimeDto> getAreaEmployeeTimeListOfAreaRestriction(Integer areaRestrictionId);
 }

@@ -15,4 +15,6 @@ public interface AreaEmployeeTimeRepository extends JpaRepository<AreaEmployeeTi
     int countByAreaRestrictionId(int areaRestrictionId);
 
     List<AreaEmployeeTime> findByEmployeeId(Integer employeeId);
+
+    List<AreaEmployeeTime> findByAreaRestrictionId(Integer areaRestrictionId);
 }

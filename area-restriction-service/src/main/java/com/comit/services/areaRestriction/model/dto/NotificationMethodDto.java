@@ -26,7 +26,7 @@ public class NotificationMethodDto extends BaseModelDto {
     private boolean useRing;
 
     @JsonProperty(value = "area_restriction_id")
-    private boolean areaRestrictionId;
+    private Integer areaRestrictionId;
 
     public static NotificationMethodDto convertNotificationMethodToNotificationMethodDto(NotificationMethod notificationMethod) {
         if (notificationMethod == null) return null;

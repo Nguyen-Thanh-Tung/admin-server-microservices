@@ -1,6 +1,7 @@
 package com.comit.services.employee.model.dto;
 
 import com.comit.services.employee.client.data.AreaEmployeeTimeDto;
+import com.comit.services.employee.client.data.LocationDto;
 import com.comit.services.employee.client.data.MetadataDto;
 import com.comit.services.employee.client.data.ShiftDto;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
@@ -22,8 +23,8 @@ public class EmployeeDto extends BaseModelDto {
     private String phone;
     private String status;
 
-    @JsonProperty("location_id")
-    private Integer locationId;
+    @JsonProperty("location")
+    private LocationDto location;
 
     @JsonProperty("embedding_id")
     private Integer embeddingId;

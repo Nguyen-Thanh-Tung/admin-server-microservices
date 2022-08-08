@@ -58,7 +58,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
     public List<AreaRestrictionDto> getAllAreaRestriction(List<AreaRestriction> areaRestrictions) {
         List<AreaRestrictionDto> areaRestrictionDtos = new ArrayList<>();
         areaRestrictions.forEach(areaRestriction -> {
-            AreaRestrictionDto areaRestrictionDto = convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
+            AreaRestrictionDto areaRestrictionDto = convertAreaRestrictionToAreaRestrictionFullDto(areaRestriction);
             areaRestrictionDtos.add(areaRestrictionDto);
         });
         return areaRestrictionDtos;
@@ -95,7 +95,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         notificationMethod.setAreaRestrictionId(areaRestriction.getId());
         NotificationMethod newNotificationMethod = notificationMethodServices.saveNotificationMethod(notificationMethod);
 
-        return convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
+        return convertAreaRestrictionToAreaRestrictionFullDto(newAreaRestriction);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         areaRestriction.setTimeStart(request.getTimeStart());
         areaRestriction.setTimeEnd(request.getTimeEnd());
         AreaRestriction newAreaRestriction = areaRestrictionService.updateAreaRestriction(areaRestriction);
-        return convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
+        return convertAreaRestrictionToAreaRestrictionFullDto(newAreaRestriction);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
                 areaRestrictionManagerNotificationBusiness.saveAreaManagerTimeList(request.getManagerTimeSkips(), areaRestrictionId);
             }
         }
-        return convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
+        return convertAreaRestrictionToAreaRestrictionFullDto(areaRestriction);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
             areaRestrictionManagerNotificationDtos.add(areaRestrictionManagerNotificationDto);
         }
         AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDto.getId(), areaRestrictionId);
-        areaRestrictionNotificationDto.setAreaRestrictionDto(convertAreaRestrictionToAreaRestrictionDto(areaRestriction));
+        areaRestrictionNotificationDto.setAreaRestrictionDto(convertAreaRestrictionToAreaRestrictionFullDto(areaRestriction));
         areaRestrictionNotificationDto.setAreaRestrictionManagerNotifications(areaRestrictionManagerNotificationDtos);
         areaRestrictionNotificationDto.setNotificationMethod(NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod));
         return areaRestrictionNotificationDto;
@@ -214,6 +214,16 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
     }
 
     public AreaRestrictionDto convertAreaRestrictionToAreaRestrictionDto(AreaRestriction areaRestriction) {
+        if (areaRestriction == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(areaRestriction, AreaRestrictionDto.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public AreaRestrictionDto convertAreaRestrictionToAreaRestrictionFullDto(AreaRestriction areaRestriction) {
         if (areaRestriction == null) return null;
         Date startDay = TimeUtil.getDateTimeFromTimeString("00:00:00");
         DateTime now = new DateTime(TimeUtil.asiaHoChiMinh);

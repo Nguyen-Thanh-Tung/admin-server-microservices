@@ -51,7 +51,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     public List<EmployeeDto> getAllEmployee(List<Employee> employees) {
         List<EmployeeDto> employeeDtos = new ArrayList<>();
         employees.forEach(employee -> {
-            employeeDtos.add(convertEmployeeToEmployeeDto(employee));
+            employeeDtos.add(convertEmployeeToEmployeeFullDto(employee));
         });
         return employeeDtos;
     }
@@ -134,7 +134,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                                         }
                                     }
 
-                                    return convertEmployeeToEmployeeDto(newEmployee);
+                                    return convertEmployeeToEmployeeFullDto(newEmployee);
                                 } catch (Exception e) {
                                     if (e instanceof RestApiException) {
                                         throw e;
@@ -250,19 +250,34 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
             Employee newEmployee = employeeServices.saveEmployee(employee);
 
-            return convertEmployeeToEmployeeDto(newEmployee);
+            return convertEmployeeToEmployeeFullDto(newEmployee);
         }
         return null;
     }
 
     @Override
-    public EmployeeDto getEmployee(int id) {
+    public EmployeeDto getEmployee(int id, boolean isFullInfo) {
         // Is user and has role manage employee (Ex: Time keeping user)
         permissionManageEmployee();
 
         // Get employee in location
         LocationDto locationDto = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, locationDto.getId());
+        if (employee == null) {
+            throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
+        }
+
+        return isFullInfo ? convertEmployeeToEmployeeFullDto(employee) : convertEmployeeToEmployeeDto(employee);
+    }
+
+    @Override
+    public EmployeeDto getEmployee(String code) {
+        // Is user and has role manage employee (Ex: Time keeping user)
+        permissionManageEmployee();
+
+        // Get employee in location
+        LocationDto locationDto = employeeServices.getLocationOfCurrentUser();
+        Employee employee = employeeServices.getEmployee(code, locationDto.getId());
         if (employee == null) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
@@ -334,7 +349,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             employee.setManagerId(newManager.getId());
             employeeServices.saveEmployee(employee);
         }
-        return convertEmployeeToEmployeeDto(newManager);
+        return convertEmployeeToEmployeeFullDto(newManager);
     }
 
     private void permissionManageEmployee() {
@@ -450,6 +465,16 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         if (employee == null) return null;
         try {
             ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(employee, EmployeeDto.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public EmployeeDto convertEmployeeToEmployeeFullDto(Employee employee) {
+        if (employee == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
             EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
             // Manager of employee
             if (employee.getManagerId() != null && employee.getLocationId() != null) {
@@ -462,7 +487,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             List<Employee> employeesOfEmployee = employeeServices.getEmployeeOfManager(employee.getId());
             List<EmployeeDto> employeesOfEmployeeDtos = new ArrayList<>();
             employeesOfEmployee.forEach(tmp -> {
-                employeesOfEmployeeDtos.add(convertEmployeeToEmployeeDto(tmp));
+                employeesOfEmployeeDtos.add(convertEmployeeToEmployeeFullDto(tmp));
             });
             employeeDto.setEmployees(employeesOfEmployeeDtos);
             if (employee.getShiftIds() != null) {

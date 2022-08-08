@@ -52,7 +52,19 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BaseResponse> getEmployee(@PathVariable int id) {
-        EmployeeDto employeeDto = employeeBusiness.getEmployee(id);
+        EmployeeDto employeeDto = employeeBusiness.getEmployee(id, false);
+        return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/full")
+    public ResponseEntity<BaseResponse> getEmployeeFullInfo(@PathVariable int id) {
+        EmployeeDto employeeDto = employeeBusiness.getEmployee(id, true);
+        return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/code/{employeeCode}")
+    public ResponseEntity<BaseResponse> getEmployee(@PathVariable String employeeCode) {
+        EmployeeDto employeeDto = employeeBusiness.getEmployee(employeeCode);
         return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
     }
 

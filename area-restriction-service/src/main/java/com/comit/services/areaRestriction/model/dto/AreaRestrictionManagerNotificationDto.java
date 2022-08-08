@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AreaRestrictionManagerNotificationDto extends BaseModelDto {
+public class AreaRestrictionManagerNotificationDto {
 
     @JsonIncludeProperties(value = {"id", "name", "code", "email"})
     private EmployeeDto manager;

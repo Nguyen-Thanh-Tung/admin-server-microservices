@@ -12,4 +12,6 @@ public interface AreaEmployeeTimeService {
     int getNumberAreaEmployeeTimeOfAreaRestriction(int areaRestrictionId);
 
     List<AreaEmployeeTime> getAreaEmployeeTimeListOfEmployee(Integer employeeId);
+
+    List<AreaEmployeeTime> getAreaEmployeeTimeListOfAreaRestriction(Integer areaRestrictionId);
 }

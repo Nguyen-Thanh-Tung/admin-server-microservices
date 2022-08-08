@@ -13,6 +13,8 @@ public interface EmployeeServices {
 
     Employee getEmployee(int employeeId, Integer locationId);
 
+    Employee getEmployee(String employeeCode, Integer locationId);
+
     Employee saveEmployee(Employee employee);
 
     Employee getEmployeeByCodeAndLocation(String code, Integer locationId);

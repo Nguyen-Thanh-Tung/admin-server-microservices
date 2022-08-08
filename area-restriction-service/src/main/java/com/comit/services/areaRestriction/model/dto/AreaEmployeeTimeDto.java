@@ -20,14 +20,4 @@ public class AreaEmployeeTimeDto extends BaseModelDto {
 
     @JsonProperty(value = "time_end")
     private String timeEnd;
-
-    public static AreaEmployeeTimeDto convertAreaEmployeeTimeToAreaEmployeeTimeDto(AreaEmployeeTime areaEmployeeTime) {
-        if (areaEmployeeTime == null) return null;
-        try {
-            ModelMapper modelMapper = new ModelMapper();
-            return modelMapper.map(areaEmployeeTime, AreaEmployeeTimeDto.class);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }

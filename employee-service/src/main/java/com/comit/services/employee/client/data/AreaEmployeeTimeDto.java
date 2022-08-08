@@ -2,6 +2,7 @@ package com.comit.services.employee.client.data;
 
 import com.comit.services.employee.model.dto.BaseModelDto;
 import com.comit.services.employee.model.dto.EmployeeDto;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AreaEmployeeTimeDto extends BaseModelDto {
-    private EmployeeDto employee;
+    private Integer employeeId;
 
     @JsonProperty(value = "area_restriction")
     private AreaRestrictionDto areaRestriction;

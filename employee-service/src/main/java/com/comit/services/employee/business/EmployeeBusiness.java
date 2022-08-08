@@ -18,7 +18,9 @@ public interface EmployeeBusiness {
 
     EmployeeDto updateEmployee(int id, HttpServletRequest servletRequest);
 
-    EmployeeDto getEmployee(int id);
+    EmployeeDto getEmployee(int id, boolean isFullInfo);
+
+    EmployeeDto getEmployee(String code);
 
     boolean deleteEmployee(int id);
 

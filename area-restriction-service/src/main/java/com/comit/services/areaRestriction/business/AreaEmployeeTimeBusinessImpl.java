@@ -1,5 +1,6 @@
 package com.comit.services.areaRestriction.business;
 
+import com.comit.services.areaRestriction.client.data.EmployeeDto;
 import com.comit.services.areaRestriction.client.data.LocationDto;
 import com.comit.services.areaRestriction.controller.request.AreaEmployeeTimeListRequest;
 import com.comit.services.areaRestriction.model.dto.AreaEmployeeTimeDto;
@@ -10,6 +11,7 @@ import com.comit.services.areaRestriction.service.AreaRestrictionServices;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +52,7 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
         List<AreaEmployeeTime> newAreaEmployeeTimes = areaEmployeeTimeService.saveAllAreaEmployeeTime(areaEmployeeTimes);
         List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
         newAreaEmployeeTimes.forEach(areaEmployeeTime -> {
-            areaEmployeeTimeDtos.add(AreaEmployeeTimeDto.convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
+            areaEmployeeTimeDtos.add(convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
         });
         return areaEmployeeTimeDtos;
     }
@@ -60,7 +62,17 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
         List<AreaEmployeeTime> areaEmployeeTimes = areaEmployeeTimeService.getAreaEmployeeTimeListOfEmployee(employeeId);
         List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
         areaEmployeeTimes.forEach(areaEmployeeTime -> {
-            areaEmployeeTimeDtos.add(AreaEmployeeTimeDto.convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
+            areaEmployeeTimeDtos.add(convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
+        });
+        return areaEmployeeTimeDtos;
+    }
+
+    @Override
+    public List<AreaEmployeeTimeDto> getAreaEmployeeTimeListOfAreaRestriction(Integer areaRestrictionId) {
+        List<AreaEmployeeTime> areaEmployeeTimes = areaEmployeeTimeService.getAreaEmployeeTimeListOfAreaRestriction(areaRestrictionId);
+        List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
+        areaEmployeeTimes.forEach(areaEmployeeTime -> {
+            areaEmployeeTimeDtos.add(convertAreaEmployeeTimeToAreaEmployeeTimeDto(areaEmployeeTime));
         });
         return areaEmployeeTimeDtos;
     }
@@ -68,5 +80,19 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
     @Override
     public boolean deleteEmployeeAreaRestrictionList(Integer employeeId) {
         return areaEmployeeTimeService.deleteAreaEmployeeTime(employeeId);
+    }
+
+    public AreaEmployeeTimeDto convertAreaEmployeeTimeToAreaEmployeeTimeDto(AreaEmployeeTime areaEmployeeTime) {
+        if (areaEmployeeTime == null) return null;
+        LocationDto locationDto = areaRestrictionServices.getLocationOfCurrentUser();
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            AreaEmployeeTimeDto areaEmployeeTimeDto = modelMapper.map(areaEmployeeTime, AreaEmployeeTimeDto.class);
+            EmployeeDto employeeDto = areaRestrictionServices.getEmployee(areaEmployeeTime.getEmployeeId(), locationDto.getId());
+            areaEmployeeTimeDto.setEmployee(employeeDto);
+            return areaEmployeeTimeDto;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

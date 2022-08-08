@@ -39,4 +39,9 @@ public class AreaEmployeeTimeServiceImpl implements AreaEmployeeTimeService {
     public List<AreaEmployeeTime> getAreaEmployeeTimeListOfEmployee(Integer employeeId) {
         return areaEmployeeTimeRepository.findByEmployeeId(employeeId);
     }
+
+    @Override
+    public List<AreaEmployeeTime> getAreaEmployeeTimeListOfAreaRestriction(Integer areaRestrictionId) {
+        return areaEmployeeTimeRepository.findByAreaRestrictionId(areaRestrictionId);
+    }
 }

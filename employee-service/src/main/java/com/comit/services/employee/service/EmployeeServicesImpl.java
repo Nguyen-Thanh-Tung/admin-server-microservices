@@ -73,6 +73,11 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
+    public Employee getEmployee(String employeeCode, Integer locationId) {
+        return employeeRepository.findByCodeAndLocationId(employeeCode, locationId);
+    }
+
+    @Override
     public Employee saveEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
