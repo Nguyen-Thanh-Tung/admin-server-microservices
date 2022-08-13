@@ -7,7 +7,7 @@
         <version>2.6.1</version>
         <relativePath/>
     </parent>
-    <artifactId>organizationDto-service</artifactId>
+    <artifactId>organization-service</artifactId>
     <groupId>com.comit.services</groupId>
     <version>1.2-SNAPSHOT</version>
 
