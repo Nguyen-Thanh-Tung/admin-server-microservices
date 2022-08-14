@@ -10,6 +10,7 @@ import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.middleware.UserVerifyRequestServices;
+import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.Role;
@@ -319,9 +320,9 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public UserDto getCurrentUser() {
+    public BaseUserDto getCurrentUser() {
         User currentUser = commonBusiness.getCurrentUser();
-        return convertUserToUserDto(currentUser);
+        return convertUserToBaseUserDto(currentUser);
     }
 
     @Override
@@ -344,6 +345,16 @@ public class UserBusinessImpl implements UserBusiness {
             roleDtos.add(RoleDto.convertRoleToRoleDto(role));
         });
         return roleDtos;
+    }
+
+    public BaseUserDto convertUserToBaseUserDto(User user) {
+        if (user == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(user, BaseUserDto.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public UserDto convertUserToUserDto(User user) {
