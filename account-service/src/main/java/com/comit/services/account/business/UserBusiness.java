@@ -5,6 +5,7 @@ import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
+import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.User;
@@ -37,7 +38,7 @@ public interface UserBusiness {
 
     int getNumberUserOfOrganization(int organizationId);
 
-    UserDto getCurrentUser();
+    BaseUserDto getCurrentUser();
 
     List<UserDto> getUsersOfCurrentUser();
 

@@ -7,6 +7,7 @@ import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.controller.response.*;
+import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +154,7 @@ public class UserController {
 
     @GetMapping("/current")
     ResponseEntity<UserResponse> getCurrentUser() {
-        UserDto userDto = userBusiness.getCurrentUser();
+        BaseUserDto userDto = userBusiness.getCurrentUser();
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
 
