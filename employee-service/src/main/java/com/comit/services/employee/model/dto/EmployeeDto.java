@@ -1,9 +1,5 @@
 package com.comit.services.employee.model.dto;
 
-import com.comit.services.employee.client.data.AreaEmployeeTimeDto;
-import com.comit.services.employee.client.data.LocationDto;
-import com.comit.services.employee.client.data.MetadataDto;
-import com.comit.services.employee.client.data.ShiftDto;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -44,7 +40,7 @@ public class EmployeeDto extends BaseModelDto {
     @JsonIncludeProperties(value = {"id", "name", "time_start", "time_end"})
     private List<ShiftDto> shifts;
 
-    @JsonIncludeProperties(value = {"id", "area_restriction", "time_start", "time_end"})
-    @JsonProperty(value = "area_employees")
-    private List<AreaEmployeeTimeDto> areaEmployeeTimes;
+//    @JsonIncludeProperties(value = {"id", "area_restriction", "time_start", "time_end"})
+//    @JsonProperty(value = "area_employees")
+//    private List<AreaEmployeeTimeDtoClient> areaEmployeeTimes;
 }

@@ -22,11 +22,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     void deleteByUsername(String username);
 
-    List<User> findAllByOrganizationIdAndStatusNotIn(Integer organizationId, List<String> statusReject);
-
     List<User> findAllByStatusNotIn(List<String> deleted);
 
     List<User> findAllByParentId(int parentId);
 
     int countByLocationIdAndStatus(Integer locationId, String active);
+
+    int countByOrganizationIdAndStatus(Integer organizationId, String active);
 }

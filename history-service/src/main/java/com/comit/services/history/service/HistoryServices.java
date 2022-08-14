@@ -4,17 +4,17 @@ import com.comit.services.history.client.data.*;
 
 public interface HistoryServices {
 
-    LocationDto getLocation(Integer locationId);
+    LocationDtoClient getLocation(Integer locationId);
 
-    LocationDto getLocationOfCurrentUser();
+    LocationDtoClient getLocationOfCurrentUser();
 
-    AreaRestrictionDto getAreaRestriction(Integer locationId, int areaRestrictionId);
+    AreaRestrictionDtoClient getAreaRestriction(Integer locationId, int areaRestrictionId);
 
-    CameraDto getCamera(Integer cameraId);
+    CameraDtoClient getCamera(Integer cameraId);
 
-    EmployeeDto getEmployee(Integer employeeId);
+    EmployeeDtoClient getEmployee(Integer employeeId);
 
-    NotificationMethodDto getNotificationMethodOfAreaRestriction(Integer areaRestrictionId);
+    NotificationMethodDtoClient getNotificationMethodOfAreaRestriction(Integer areaRestrictionId);
 
-    MetadataDto getMetadata(Integer imageId);
+    MetadataDtoClient getMetadata(Integer imageId);
 }

@@ -3,13 +3,11 @@ package com.comit.services.camera.service;
 import com.comit.services.camera.client.AccountClient;
 import com.comit.services.camera.client.AreaRestrictionClient;
 import com.comit.services.camera.client.LocationClient;
-import com.comit.services.camera.client.data.AreaRestrictionDto;
-import com.comit.services.camera.client.data.LocationDto;
-import com.comit.services.camera.client.data.OrganizationDto;
-import com.comit.services.camera.client.response.AreaRestrictionResponse;
-import com.comit.services.camera.client.response.LocationListResponse;
-import com.comit.services.camera.client.response.LocationResponse;
-import com.comit.services.camera.client.response.OrganizationResponse;
+import com.comit.services.camera.client.OrganizationClient;
+import com.comit.services.camera.client.data.AreaRestrictionDtoClient;
+import com.comit.services.camera.client.data.LocationDtoClient;
+import com.comit.services.camera.client.data.OrganizationDtoClient;
+import com.comit.services.camera.client.response.*;
 import com.comit.services.camera.constant.CameraErrorCode;
 import com.comit.services.camera.constant.Const;
 import com.comit.services.camera.exception.RestApiException;
@@ -42,6 +40,8 @@ public class CameraServicesImpl implements CameraServices {
     private AreaRestrictionClient areaRestrictionClient;
     @Autowired
     private AccountClient accountClient;
+    @Autowired
+    private OrganizationClient organizationClient;
 
     @Value("${core.api.check-camera}")
     private String checkCameraUrl;
@@ -211,65 +211,73 @@ public class CameraServicesImpl implements CameraServices {
     }
 
     @Override
-    public OrganizationDto getOrganizationOfCurrentUser() {
-        OrganizationResponse organizationResponse = accountClient.getOrganizationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (organizationResponse == null) {
+    public OrganizationDtoClient getOrganizationOfCurrentUser() {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getOrganizationId() == null) {
+            return null;
+        }
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
+        if (organizationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponse.getOrganizationDto();
+        return organizationResponseClient.getOrganization();
     }
 
     @Override
-    public LocationDto getLocationOfCurrentUser() {
-        LocationResponse locationResponse = accountClient.getLocationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (locationResponse == null) {
+    public LocationDtoClient getLocationOfCurrentUser() {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
+            return null;
+        }
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        if (locationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocation();
+        return locationResponseClient.getLocation();
     }
 
     @Override
-    public AreaRestrictionDto getAreaRestriction(Integer locationId, Integer areaRestrictionId) {
-        AreaRestrictionResponse areaRestrictionResponse = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
-        if (areaRestrictionResponse == null) {
+    public AreaRestrictionDtoClient getAreaRestriction(Integer locationId, Integer areaRestrictionId) {
+        AreaRestrictionResponseClient areaRestrictionResponseClient = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        if (areaRestrictionResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
-        if (Objects.equals(areaRestrictionResponse.getAreaRestriction().getLocationId(), locationId)) {
-            return areaRestrictionResponse.getAreaRestriction();
+        if (Objects.equals(areaRestrictionResponseClient.getAreaRestriction().getLocationId(), locationId)) {
+            return areaRestrictionResponseClient.getAreaRestriction();
         }
         return null;
     }
 
     @Override
-    public List<LocationDto> getLocationListByOrganizationId(Integer organizationId) {
-        LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
-        if (locationListResponse == null) {
+    public List<LocationDtoClient> getLocationListByOrganizationId(Integer organizationId) {
+        LocationListResponseClient locationListResponseClient = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
+        if (locationListResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
-        return locationListResponse.getLocations();
+        return locationListResponseClient.getLocations();
     }
 
     @Override
-    public LocationDto getLocation(Integer organizationId, Integer locationId) {
-        LocationResponse locationResponse = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (locationResponse == null) {
+    public LocationDtoClient getLocation(Integer organizationId, Integer locationId) {
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (locationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
 
-        if (!Objects.equals(locationResponse.getLocation().getOrganizationId(), organizationId)) {
+        if (!Objects.equals(locationResponseClient.getLocation().getOrganizationId(), organizationId)) {
             return null;
         }
-        return locationResponse.getLocation();
+        return locationResponseClient.getLocation();
     }
 
     @Override
-    public LocationDto getLocationById(Integer locationId) {
-        LocationResponse locationResponse = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (locationResponse == null) {
+    public LocationDtoClient getLocationById(Integer locationId) {
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (locationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocation();
+        return locationResponseClient.getLocation();
     }
 
     @Override

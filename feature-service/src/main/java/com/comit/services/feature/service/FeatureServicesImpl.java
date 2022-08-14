@@ -1,12 +1,12 @@
 package com.comit.services.feature.service;
 
 import com.comit.services.feature.client.AccountClient;
-import com.comit.services.feature.client.data.RoleDto;
-import com.comit.services.feature.client.data.UserDto;
-import com.comit.services.feature.client.response.CheckRoleResponse;
-import com.comit.services.feature.client.response.RoleListResponse;
-import com.comit.services.feature.client.response.RoleResponse;
-import com.comit.services.feature.client.response.UserListResponse;
+import com.comit.services.feature.client.data.RoleDtoClient;
+import com.comit.services.feature.client.data.UserDtoClient;
+import com.comit.services.feature.client.response.CheckRoleResponseClient;
+import com.comit.services.feature.client.response.RoleListResponseClient;
+import com.comit.services.feature.client.response.RoleResponseClient;
+import com.comit.services.feature.client.response.UserListResponseClient;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.exception.RestApiException;
 import com.comit.services.feature.model.entity.Feature;
@@ -51,20 +51,20 @@ public class FeatureServicesImpl implements FeatureServices {
 
     @Override
     public boolean currentUserIsSuperAdmin() {
-        CheckRoleResponse checkRoleResponse = accountClient.isCurrentUserSuperAdmin(httpServletRequest.getHeader("token")).getBody();
-        if (checkRoleResponse == null) {
+        CheckRoleResponseClient checkRoleResponseClient = accountClient.isCurrentUserSuperAdmin(httpServletRequest.getHeader("token")).getBody();
+        if (checkRoleResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return checkRoleResponse.isSuperAdmin();
+        return checkRoleResponseClient.isSuperAdmin();
     }
 
     @Override
-    public List<RoleDto> getRolesOfCurrentUser() {
-        RoleListResponse roleListResponse = accountClient.getRolesOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (roleListResponse == null) {
+    public List<RoleDtoClient> getRolesOfCurrentUser() {
+        RoleListResponseClient roleListResponseClient = accountClient.getRolesOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (roleListResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return roleListResponse.getRoleDtos();
+        return roleListResponseClient.getRoleDtoClients();
     }
 
     @Override
@@ -81,20 +81,20 @@ public class FeatureServicesImpl implements FeatureServices {
     }
 
     @Override
-    public List<UserDto> getUsersOfRole(Integer roleId) {
-        UserListResponse userListResponse = accountClient.getUsersOfRole(httpServletRequest.getHeader("token"), roleId).getBody();
-        if (userListResponse == null) {
+    public List<UserDtoClient> getUsersOfRole(Integer roleId) {
+        UserListResponseClient userListResponseClient = accountClient.getUsersOfRole(httpServletRequest.getHeader("token"), roleId).getBody();
+        if (userListResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return userListResponse.getUserDtos();
+        return userListResponseClient.getUserDtoClients();
     }
 
     @Override
-    public RoleDto findRoleByName(String roleName) {
-        RoleResponse roleResponse = accountClient.getRoleByName(httpServletRequest.getHeader("token"), roleName).getBody();
-        if (roleResponse == null) {
+    public RoleDtoClient findRoleByName(String roleName) {
+        RoleResponseClient roleResponseClient = accountClient.getRoleByName(httpServletRequest.getHeader("token"), roleName).getBody();
+        if (roleResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return roleResponse.getRoleDto();
+        return roleResponseClient.getRoleDtoClient();
     }
 }

@@ -2,9 +2,11 @@ package com.comit.services.organization.service;
 
 import com.comit.services.organization.client.AccountClient;
 import com.comit.services.organization.client.LocationClient;
-import com.comit.services.organization.client.data.LocationDto;
-import com.comit.services.organization.client.data.UserDto;
-import com.comit.services.organization.client.response.LocationListResponse;
+import com.comit.services.organization.client.data.LocationDtoClient;
+import com.comit.services.organization.client.data.UserDtoClient;
+import com.comit.services.organization.client.response.CheckRoleResponseClient;
+import com.comit.services.organization.client.response.CountUserResponse;
+import com.comit.services.organization.client.response.LocationListResponseClient;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.response.UserListResponse;
 import com.comit.services.organization.exception.RestApiException;
@@ -74,29 +76,28 @@ public class OrganizationServicesImpl implements OrganizationServices {
 
     @Override
     public boolean hasPermissionManageOrganization() {
-//        CheckRoleResponse checkRoleResponse = accountClient.hasPermissionManageOrganization(httpServletRequest.getHeader("token")).getBody();
-//        if (checkRoleResponse == null) {
-//            throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
-//        }
-//        return checkRoleResponse.getHasRole();
-        return true;
+        CheckRoleResponseClient checkRoleResponse = accountClient.hasPermissionManageOrganization(httpServletRequest.getHeader("token")).getBody();
+        if (checkRoleResponse == null) {
+            throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
+        }
+        return checkRoleResponse.getHasRole();
     }
 
     @Override
-    public List<UserDto> getUsersByOrganizationId(int organizationId) {
-        UserListResponse userListResponse = accountClient.getUsersByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
-        if (userListResponse == null) {
+    public int getNumberUserOfOrganization(int organizationId) {
+        CountUserResponse countUserResponse = accountClient.getNumberUserOfOrganization(httpServletRequest.getHeader("token"), organizationId).getBody();
+        if (countUserResponse == null) {
             throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
         }
-        return userListResponse.getUserDtos();
+        return countUserResponse.getNumber();
     }
 
     @Override
-    public List<LocationDto> getLocationsByOrganizationId(int organizationId) {
-        LocationListResponse locationListResponse = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
-        if (locationListResponse == null) {
+    public List<LocationDtoClient> getLocationsByOrganizationId(int organizationId) {
+        LocationListResponseClient locationListResponseClient = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
+        if (locationListResponseClient == null) {
             throw new RestApiException(OrganizationErrorCode.INTERNAL_ERROR);
         }
-        return locationListResponse.getLocationDtos();
+        return locationListResponseClient.getLocation();
     }
 }

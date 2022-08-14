@@ -1,8 +1,8 @@
 package com.comit.services.account.service;
 
-import com.comit.services.account.client.data.LocationDto;
-import com.comit.services.account.client.data.MetadataDto;
-import com.comit.services.account.client.data.OrganizationDto;
+import com.comit.services.account.client.data.LocationDtoClient;
+import com.comit.services.account.client.data.MetadataDtoClient;
+import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.model.entity.Organization;
 import com.comit.services.account.model.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,25 +39,25 @@ public interface UserServices {
 
     String convertFullnameToUsername(String fullname);
 
-    List<User> getUsersByOrganization(Integer organizationId);
+    int getNumberUserOfOrganization(Integer organizationId);
 
-    OrganizationDto getOrganizationById(int organizationId);
+    OrganizationDtoClient getOrganizationById(int organizationId);
 
-    OrganizationDto getOrganizationByName(String organizationName);
+    OrganizationDtoClient getOrganizationByName(String organizationName);
 
-    OrganizationDto addOrganization(Organization organization);
+    OrganizationDtoClient addOrganization(Organization organization);
 
     void sendForgetPasswordMail(User user);
 
-    LocationDto getLocation(Integer locationId);
+    LocationDtoClient getLocation(Integer locationId);
 
     void sendConfirmCreateUserMail(User newUser);
 
-    MetadataDto saveMetadata(MultipartFile file);
+    MetadataDtoClient saveMetadata(MultipartFile file);
 
     List<User> getUsersByParentId(int id);
 
-    MetadataDto getMetadata(int id);
+    MetadataDtoClient getMetadata(int id);
 
     int getNumberUserOfLocation(Integer locationId);
 }

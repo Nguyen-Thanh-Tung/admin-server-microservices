@@ -14,6 +14,6 @@ public interface AreaRestrictionClient {
     @GetMapping("/area-restrictions/{id}")
     ResponseEntity<AreaRestrictionResponse> getAreaRestriction(@RequestHeader String token, @PathVariable Integer id);
 
-    @GetMapping("/area-restrictions/{areaRestrictionId}/notification-method")
-    ResponseEntity<NotificationMethodResponse> getNotificationMethodOfAreaRestriction(@RequestHeader String token, @PathVariable Integer areaRestrictionId);
+    @GetMapping("/area-restrictions/{id}/notification-method")
+    ResponseEntity<NotificationMethodResponse> getNotificationMethodOfAreaRestriction(@RequestHeader String token, @PathVariable("id") Integer areaRestrictionId);
 }

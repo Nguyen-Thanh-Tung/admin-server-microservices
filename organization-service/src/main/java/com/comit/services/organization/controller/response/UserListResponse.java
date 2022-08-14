@@ -1,6 +1,6 @@
 package com.comit.services.organization.controller.response;
 
-import com.comit.services.organization.client.data.UserDto;
+import com.comit.services.organization.client.data.UserDtoClient;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -16,11 +16,11 @@ import java.util.List;
 @AllArgsConstructor
 public class UserListResponse extends BaseResponse {
     @JsonProperty(value = "users")
-    private List<UserDto> userDtos;
+    private List<UserDtoClient> users;
 
-    public UserListResponse(OrganizationErrorCode organizationErrorCode, List<UserDto> userDtos) {
+    public UserListResponse(OrganizationErrorCode organizationErrorCode, List<UserDtoClient> userDtoClients) {
         this.code = organizationErrorCode.getCode();
         this.message = organizationErrorCode.getMessage();
-        this.userDtos = userDtos;
+        this.users = userDtoClients;
     }
 }

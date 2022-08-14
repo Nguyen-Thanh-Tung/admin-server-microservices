@@ -1,6 +1,6 @@
 package com.comit.services.timeKeeping.business;
 
-import com.comit.services.timeKeeping.client.data.LocationDto;
+import com.comit.services.timeKeeping.client.data.LocationDtoClient;
 import com.comit.services.timeKeeping.constant.Const;
 import com.comit.services.timeKeeping.constant.ShiftErrorCode;
 import com.comit.services.timeKeeping.controller.request.ShiftRequest;
@@ -27,10 +27,10 @@ public class ShiftBusinessImpl implements ShiftBusiness {
 
     @Override
     public List<ShiftDto> getAllShift() {
-        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
+        LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
         List<ShiftDto> shiftDtos = new ArrayList<>();
-        if (locationDto != null) {
-            List<Shift> shifts = shiftServices.getAllShift(locationDto.getId());
+        if (locationDtoClient != null) {
+            List<Shift> shifts = shiftServices.getAllShift(locationDtoClient.getId());
 
             shifts.forEach(shift -> {
                 shiftDtos.add(ShiftDto.convertShiftToShiftDto(shift));
@@ -43,8 +43,8 @@ public class ShiftBusinessImpl implements ShiftBusiness {
     public ShiftDto updateShift(int id, ShiftRequest request) {
         shiftVerifyRequestServices.verifyAddOrUpdateShiftRequest(request);
 
-        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
-        Shift shift = shiftServices.getShift(locationDto.getId(), id);
+        LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
+        Shift shift = shiftServices.getShift(locationDtoClient.getId(), id);
         if (shift == null) {
             throw new TimeKeepingCommonException(ShiftErrorCode.SHIFT_NOT_EXIST);
         }

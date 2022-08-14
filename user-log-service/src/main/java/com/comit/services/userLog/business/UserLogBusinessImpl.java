@@ -1,6 +1,6 @@
 package com.comit.services.userLog.business;
 
-import com.comit.services.userLog.client.data.UserDto;
+import com.comit.services.userLog.client.data.UserDtoClient;
 import com.comit.services.userLog.controller.request.UserLogRequest;
 import com.comit.services.userLog.model.dto.UserLogDto;
 import com.comit.services.userLog.model.entity.UserLog;
@@ -31,11 +31,11 @@ public class UserLogBusinessImpl implements UserLogBusiness {
 
         Page<UserLog> pageUserLogs;
         if (userId == null && time == null) {
-            UserDto currentUserDto = userLogServices.getCurrentUser();
+            UserDtoClient currentUserDtoClient = userLogServices.getCurrentUser();
             List<Integer> userOfCurrentUserIds = new ArrayList<>();
-            userOfCurrentUserIds.add(currentUserDto.getId());
-            List<UserDto> userDtos = userLogServices.getAllUserOfCurrentUser();
-            userDtos.forEach(user -> {
+            userOfCurrentUserIds.add(currentUserDtoClient.getId());
+            List<UserDtoClient> userDtoClients = userLogServices.getAllUserOfCurrentUser();
+            userDtoClients.forEach(user -> {
                 userOfCurrentUserIds.add(user.getId());
             });
             pageUserLogs = userLogServices.findByUsers(userOfCurrentUserIds, search, paging);
@@ -73,8 +73,8 @@ public class UserLogBusinessImpl implements UserLogBusiness {
     public UserLogDto convertUserLogToUserLogDto(UserLog userLog) {
         ModelMapper modelMapper = new ModelMapper();
         UserLogDto userLogDto = modelMapper.map(userLog, UserLogDto.class);
-        UserDto userDto = userLogServices.getUserById(userLog.getUserId());
-        userLogDto.setUsername(userDto.getUsername());
+        UserDtoClient userDtoClient = userLogServices.getUserById(userLog.getUserId());
+        userLogDto.setUsername(userDtoClient.getUsername());
         return userLogDto;
     }
 }

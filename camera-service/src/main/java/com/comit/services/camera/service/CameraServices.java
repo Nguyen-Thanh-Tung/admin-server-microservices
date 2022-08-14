@@ -1,8 +1,8 @@
 package com.comit.services.camera.service;
 
-import com.comit.services.camera.client.data.AreaRestrictionDto;
-import com.comit.services.camera.client.data.LocationDto;
-import com.comit.services.camera.client.data.OrganizationDto;
+import com.comit.services.camera.client.data.AreaRestrictionDtoClient;
+import com.comit.services.camera.client.data.LocationDtoClient;
+import com.comit.services.camera.client.data.OrganizationDtoClient;
 import com.comit.services.camera.model.entity.Camera;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,17 +34,17 @@ public interface CameraServices {
 
     boolean isBehaviorModule();
 
-    OrganizationDto getOrganizationOfCurrentUser();
+    OrganizationDtoClient getOrganizationOfCurrentUser();
 
-    LocationDto getLocationOfCurrentUser();
+    LocationDtoClient getLocationOfCurrentUser();
 
-    AreaRestrictionDto getAreaRestriction(Integer locationId, Integer areaRestrictionId);
+    AreaRestrictionDtoClient getAreaRestriction(Integer locationId, Integer areaRestrictionId);
 
-    List<LocationDto> getLocationListByOrganizationId(Integer organizationId);
+    List<LocationDtoClient> getLocationListByOrganizationId(Integer organizationId);
 
-    LocationDto getLocation(Integer organizationId, Integer locationId);
+    LocationDtoClient getLocation(Integer organizationId, Integer locationId);
 
-    LocationDto getLocationById(Integer locationId);
+    LocationDtoClient getLocationById(Integer locationId);
 
     int getNumberCameraOfLocation(int locationId);
 

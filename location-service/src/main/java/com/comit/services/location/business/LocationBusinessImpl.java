@@ -1,6 +1,6 @@
 package com.comit.services.location.business;
 
-import com.comit.services.location.client.data.OrganizationDto;
+import com.comit.services.location.client.data.OrganizationDtoClient;
 import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.request.LocationRequest;
@@ -30,13 +30,13 @@ public class LocationBusinessImpl implements LocationBusiness {
     @Override
     public Page<Location> getLocationPage(int page, int size, String search) {
         Pageable paging = PageRequest.of(page, size);
-        OrganizationDto organizationDto = locationServices.getOrganizationOfCurrentUser();
+        OrganizationDtoClient organizationDtoClient = locationServices.getOrganizationOfCurrentUser();
         if (locationServices.hasPermissionManagerLocation(Const.TIME_KEEPING_TYPE) && locationServices.isTimeKeepingModule()) {
-            return locationServices.getLocationPage(organizationDto.getId(), Const.TIME_KEEPING_TYPE, search, paging);
+            return locationServices.getLocationPage(organizationDtoClient.getId(), Const.TIME_KEEPING_TYPE, search, paging);
         } else if (locationServices.hasPermissionManagerLocation(Const.AREA_RESTRICTION_TYPE) && locationServices.isAreaRestrictionModule()) {
-            return locationServices.getLocationPage(organizationDto.getId(), Const.AREA_RESTRICTION_TYPE, search, paging);
+            return locationServices.getLocationPage(organizationDtoClient.getId(), Const.AREA_RESTRICTION_TYPE, search, paging);
         } else if (locationServices.hasPermissionManagerLocation(Const.BEHAVIOR_TYPE) && locationServices.isBehaviorModule()) {
-            return locationServices.getLocationPage(organizationDto.getId(), Const.BEHAVIOR_TYPE, search, paging);
+            return locationServices.getLocationPage(organizationDtoClient.getId(), Const.BEHAVIOR_TYPE, search, paging);
         } else {
             return null;
         }
@@ -59,22 +59,22 @@ public class LocationBusinessImpl implements LocationBusiness {
     @Override
     public LocationDto addLocation(LocationRequest request) {
         verifyRequestServices.verifyAddOrUpdateLocationRequest(request);
-        OrganizationDto organizationDto = locationServices.getOrganizationOfCurrentUser();
+        OrganizationDtoClient organizationDtoClient = locationServices.getOrganizationOfCurrentUser();
         if (!locationServices.hasPermissionManagerLocation(request.getType())) {
             throw new RestApiException(LocationErrorCode.PERMISSION_DENIED);
         }
 
-        if (organizationDto == null) {
+        if (organizationDtoClient == null) {
             throw new RestApiException(LocationErrorCode.ORGANIZATION_NOT_EXIST);
         }
-        if (locationServices.existLocation(request.getCode(), organizationDto.getId())) {
+        if (locationServices.existLocation(request.getCode(), organizationDtoClient.getId())) {
             throw new RestApiException(LocationErrorCode.LOCATION_CODE_EXIST);
         }
 
         Location location = new Location();
         location.setName(request.getName());
         location.setCode(request.getCode());
-        location.setOrganizationId(organizationDto.getId());
+        location.setOrganizationId(organizationDtoClient.getId());
         location.setType(request.getType());
         Location newLocation = locationServices.saveLocation(location);
 
@@ -97,8 +97,8 @@ public class LocationBusinessImpl implements LocationBusiness {
     @Override
     public LocationDto updateLocation(int locationId, LocationRequest request) {
         verifyRequestServices.verifyAddOrUpdateLocationRequest(request);
-        OrganizationDto organizationDto = locationServices.getOrganizationOfCurrentUser();
-        Location location = locationServices.getLocation(organizationDto.getId(), locationId);
+        OrganizationDtoClient organizationDtoClient = locationServices.getOrganizationOfCurrentUser();
+        Location location = locationServices.getLocation(organizationDtoClient.getId(), locationId);
         if (location == null) {
             throw new RestApiException(LocationErrorCode.LOCATION_NOT_EXIST);
         }
@@ -107,12 +107,12 @@ public class LocationBusinessImpl implements LocationBusiness {
             throw new RestApiException(LocationErrorCode.PERMISSION_DENIED);
         }
 
-        if (!Objects.equals(location.getCode(), request.getCode()) && locationServices.existLocation(request.getCode(), organizationDto.getId())) {
+        if (!Objects.equals(location.getCode(), request.getCode()) && locationServices.existLocation(request.getCode(), organizationDtoClient.getId())) {
             throw new RestApiException(LocationErrorCode.LOCATION_CODE_EXIST);
         }
         location.setName(request.getName());
         location.setCode(request.getCode());
-        location.setOrganizationId(organizationDto.getId());
+        location.setOrganizationId(organizationDtoClient.getId());
         Location newLocation = locationServices.saveLocation(location);
         LocationDto locationDto = convertLocationToLocationDto(newLocation);
         int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
@@ -124,8 +124,8 @@ public class LocationBusinessImpl implements LocationBusiness {
 
     @Override
     public boolean deleteLocation(int id) {
-        OrganizationDto organizationDto = locationServices.getOrganizationOfCurrentUser();
-        Location location = locationServices.getLocation(organizationDto.getId(), id);
+        OrganizationDtoClient organizationDtoClient = locationServices.getOrganizationOfCurrentUser();
+        Location location = locationServices.getLocation(organizationDtoClient.getId(), id);
         if (location == null) {
             throw new RestApiException(LocationErrorCode.LOCATION_NOT_EXIST);
         }

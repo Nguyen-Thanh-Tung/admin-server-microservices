@@ -1,6 +1,6 @@
 package com.comit.services.timeKeeping.business;
 
-import com.comit.services.timeKeeping.client.data.LocationDto;
+import com.comit.services.timeKeeping.client.data.LocationDtoClient;
 import com.comit.services.timeKeeping.constant.Const;
 import com.comit.services.timeKeeping.constant.TimeKeepingErrorCode;
 import com.comit.services.timeKeeping.constant.TimeKeepingNotificationErrorCode;
@@ -34,9 +34,9 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
         // Is user and has role manage employee (Ex: Time keeping user)
         permissionManageTimeKeepingNotification();
 
-        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
+        LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
 
-        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(locationDto.getId());
+        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(locationDtoClient.getId());
         return convertTimeKeepingNotificationToDto(timeKeepingNotification);
     }
 
@@ -48,8 +48,8 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
         permissionManageTimeKeepingNotification();
 
         // Get time keeping notification
-        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
-        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(id, locationDto.getId());
+        LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
+        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(id, locationDtoClient.getId());
         if (timeKeepingNotification == null) {
             throw new TimeKeepingCommonException(TimeKeepingNotificationErrorCode.TIME_KEEPING_NOTIFICATION_NOT_EXIST);
         }
@@ -99,9 +99,9 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
 
     private void permissionManageTimeKeepingNotification() {
         // Check role for employee
-        LocationDto locationDto = timeKeepingServices.getLocationOfCurrentUser();
+        LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
 
-        if (!timeKeepingNotificationServices.hasPermissionManageTimeKeepingNotification(locationDto != null ? locationDto.getType() : null)) {
+        if (!timeKeepingNotificationServices.hasPermissionManageTimeKeepingNotification(locationDtoClient != null ? locationDtoClient.getType() : null)) {
             throw new TimeKeepingCommonException(TimeKeepingErrorCode.PERMISSION_DENIED);
         }
     }

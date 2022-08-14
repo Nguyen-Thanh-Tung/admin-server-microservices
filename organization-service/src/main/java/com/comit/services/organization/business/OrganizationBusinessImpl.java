@@ -1,7 +1,7 @@
 package com.comit.services.organization.business;
 
-import com.comit.services.organization.client.data.LocationDto;
-import com.comit.services.organization.client.data.UserDto;
+import com.comit.services.organization.client.data.LocationDtoClient;
+import com.comit.services.organization.client.data.UserDtoClient;
 import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
@@ -49,16 +49,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         List<OrganizationDto> organizationDtos = new ArrayList<>();
         organizations.forEach(organization -> {
             if (!Objects.equals(organization.getName(), superAdminOrganization)) {
-                OrganizationDto organizationDto = convertOrganizationToOrganizationDto(organization);
-                List<UserDto> userDtos = organizationServices.getUsersByOrganizationId(organization.getId());
-                AtomicInteger numberUser = new AtomicInteger();
-                userDtos.forEach(user -> {
-                    if (Objects.equals(user.getStatus(), Const.ACTIVE)) {
-                        numberUser.getAndIncrement();
-                    }
-                });
-                organizationDto.setNumberUser(numberUser.get());
-                organizationDtos.add(organizationDto);
+                organizationDtos.add(convertOrganizationToOrganizationDto(organization));
             }
         });
         return organizationDtos;
@@ -138,13 +129,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
             throw new RestApiException(OrganizationErrorCode.ORGANIZATION_NOT_EXIST);
         }
 
-        List<UserDto> userDtos = organizationServices.getUsersByOrganizationId(organizationId);
-        if (userDtos.size() > 0) {
+        int numberUserOfOrganization = organizationServices.getNumberUserOfOrganization(organizationId);
+        if (numberUserOfOrganization > 0) {
             throw new RestApiException(OrganizationErrorCode.CAN_DELETE_ORGANIZATION_HAS_USER);
         }
-        List<LocationDto> locationDtos = organizationServices.getLocationsByOrganizationId(organizationId);
+        List<LocationDtoClient> locationDtoClients = organizationServices.getLocationsByOrganizationId(organizationId);
 
-        if (locationDtos.size() > 0) {
+        if (locationDtoClients.size() > 0) {
             throw new RestApiException(OrganizationErrorCode.CAN_DELETE_ORGANIZATION_HAS_LOCATION);
         }
         return organizationServices.deleteOrganization(organizationId);
@@ -191,14 +182,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         ModelMapper modelMapper = new ModelMapper();
         try {
             OrganizationDto organizationDto = modelMapper.map(organization, OrganizationDto.class);
-//            List<User> users = organizationServices.getUsersByOrganizationId(organization.getId());
-//            AtomicInteger numberUser = new AtomicInteger();
-//            users.forEach(user -> {
-//                if (user.getStatus() == Const.ACTIVE) {
-//                    numberUser.getAndIncrement();
-//                }
-//            });
-//            organizationDto.setNumberUser(0);
+            int numberUserOfOrganization = organizationServices.getNumberUserOfOrganization(organization.getId());
+            organizationDto.setNumberUser(numberUserOfOrganization);
             return organizationDto;
         } catch (Exception e) {
             return null;

@@ -1,7 +1,7 @@
 package com.comit.services.history.model.excel;
 
-import com.comit.services.history.client.data.CameraDto;
-import com.comit.services.history.client.data.EmployeeDto;
+import com.comit.services.history.client.data.CameraDtoClient;
+import com.comit.services.history.client.data.EmployeeDtoClient;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.Cell;
@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -79,23 +78,23 @@ public class TimeKeepingExcelExporter {
         for (InOutHistory history : inOutHistories) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-            CameraDto cameraDto = null;
-            EmployeeDto employeeDto = null;
-            EmployeeDto managerDto = null;
+            CameraDtoClient cameraDtoClient = null;
+            EmployeeDtoClient employeeDtoClient = null;
+            EmployeeDtoClient managerDto = null;
             if (history.getCameraId() != null) {
-                cameraDto = historyServices.getCamera(history.getCameraId());
+                cameraDtoClient = historyServices.getCamera(history.getCameraId());
             }
             if (history.getEmployeeId() != null) {
-                employeeDto = historyServices.getEmployee(history.getEmployeeId());
-                if (employeeDto != null) {
-                    managerDto = employeeDto.getManager();
+                employeeDtoClient = historyServices.getEmployee(history.getEmployeeId());
+                if (employeeDtoClient != null) {
+                    managerDto = employeeDtoClient.getManager();
                 }
 
             }
-            createCell(row, columnCount++, cameraDto != null ? cameraDto.getName() : "", style);
+            createCell(row, columnCount++, cameraDtoClient != null ? cameraDtoClient.getName() : "", style);
             createCell(row, columnCount++, history.getType(), style);
-            createCell(row, columnCount++, employeeDto != null ? employeeDto.getName() : "", style);
-            createCell(row, columnCount++, employeeDto != null ? employeeDto.getCode() : "", style);
+            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getName() : "", style);
+            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getCode() : "", style);
             createCell(row, columnCount++, managerDto != null ? managerDto.getName() : "", style);
             createCell(row, columnCount++, history.getTime().toString(), style);
 

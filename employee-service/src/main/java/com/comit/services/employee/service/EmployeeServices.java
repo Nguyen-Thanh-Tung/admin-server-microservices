@@ -33,9 +33,9 @@ public interface EmployeeServices {
 
     List<Employee> getEmployeeListById(List<Integer> employeeIds);
 
-    LocationDto getLocationOfCurrentUser();
+    LocationDtoClient getLocationOfCurrentUser();
 
-    MetadataDto saveMetadata(String image_path);
+    MetadataDtoClient saveMetadata(String image_path);
 
     boolean isTimeKeepingModule();
 
@@ -43,7 +43,7 @@ public interface EmployeeServices {
 
     boolean isBehaviorModule();
 
-    List<AreaEmployeeTimeDto> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId);
+    List<AreaEmployeeTimeDtoClient> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId);
 
     void deleteEmployeeAreaRestrictionList(Integer employeeId);
 
@@ -53,15 +53,15 @@ public interface EmployeeServices {
 
     void deleteAreaRestrictionManagerNotificationList(Integer employeeId);
 
-    OrganizationDto getOrganizationOfCurrentUser();
+    OrganizationDtoClient getOrganizationOfCurrentUser();
 
     void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode);
 
     int getNumberEmployeeOfLocation(Integer locationId);
 
-    ShiftDto getShift(int shiftId);
+    ShiftDtoClient getShift(int shiftId);
 
-    MetadataDto getMetadata(Integer imageId);
+    MetadataDtoClient getMetadata(Integer imageId);
 
-    List<AreaEmployeeTimeDto> getAreaEmployeeTimesOfEmployee(int employeeId);
+    List<AreaEmployeeTimeDtoClient> getAreaEmployeeTimesOfEmployee(int employeeId);
 }

@@ -1,7 +1,7 @@
 package com.comit.services.areaRestriction.business;
 
-import com.comit.services.areaRestriction.client.data.EmployeeDto;
-import com.comit.services.areaRestriction.client.data.LocationDto;
+import com.comit.services.areaRestriction.client.data.EmployeeDtoClient;
+import com.comit.services.areaRestriction.client.data.LocationDtoClient;
 import com.comit.services.areaRestriction.controller.request.ManagerTimeSkip;
 import com.comit.services.areaRestriction.model.entity.AreaRestrictionManagerNotification;
 import com.comit.services.areaRestriction.service.AreaRestrictionManagerNotificationService;
@@ -22,10 +22,10 @@ public class AreaRestrictionManagerNotificationBusinessImpl implements AreaRestr
 
     @Override
     public List<AreaRestrictionManagerNotification> saveAreaManagerTimeList(List<ManagerTimeSkip> managerTimeSkips, Integer areaRestrictionId) {
-        LocationDto locationDto = areaRestrictionServices.getLocationOfCurrentUser();
+        LocationDtoClient locationDtoClient = areaRestrictionServices.getLocationOfCurrentUser();
         List<AreaRestrictionManagerNotification> areaRestrictionManagerNotifications = new ArrayList<>();
         managerTimeSkips.forEach(managerTimeSkip -> {
-            EmployeeDto managerDto = areaRestrictionServices.getEmployee(managerTimeSkip.getManagerId(), locationDto.getId());
+            EmployeeDtoClient managerDto = areaRestrictionServices.getEmployee(managerTimeSkip.getManagerId(), locationDtoClient.getId());
             if (managerDto != null) {
                 AreaRestrictionManagerNotification areaRestrictionManagerNotification = new AreaRestrictionManagerNotification();
 

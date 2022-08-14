@@ -1,15 +1,17 @@
 package com.comit.services.camera.business;
 
-import com.comit.services.camera.client.data.AreaRestrictionDto;
-import com.comit.services.camera.client.data.LocationDto;
-import com.comit.services.camera.client.data.OrganizationDto;
+import com.comit.services.camera.client.data.AreaRestrictionDtoClient;
+import com.comit.services.camera.client.data.LocationDtoClient;
+import com.comit.services.camera.client.data.OrganizationDtoClient;
 import com.comit.services.camera.constant.CameraErrorCode;
 import com.comit.services.camera.constant.Const;
 import com.comit.services.camera.controller.request.CameraPolygonsRequest;
 import com.comit.services.camera.controller.request.CameraRequest;
 import com.comit.services.camera.exception.RestApiException;
 import com.comit.services.camera.middleware.CameraVerifyRequestServices;
+import com.comit.services.camera.model.dto.AreaRestrictionDto;
 import com.comit.services.camera.model.dto.CameraDto;
+import com.comit.services.camera.model.dto.LocationDto;
 import com.comit.services.camera.model.entity.Camera;
 import com.comit.services.camera.service.CameraServices;
 import org.modelmapper.ModelMapper;
@@ -35,19 +37,19 @@ public class CameraBusinessImpl implements CameraBusiness {
         Pageable paging = PageRequest.of(page, size);
 
         Page<Camera> cameraPage;
-        OrganizationDto organizationDto = cameraServices.getOrganizationOfCurrentUser();
-        LocationDto locationOfCurrentUser = cameraServices.getLocationOfCurrentUser();
+        OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
+        LocationDtoClient locationOfCurrentUser = cameraServices.getLocationOfCurrentUser();
         if (areaRestrictionId != null) {
-            AreaRestrictionDto areaRestrictionDto = cameraServices.getAreaRestriction(locationOfCurrentUser.getId(), areaRestrictionId);
-            if (areaRestrictionDto == null) {
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationOfCurrentUser.getId(), areaRestrictionId);
+            if (areaRestrictionDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
             }
-            cameraPage = cameraServices.getAllCamera(areaRestrictionDto.getId(), status, search, paging);
+            cameraPage = cameraServices.getAllCamera(areaRestrictionDtoClient.getId(), status, search, paging);
         } else if (locationId == null) {
             List<Integer> locationIds = new ArrayList<>();
             if (locationOfCurrentUser == null) {
-                List<LocationDto> locationDtos = cameraServices.getLocationListByOrganizationId(organizationDto.getId());
-                for (LocationDto tmp : locationDtos) {
+                List<LocationDtoClient> locationDtoClients = cameraServices.getLocationListByOrganizationId(organizationDtoClient.getId());
+                for (LocationDtoClient tmp : locationDtoClients) {
                     if ((cameraServices.isTimeKeepingModule() && Objects.equals(tmp.getType(), Const.TIME_KEEPING_TYPE)) ||
                             (cameraServices.isAreaRestrictionModule() && Objects.equals(tmp.getType(), Const.AREA_RESTRICTION_TYPE)) ||
                             (cameraServices.isBehaviorModule() && Objects.equals(tmp.getType(), Const.BEHAVIOR_TYPE))) {
@@ -59,11 +61,11 @@ public class CameraBusinessImpl implements CameraBusiness {
             }
             cameraPage = cameraServices.getAllCamera(locationIds, new ArrayList<>(), status, search, paging);
         } else {
-            LocationDto locationDto = cameraServices.getLocation(organizationDto.getId(), locationId);
-            if (locationDto == null) {
+            LocationDtoClient locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), locationId);
+            if (locationDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
             }
-            cameraPage = cameraServices.findByLocation(locationDto.getId(), new ArrayList<>(), status, search, paging);
+            cameraPage = cameraServices.findByLocation(locationDtoClient.getId(), new ArrayList<>(), status, search, paging);
         }
 
         return cameraPage;
@@ -74,7 +76,7 @@ public class CameraBusinessImpl implements CameraBusiness {
         Pageable paging = PageRequest.of(page, size);
 
         Page<Camera> cameraPage;
-        OrganizationDto organizationDto = cameraServices.getOrganizationOfCurrentUser();
+        OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
         List<Integer> cameraIds = new ArrayList<>();
         if (cameraIdStrs != null && !cameraIdStrs.trim().isEmpty()) {
             for (String cameraId : cameraIdStrs.split(",")) {
@@ -83,10 +85,10 @@ public class CameraBusinessImpl implements CameraBusiness {
         }
         if (locationId == null) {
             List<Integer> locationIds = new ArrayList<>();
-            LocationDto locationOfCurrentUserDto = cameraServices.getLocationOfCurrentUser();
+            LocationDtoClient locationOfCurrentUserDto = cameraServices.getLocationOfCurrentUser();
             if (locationOfCurrentUserDto == null) {
-                List<LocationDto> locations = cameraServices.getLocationListByOrganizationId(organizationDto.getId());
-                for (LocationDto tmp : locations) {
+                List<LocationDtoClient> locations = cameraServices.getLocationListByOrganizationId(organizationDtoClient.getId());
+                for (LocationDtoClient tmp : locations) {
                     if ((cameraServices.isTimeKeepingModule() && Objects.equals(tmp.getType(), Const.TIME_KEEPING_TYPE)) ||
                             (cameraServices.isAreaRestrictionModule() && Objects.equals(tmp.getType(), Const.AREA_RESTRICTION_TYPE)) ||
                             (cameraServices.isBehaviorModule() && Objects.equals(tmp.getType(), Const.BEHAVIOR_TYPE))) {
@@ -98,11 +100,11 @@ public class CameraBusinessImpl implements CameraBusiness {
             }
             cameraPage = cameraServices.getAllCamera(locationIds, cameraIds, status, search, paging);
         } else {
-            LocationDto locationDto = cameraServices.getLocation(organizationDto.getId(), locationId);
-            if (locationDto == null) {
+            LocationDtoClient locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), locationId);
+            if (locationDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
             }
-            cameraPage = cameraServices.findByLocation(locationDto.getId(), cameraIds, status, search, paging);
+            cameraPage = cameraServices.findByLocation(locationDtoClient.getId(), cameraIds, status, search, paging);
         }
 
         return cameraPage;
@@ -125,40 +127,40 @@ public class CameraBusinessImpl implements CameraBusiness {
         if (!isLiveCam) {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_WORKING);
         }
-        OrganizationDto organizationDto = cameraServices.getOrganizationOfCurrentUser();
-        LocationDto locationDto;
+        OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
+        LocationDtoClient locationDtoClient;
         Camera camera = new Camera();
         if (cameraServices.isTimeKeepingModule()) {
-            locationDto = cameraServices.getLocation(organizationDto.getId(), request.getLocationId());
-            if (locationDto == null) {
+            locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), request.getLocationId());
+            if (locationDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
             }
             camera.setType(request.getType());
         } else if (cameraServices.isAreaRestrictionModule()) {
-            locationDto = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDto areaRestrictionDto = cameraServices.getAreaRestriction(locationDto.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDto == null) {
+            locationDtoClient = cameraServices.getLocationOfCurrentUser();
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
+            if (areaRestrictionDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
             }
-            camera.setAreaRestrictionId(areaRestrictionDto.getId());
+            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
             camera.setType("Giám sát KVHC");
         } else if (cameraServices.isBehaviorModule()) {
-            locationDto = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDto areaRestrictionDto = cameraServices.getAreaRestriction(locationDto.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDto == null) {
+            locationDtoClient = cameraServices.getLocationOfCurrentUser();
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
+            if (areaRestrictionDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
             }
-            camera.setAreaRestrictionId(areaRestrictionDto.getId());
+            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
             camera.setType("Kiểm soát hành vi");
         } else {
             throw new RestApiException(CameraErrorCode.MODULE_NOT_FOUND);
         }
         // Camera name is used
-        if (cameraServices.getCameraByNameAndLocation(request.getName(), locationDto.getId()) != null) {
+        if (cameraServices.getCameraByNameAndLocation(request.getName(), locationDtoClient.getId()) != null) {
             throw new RestApiException(CameraErrorCode.EXISTED_CAMERA_BY_NAME);
         }
         camera.setIpAddress(request.getIpAddress());
-        camera.setLocationId(locationDto.getId());
+        camera.setLocationId(locationDtoClient.getId());
         camera.setName(request.getName());
         camera.setStreamState(Const.ON);
         camera.setStatus(Const.ACTIVE);
@@ -181,41 +183,41 @@ public class CameraBusinessImpl implements CameraBusiness {
                 throw new RestApiException(CameraErrorCode.CAMERA_NOT_WORKING);
             }
         }
-        OrganizationDto organizationDto = cameraServices.getOrganizationOfCurrentUser();
-        LocationDto locationDto;
+        OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
+        LocationDtoClient locationDtoClient;
         if (cameraServices.isTimeKeepingModule()) {
-            locationDto = cameraServices.getLocation(organizationDto.getId(), request.getLocationId());
-            if (locationDto == null) {
+            locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), request.getLocationId());
+            if (locationDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
             }
             camera.setType(request.getType());
         } else if (cameraServices.isAreaRestrictionModule()) {
-            locationDto = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDto areaRestrictionDto = cameraServices.getAreaRestriction(locationDto.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDto == null) {
+            locationDtoClient = cameraServices.getLocationOfCurrentUser();
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
+            if (areaRestrictionDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
             }
-            camera.setAreaRestrictionId(areaRestrictionDto.getId());
+            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
             camera.setType("Giám sát KVHC");
         } else if (cameraServices.isBehaviorModule()) {
-            locationDto = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDto areaRestrictionDto = cameraServices.getAreaRestriction(locationDto.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDto == null) {
+            locationDtoClient = cameraServices.getLocationOfCurrentUser();
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
+            if (areaRestrictionDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
             }
-            camera.setAreaRestrictionId(areaRestrictionDto.getId());
+            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
             camera.setType("Kiểm soát hành vi");
         } else {
             throw new RestApiException(CameraErrorCode.MODULE_NOT_FOUND);
         }
 
         // Camera name is used
-        if (!Objects.equals(camera.getName(), request.getName()) && cameraServices.getCameraByNameAndLocation(request.getName(), locationDto.getId()) != null) {
+        if (!Objects.equals(camera.getName(), request.getName()) && cameraServices.getCameraByNameAndLocation(request.getName(), locationDtoClient.getId()) != null) {
             throw new RestApiException(CameraErrorCode.EXISTED_CAMERA_BY_NAME);
         }
 
         camera.setIpAddress(request.getIpAddress());
-        camera.setLocationId(locationDto.getId());
+        camera.setLocationId(locationDtoClient.getId());
         camera.setName(request.getName());
         camera.setUpdated(true);
         Camera newCamera = cameraServices.saveCamera(camera);
@@ -276,14 +278,14 @@ public class CameraBusinessImpl implements CameraBusiness {
             ModelMapper modelMapper = new ModelMapper();
             CameraDto cameraDto = modelMapper.map(camera, CameraDto.class);
             if (camera.getLocationId() != null) {
-                LocationDto locationDto = cameraServices.getLocationById(camera.getLocationId());
-                if (locationDto != null) {
-                    cameraDto.setLocation(locationDto);
+                LocationDtoClient locationDtoClient = cameraServices.getLocationById(camera.getLocationId());
+                if (locationDtoClient != null) {
+                    cameraDto.setLocation(convertLocationDtoFromClient(locationDtoClient));
                 }
                 if (camera.getAreaRestrictionId() != null) {
-                    AreaRestrictionDto areaRestrictionDto = cameraServices.getAreaRestriction(camera.getLocationId(), camera.getAreaRestrictionId());
-                    if (areaRestrictionDto != null) {
-                        cameraDto.setAreaRestriction(areaRestrictionDto);
+                    AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(camera.getLocationId(), camera.getAreaRestrictionId());
+                    if (areaRestrictionDtoClient != null) {
+                        cameraDto.setAreaRestriction(convertAreaRestrictionDtoFromClient(areaRestrictionDtoClient));
                     }
                 }
             }
@@ -291,5 +293,24 @@ public class CameraBusinessImpl implements CameraBusiness {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public LocationDto convertLocationDtoFromClient(LocationDtoClient locationDtoClient) {
+        LocationDto locationDto = new LocationDto();
+        locationDto.setId(locationDtoClient.getId());
+        locationDto.setCode(locationDtoClient.getCode());
+        locationDto.setName(locationDtoClient.getName());
+        locationDto.setType(locationDtoClient.getType());
+        return locationDto;
+    }
+
+    public AreaRestrictionDto convertAreaRestrictionDtoFromClient(AreaRestrictionDtoClient areaRestrictionDtoClient) {
+        AreaRestrictionDto areaRestrictionDto = new AreaRestrictionDto();
+        areaRestrictionDto.setId(areaRestrictionDtoClient.getId());
+        areaRestrictionDto.setName(areaRestrictionDtoClient.getName());
+        areaRestrictionDto.setCode(areaRestrictionDtoClient.getCode());
+        areaRestrictionDto.setTimeStart(areaRestrictionDtoClient.getTimeStart());
+        areaRestrictionDto.setTimeEnd(areaRestrictionDtoClient.getTimeEnd());
+        return areaRestrictionDto;
     }
 }

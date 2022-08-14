@@ -1,0 +1,18 @@
+package com.comit.services.history.model.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MetadataDto {
+    private Integer id;
+    private String md5;
+    private String path;
+    private String type;
+}
+

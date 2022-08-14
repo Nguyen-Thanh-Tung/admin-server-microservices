@@ -1,8 +1,8 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.data.LocationDto;
-import com.comit.services.account.client.data.MetadataDto;
-import com.comit.services.account.client.data.OrganizationDto;
+import com.comit.services.account.client.data.LocationDtoClient;
+import com.comit.services.account.client.data.MetadataDtoClient;
+import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
@@ -84,7 +84,7 @@ public class UserBusinessImpl implements UserBusiness {
 
         Integer organizationId = request.getOrganizationId();
         if (organizationId != null) {
-            OrganizationDto organization = userServices.getOrganizationById(organizationId);
+            OrganizationDtoClient organization = userServices.getOrganizationById(organizationId);
             if (organization == null) {
                 throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
             }
@@ -115,7 +115,7 @@ public class UserBusinessImpl implements UserBusiness {
 
         // Admin create user (in permission, ex: Time Keeping Admin create Time Keeping User)
         if (request.getLocationId() != null) {
-            LocationDto location = userServices.getLocation(request.getLocationId());
+            LocationDtoClient location = userServices.getLocation(request.getLocationId());
             user.setLocationId(location.getId());
         }
 
@@ -176,7 +176,7 @@ public class UserBusinessImpl implements UserBusiness {
             Integer organizationId;
             if (organizationIdStr != null) {
                 organizationId = Integer.parseInt(organizationIdStr);
-                OrganizationDto organization = userServices.getOrganizationById(organizationId);
+                OrganizationDtoClient organization = userServices.getOrganizationById(organizationId);
                 if (organization == null) {
                     throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
                 }
@@ -203,7 +203,7 @@ public class UserBusinessImpl implements UserBusiness {
             user.setOrganizationId(organizationId);
 
             if (locationIdStr != null && !locationIdStr.trim().isEmpty()) {
-                LocationDto location = userServices.getLocation(Integer.parseInt(locationIdStr));
+                LocationDtoClient location = userServices.getLocation(Integer.parseInt(locationIdStr));
                 if (location == null) {
                     throw new AccountRestApiException(UserErrorCode.LOCATION_NOT_EXIST);
                 }
@@ -215,7 +215,7 @@ public class UserBusinessImpl implements UserBusiness {
             }
 
             if (file != null) {
-                MetadataDto metadata = userServices.saveMetadata(file);
+                MetadataDtoClient metadata = userServices.saveMetadata(file);
                 if (metadata != null) {
                     user.setAvatarId(metadata.getId());
                 }
@@ -288,7 +288,7 @@ public class UserBusinessImpl implements UserBusiness {
             MultipartFile file = multipartHttpServletRequest.getFile("file");
 
             verifyRequestServices.verifyUploadAvatar(file);
-            MetadataDto metadata = userServices.saveMetadata(file);
+            MetadataDtoClient metadata = userServices.saveMetadata(file);
             if (metadata != null) {
                 user.setAvatarId(metadata.getId());
             }
@@ -307,36 +307,15 @@ public class UserBusinessImpl implements UserBusiness {
             return users.size();
         } else if (currentUser.getParent() != null && Objects.equals(currentUser.getParent().getUsername(), superAdminUsername)) {
             Integer organizationId = commonBusiness.getCurrentUser().getOrganizationId();
-            List<User> users = userServices.getUsersByOrganization(organizationId);
-            return users.size();
+            return userServices.getNumberUserOfOrganization(organizationId);
         } else {
             return getAllUser().size();
         }
     }
 
     @Override
-    public List<UserDto> getUsersByOrganizationId(int organizationId) {
-        List<User> users = userServices.getUsersByOrganization(organizationId);
-        List<UserDto> userDtos = new ArrayList<>();
-        users.forEach(user -> {
-            userDtos.add(convertUserToUserDto(user));
-        });
-        return userDtos;
-    }
-
-    @Override
-    public LocationDto getLocationOfCurrentUser() {
-        User currentUser = commonBusiness.getCurrentUser();
-        if (currentUser == null) {
-            return null;
-        }
-        return userServices.getLocation(currentUser.getLocationId());
-    }
-
-    @Override
-    public OrganizationDto getOrganizationOfCurrentUser() {
-        User currentUser = commonBusiness.getCurrentUser();
-        return userServices.getOrganizationById(currentUser.getOrganizationId());
+    public int getNumberUserOfOrganization(int organizationId) {
+        return userServices.getNumberUserOfOrganization(organizationId);
     }
 
     @Override
@@ -372,18 +351,18 @@ public class UserBusinessImpl implements UserBusiness {
         ModelMapper modelMapper = new ModelMapper();
         try {
             UserDto userDto = modelMapper.map(user, UserDto.class);
-            OrganizationDto organization = userServices.getOrganizationById(user.getOrganizationId());
+            OrganizationDtoClient organization = userServices.getOrganizationById(user.getOrganizationId());
             if (organization != null) {
                 userDto.setOrganization(organization);
             }
             if (user.getLocationId() != null) {
-                LocationDto location = userServices.getLocation(user.getLocationId());
+                LocationDtoClient location = userServices.getLocation(user.getLocationId());
                 if (location != null) {
                     userDto.setLocation(location);
                 }
             }
             if (user.getAvatarId() != null) {
-                MetadataDto metadata = userServices.getMetadata(user.getAvatarId());
+                MetadataDtoClient metadata = userServices.getMetadata(user.getAvatarId());
                 if (metadata != null) {
                     userDto.setAvatar(metadata);
                 }

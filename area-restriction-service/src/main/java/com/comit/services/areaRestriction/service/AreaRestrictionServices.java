@@ -1,7 +1,7 @@
 package com.comit.services.areaRestriction.service;
 
-import com.comit.services.areaRestriction.client.data.EmployeeDto;
-import com.comit.services.areaRestriction.client.data.LocationDto;
+import com.comit.services.areaRestriction.client.data.EmployeeDtoClient;
+import com.comit.services.areaRestriction.client.data.LocationDtoClient;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +20,11 @@ public interface AreaRestrictionServices {
 
     boolean deleteAreaRestriction(AreaRestriction areaRestriction);
 
-    LocationDto getLocationOfCurrentUser();
+    LocationDtoClient getLocationOfCurrentUser();
 
     int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate);
 
-    EmployeeDto getEmployee(Integer employeeId, Integer locationId);
+    EmployeeDtoClient getEmployee(Integer employeeId, Integer locationId);
 
     int getNumberCameraOfAreaRestriction(int areaRestrictionId);
 

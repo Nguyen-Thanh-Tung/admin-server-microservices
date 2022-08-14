@@ -1,7 +1,7 @@
 package com.comit.services.employee.client;
 
-import com.comit.services.employee.client.request.AreaEmployeeTimeListRequest;
-import com.comit.services.employee.client.response.AreaEmployeeTimeListResponse;
+import com.comit.services.employee.client.request.AreaEmployeeTimeListRequestClient;
+import com.comit.services.employee.client.response.AreaEmployeeTimeListResponseClient;
 import com.comit.services.employee.controller.response.BaseResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +16,11 @@ public interface AreaRestrictionClient {
     ResponseEntity<BaseResponse> deleteAreaRestrictionManagerNotificationList(@RequestHeader String token, @PathVariable Integer employeeId);
 
     @PostMapping("/area-restrictions/area-employee-times")
-    ResponseEntity<AreaEmployeeTimeListResponse> saveAreaEmployeeTimeList(@RequestHeader String token, @RequestBody AreaEmployeeTimeListRequest areaEmployeeTimeListRequest);
+    ResponseEntity<AreaEmployeeTimeListResponseClient> saveAreaEmployeeTimeList(@RequestHeader String token, @RequestBody AreaEmployeeTimeListRequestClient areaEmployeeTimeListRequestClient);
 
     @DeleteMapping("/area-restrictions/area-employee-times/employee/{employeeId}")
     ResponseEntity<BaseResponse> deleteAreaEmployeeTimeList(@RequestHeader String token, @PathVariable Integer employeeId);
 
     @GetMapping("/area-restrictions/area-employee-times/employee/{employeeId}")
-    ResponseEntity<AreaEmployeeTimeListResponse> getAreaEmployeeTimesOfEmployee(@RequestHeader String token, @PathVariable int employeeId);
+    ResponseEntity<AreaEmployeeTimeListResponseClient> getAreaEmployeeTimesOfEmployee(@RequestHeader String token, @PathVariable int employeeId);
 }

@@ -1,5 +1,6 @@
 package com.comit.services.organization.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,6 @@ public class OrganizationDto extends BaseModelDto {
     private String phone;
     private String address;
     private String description;
+    @JsonProperty("number_user")
     private Integer numberUser;
 }

@@ -1,9 +1,10 @@
 package com.comit.services.areaRestriction.business;
 
-import com.comit.services.areaRestriction.client.data.EmployeeDto;
-import com.comit.services.areaRestriction.client.data.LocationDto;
+import com.comit.services.areaRestriction.client.data.EmployeeDtoClient;
+import com.comit.services.areaRestriction.client.data.LocationDtoClient;
 import com.comit.services.areaRestriction.controller.request.AreaEmployeeTimeListRequest;
 import com.comit.services.areaRestriction.model.dto.AreaEmployeeTimeDto;
+import com.comit.services.areaRestriction.model.dto.EmployeeDto;
 import com.comit.services.areaRestriction.model.entity.AreaEmployeeTime;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import com.comit.services.areaRestriction.service.AreaEmployeeTimeService;
@@ -21,7 +22,8 @@ import java.util.List;
 @Service
 public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
 
-
+    @Autowired
+    private AreaRestrictionBusiness areaRestrictionBusiness;
     @Autowired
     private AreaRestrictionServices areaRestrictionServices;
     @Autowired
@@ -29,7 +31,7 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
 
     @Override
     public List<AreaEmployeeTimeDto> saveAreaEmployeeTimeList(AreaEmployeeTimeListRequest areaEmployeeTimeListRequest) {
-        LocationDto locationDto = areaRestrictionServices.getLocationOfCurrentUser();
+        LocationDtoClient locationDtoClient = areaRestrictionServices.getLocationOfCurrentUser();
         JsonArray jsonArray = new JsonParser().parse(areaEmployeeTimeListRequest.getAreaEmployees()).getAsJsonArray();
         List<AreaEmployeeTime> areaEmployeeTimes = new ArrayList<>();
         jsonArray.forEach(jsonElement -> {
@@ -38,7 +40,7 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
                 Integer areaRestrictionId = jsonObject.get("area_restriction_id").getAsInt();
                 String timeStart = jsonObject.get("time_start").getAsString();
                 String timeEnd = jsonObject.get("time_end").getAsString();
-                AreaRestriction areaRestriction = areaRestrictionServices.getAreaRestriction(locationDto.getId(), areaRestrictionId);
+                AreaRestriction areaRestriction = areaRestrictionServices.getAreaRestriction(locationDtoClient.getId(), areaRestrictionId);
                 if (areaRestriction != null) {
                     AreaEmployeeTime areaEmployeeTime = new AreaEmployeeTime();
                     areaEmployeeTime.setAreaRestriction(areaRestriction);
@@ -84,11 +86,12 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
 
     public AreaEmployeeTimeDto convertAreaEmployeeTimeToAreaEmployeeTimeDto(AreaEmployeeTime areaEmployeeTime) {
         if (areaEmployeeTime == null) return null;
-        LocationDto locationDto = areaRestrictionServices.getLocationOfCurrentUser();
+        LocationDtoClient locationDtoClient = areaRestrictionServices.getLocationOfCurrentUser();
         try {
             ModelMapper modelMapper = new ModelMapper();
             AreaEmployeeTimeDto areaEmployeeTimeDto = modelMapper.map(areaEmployeeTime, AreaEmployeeTimeDto.class);
-            EmployeeDto employeeDto = areaRestrictionServices.getEmployee(areaEmployeeTime.getEmployeeId(), locationDto.getId());
+            EmployeeDtoClient employeeDtoClient = areaRestrictionServices.getEmployee(areaEmployeeTime.getEmployeeId(), locationDtoClient.getId());
+            EmployeeDto employeeDto = areaRestrictionBusiness.convertEmployeeDtoFromClient(employeeDtoClient);
             areaEmployeeTimeDto.setEmployee(employeeDto);
             return areaEmployeeTimeDto;
         } catch (Exception e) {

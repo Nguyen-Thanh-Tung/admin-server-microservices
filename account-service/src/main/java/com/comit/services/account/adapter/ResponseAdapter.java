@@ -2,7 +2,7 @@ package com.comit.services.account.adapter;
 
 import com.comit.services.account.business.CommonBusiness;
 import com.comit.services.account.client.UserLogClient;
-import com.comit.services.account.client.request.UserLogRequest;
+import com.comit.services.account.client.request.UserLogRequestClient;
 import com.comit.services.account.controller.response.BaseResponse;
 import com.comit.services.account.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         if (!content.equals("")) {
             User currentUser = commonBusiness.getCurrentUser();
             if (currentUser != null) {
-                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(currentUser.getId(), content, new Date())).getBody();
+                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequestClient(currentUser.getId(), content, new Date())).getBody();
             }
         }
     }

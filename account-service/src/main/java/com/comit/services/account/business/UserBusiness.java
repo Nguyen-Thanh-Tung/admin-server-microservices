@@ -1,7 +1,7 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.data.LocationDto;
-import com.comit.services.account.client.data.OrganizationDto;
+import com.comit.services.account.client.data.LocationDtoClient;
+import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
@@ -35,11 +35,7 @@ public interface UserBusiness {
 
     int getNumberAccount();
 
-    List<UserDto> getUsersByOrganizationId(int organizationId);
-
-    LocationDto getLocationOfCurrentUser();
-
-    OrganizationDto getOrganizationOfCurrentUser();
+    int getNumberUserOfOrganization(int organizationId);
 
     UserDto getCurrentUser();
 

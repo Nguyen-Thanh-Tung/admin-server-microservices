@@ -97,6 +97,11 @@ spring:
         - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
   main:
     web-application-type: reactive
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
 
 cors:
   allow: http://localhost:3005,*

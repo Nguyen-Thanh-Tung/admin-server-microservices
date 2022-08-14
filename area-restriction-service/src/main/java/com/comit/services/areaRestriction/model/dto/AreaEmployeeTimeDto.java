@@ -1,11 +1,8 @@
 package com.comit.services.areaRestriction.model.dto;
 
-import com.comit.services.areaRestriction.client.data.EmployeeDto;
-import com.comit.services.areaRestriction.model.entity.AreaEmployeeTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
 
 @Getter
 @Setter

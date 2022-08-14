@@ -1,18 +1,17 @@
 package com.comit.services.history.client.response;
 
-import com.comit.services.history.client.data.NotificationMethodDto;
-import com.comit.services.history.controller.response.BaseResponse;
+import com.comit.services.history.client.data.NotificationMethodDtoClient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class NotificationMethodResponse extends BaseResponse {
+public class NotificationMethodResponse extends BaseResponseClient {
     @JsonProperty("notification_method")
-    private NotificationMethodDto notificationMethod;
+    private NotificationMethodDtoClient notificationMethod;
 
-    public NotificationMethodResponse(int code, String message, NotificationMethodDto notificationMethod) {
+    public NotificationMethodResponse(int code, String message, NotificationMethodDtoClient notificationMethod) {
         this.code = code;
         this.message = message;
         this.notificationMethod = notificationMethod;

@@ -1,7 +1,8 @@
 package com.comit.services.organization.client;
 
-import com.comit.services.organization.client.response.CheckRoleResponse;
-import com.comit.services.organization.client.response.UserResponse;
+import com.comit.services.organization.client.response.CheckRoleResponseClient;
+import com.comit.services.organization.client.response.CountUserResponse;
+import com.comit.services.organization.client.response.UserResponseClient;
 import com.comit.services.organization.controller.response.UserListResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "account-service")
 public interface AccountClient {
     @GetMapping("/roles/organization")
-    ResponseEntity<CheckRoleResponse> hasPermissionManageOrganization(@RequestHeader String token);
+    ResponseEntity<CheckRoleResponseClient> hasPermissionManageOrganization(@RequestHeader String token);
 
-    @GetMapping("/users/organization/{organizationId}")
-    ResponseEntity<UserListResponse> getUsersByOrganizationId(@RequestHeader String token, @PathVariable(name = "organizationId") int organizationId);
+    @GetMapping("/users/organization/{organizationId}/number-user")
+    ResponseEntity<CountUserResponse> getNumberUserOfOrganization(@RequestHeader String token, @PathVariable(name = "organizationId") int organizationId);
 
-    @GetMapping("/users/current/user")
-    ResponseEntity<UserResponse> getCurrentUser(@RequestHeader String token);
+    @GetMapping("/users/current")
+    ResponseEntity<UserResponseClient> getCurrentUser(@RequestHeader String token);
 }

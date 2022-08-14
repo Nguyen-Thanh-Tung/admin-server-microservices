@@ -1,7 +1,7 @@
 package com.comit.services.account.client;
 
-import com.comit.services.account.client.request.MailRequest;
-import com.comit.services.account.controller.response.BaseResponse;
+import com.comit.services.account.client.request.MailRequestClient;
+import com.comit.services.account.client.response.BaseResponseClient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface MailClient {
 
     @PostMapping("/mails/create-user")
-    ResponseEntity<BaseResponse> sendMailConfirmCreateUser(@RequestHeader String token, @RequestBody MailRequest request);
+    ResponseEntity<BaseResponseClient> sendMailConfirmCreateUser(@RequestHeader String token, @RequestBody MailRequestClient mailRequestClient);
 
     @PostMapping("/mails/forget-password")
-    ResponseEntity<BaseResponse> sendMailForgetPassword(@RequestHeader String token, @RequestBody MailRequest mailRequest);
+    ResponseEntity<BaseResponseClient> sendMailForgetPassword(@RequestHeader String token, @RequestBody MailRequestClient mailRequestClient);
 }

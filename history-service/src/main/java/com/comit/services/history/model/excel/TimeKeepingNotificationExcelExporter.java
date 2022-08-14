@@ -1,6 +1,6 @@
 package com.comit.services.history.model.excel;
 
-import com.comit.services.history.client.data.EmployeeDto;
+import com.comit.services.history.client.data.EmployeeDtoClient;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.Cell;
@@ -9,7 +9,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -77,19 +76,19 @@ public class TimeKeepingNotificationExcelExporter {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
-            EmployeeDto employeeDto = null;
-            EmployeeDto managerDto = null;
+            EmployeeDtoClient employeeDtoClient = null;
+            EmployeeDtoClient managerDto = null;
 
             if (history.getEmployeeId() != null) {
-                employeeDto = historyServices.getEmployee(history.getEmployeeId());
-                if (employeeDto != null) {
-                    managerDto = employeeDto.getManager();
+                employeeDtoClient = historyServices.getEmployee(history.getEmployeeId());
+                if (employeeDtoClient != null) {
+                    managerDto = employeeDtoClient.getManager();
                 }
 
             }
             createCell(row, columnCount++, history.getType(), style);
-            createCell(row, columnCount++, employeeDto != null ? employeeDto.getName() : "", style);
-            createCell(row, columnCount++, employeeDto != null ? employeeDto.getCode() : "", style);
+            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getName() : "", style);
+            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getCode() : "", style);
             createCell(row, columnCount++, managerDto != null ? managerDto.getName() : "", style);
             createCell(row, columnCount++, history.getTime().toString(), style);
 

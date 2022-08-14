@@ -2,9 +2,9 @@ package com.comit.services.employee.service;
 
 import com.comit.services.employee.client.*;
 import com.comit.services.employee.client.data.*;
-import com.comit.services.employee.client.request.AreaEmployeeTimeListRequest;
-import com.comit.services.employee.client.request.MailRequest;
-import com.comit.services.employee.client.request.MetadataRequest;
+import com.comit.services.employee.client.request.AreaEmployeeTimeListRequestClient;
+import com.comit.services.employee.client.request.MailRequestClient;
+import com.comit.services.employee.client.request.MetadataRequestClient;
 import com.comit.services.employee.client.response.*;
 import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.constant.EmployeeErrorCode;
@@ -42,6 +42,10 @@ public class EmployeeServicesImpl implements EmployeeServices {
     MailClient mailClient;
     @Autowired
     TimeKeepingClient timeKeepingClient;
+    @Autowired
+    LocationClient locationClient;
+    @Autowired
+    OrganizationClient organizationClient;
 
     @Value("${core.api.add-employee-image}")
     private String addEmployeeImageUrl;
@@ -212,21 +216,25 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public LocationDto getLocationOfCurrentUser() {
-        LocationResponse locationResponse = accountClient.getLocationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (locationResponse == null) {
+    public LocationDtoClient getLocationOfCurrentUser() {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
+            return null;
+        }
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        if (locationResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocationDto();
+        return locationResponseClient.getLocationDtoClient();
     }
 
     @Override
-    public MetadataDto saveMetadata(String imagePath) {
-        MetadataResponse metadataResponse = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), new MetadataRequest(imagePath)).getBody();
-        if (metadataResponse == null) {
+    public MetadataDtoClient saveMetadata(String imagePath) {
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), new MetadataRequestClient(imagePath)).getBody();
+        if (metadataResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return metadataResponse.getMetadata();
+        return metadataResponseClient.getMetadata();
     }
 
     @Override
@@ -248,13 +256,13 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public List<AreaEmployeeTimeDto> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
-        AreaEmployeeTimeListResponse areaEmployeeTimeListResponse = areaRestrictionClient.saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"), new AreaEmployeeTimeListRequest(areaEmployees, newEmployeeId)).getBody();
+    public List<AreaEmployeeTimeDtoClient> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
+        AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient.saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"), new AreaEmployeeTimeListRequestClient(areaEmployees, newEmployeeId)).getBody();
 
-        if (areaEmployeeTimeListResponse == null) {
+        if (areaEmployeeTimeListResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return areaEmployeeTimeListResponse.getAreaEmployeeTimes();
+        return areaEmployeeTimeListResponseClient.getAreaEmployeeTimes();
     }
 
     @Override
@@ -287,18 +295,22 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public OrganizationDto getOrganizationOfCurrentUser() {
-        OrganizationResponse organizationResponse = accountClient.getOrganizationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (organizationResponse == null) {
+    public OrganizationDtoClient getOrganizationOfCurrentUser() {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getOrganizationId() == null) {
+            return null;
+        }
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
+        if (organizationResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponse.getOrganizationDto();
+        return organizationResponseClient.getOrganizationDtoClient();
     }
 
     @Override
     public void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode) {
-        BaseResponse baseResponse = mailClient.sendQrCodeMail(httpServletRequest.getHeader("token"), new MailRequest(mailTo, fullname, employeeCode, organizationName, locationName, locationCode)).getBody();
+        BaseResponse baseResponse = mailClient.sendQrCodeMail(httpServletRequest.getHeader("token"), new MailRequestClient(mailTo, fullname, employeeCode, organizationName, locationName, locationCode)).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -310,29 +322,29 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public ShiftDto getShift(int shiftId) {
-        ShiftResponse shiftResponse = timeKeepingClient.getShift(httpServletRequest.getHeader("token"), shiftId).getBody();
-        if (shiftResponse == null) {
+    public ShiftDtoClient getShift(int shiftId) {
+        ShiftResponseClient shiftResponseClient = timeKeepingClient.getShift(httpServletRequest.getHeader("token"), shiftId).getBody();
+        if (shiftResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return shiftResponse.getShift();
+        return shiftResponseClient.getShift();
     }
 
     @Override
-    public MetadataDto getMetadata(Integer imageId) {
-        MetadataResponse metadataResponse = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
-        if (metadataResponse == null) {
+    public MetadataDtoClient getMetadata(Integer imageId) {
+        MetadataResponseClient metadataResponseClient = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
+        if (metadataResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return metadataResponse.getMetadata();
+        return metadataResponseClient.getMetadata();
     }
 
     @Override
-    public List<AreaEmployeeTimeDto> getAreaEmployeeTimesOfEmployee(int employeeId) {
-        AreaEmployeeTimeListResponse areaEmployeeTimeListResponse = areaRestrictionClient.getAreaEmployeeTimesOfEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
-        if (areaEmployeeTimeListResponse == null) {
+    public List<AreaEmployeeTimeDtoClient> getAreaEmployeeTimesOfEmployee(int employeeId) {
+        AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient.getAreaEmployeeTimesOfEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
+        if (areaEmployeeTimeListResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return areaEmployeeTimeListResponse.getAreaEmployeeTimes();
+        return areaEmployeeTimeListResponseClient.getAreaEmployeeTimes();
     }
 }

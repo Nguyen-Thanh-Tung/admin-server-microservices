@@ -1,10 +1,10 @@
 package com.comit.services.account.service;
 
 import com.comit.services.account.client.FeatureClient;
-import com.comit.services.account.client.request.FeatureRequest;
+import com.comit.services.account.client.request.FeatureRequestClient;
+import com.comit.services.account.client.response.BaseResponseClient;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.RoleErrorCode;
-import com.comit.services.account.controller.response.BaseResponse;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.model.entity.Role;
 import com.comit.services.account.model.entity.User;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,9 @@ public class RoleServicesImpl implements RoleServices {
 
     @Autowired
     FeatureClient featureClient;
+
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
@@ -101,7 +105,7 @@ public class RoleServicesImpl implements RoleServices {
 
     @Override
     public void addFeature(String moduleName) {
-        BaseResponse baseResponse = featureClient.addFeature(new FeatureRequest(moduleName, moduleName)).getBody();
+        BaseResponseClient baseResponse = featureClient.addFeature(httpServletRequest.getHeader("token"), new FeatureRequestClient(moduleName, moduleName)).getBody();
         if (baseResponse == null) {
             throw new AccountRestApiException(RoleErrorCode.INTERNAL_ERROR);
         }

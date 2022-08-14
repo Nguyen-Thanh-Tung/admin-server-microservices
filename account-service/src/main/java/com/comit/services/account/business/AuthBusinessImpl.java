@@ -1,6 +1,6 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.data.OrganizationDto;
+import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.constant.AuthErrorCode;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
@@ -103,7 +103,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             throw new AccountRestApiException(UserErrorCode.EMAIL_EXISTED);
         }
 
-        OrganizationDto organization = userServices.getOrganizationById(signUpRequest.getOrganizationId());
+        OrganizationDtoClient organization = userServices.getOrganizationById(signUpRequest.getOrganizationId());
 
         // Create new user's account
         Set<Role> roleSet = new HashSet<>();
@@ -153,12 +153,12 @@ public class AuthBusinessImpl implements AuthBusiness {
         roles.add(Const.ROLE_SUPER_ADMIN);
 
         // Create organization
-        OrganizationDto organizationDto = userServices.getOrganizationByName(organizationName);
+        OrganizationDtoClient organizationDtoClient = userServices.getOrganizationByName(organizationName);
 
-        if (organizationDto == null) {
+        if (organizationDtoClient == null) {
             Organization organization = new Organization();
             organization.setName(organizationName);
-            organizationDto = userServices.addOrganization(organization);
+            organizationDtoClient = userServices.addOrganization(organization);
         }
 
 
@@ -180,7 +180,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode(password));
             user.setRoles(roleSet);
-            user.setOrganizationId(organizationDto.getId());
+            user.setOrganizationId(organizationDtoClient.getId());
             user.setStatus(Const.PENDING);
 
             User newUser = userServices.saveUser(user);

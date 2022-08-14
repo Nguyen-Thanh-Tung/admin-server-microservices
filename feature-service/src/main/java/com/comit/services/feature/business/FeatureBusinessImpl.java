@@ -1,7 +1,7 @@
 package com.comit.services.feature.business;
 
-import com.comit.services.feature.client.data.RoleDto;
-import com.comit.services.feature.client.data.UserDto;
+import com.comit.services.feature.client.data.RoleDtoClient;
+import com.comit.services.feature.client.data.UserDtoClient;
 import com.comit.services.feature.constant.Const;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.controller.request.FeatureRequest;
@@ -44,13 +44,13 @@ public class FeatureBusinessImpl implements FeatureBusiness {
     public FeatureDto addFeature(FeatureRequest request) {
         if (Objects.equals(request.getName(), Const.TIME_KEEPING_MODULE)) {
             String featureRoleStrs = "";
-            RoleDto roleDtoTimeKeepingAdmin = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_ADMIN);
-            if (roleDtoTimeKeepingAdmin != null) {
-                featureRoleStrs += roleDtoTimeKeepingAdmin.getId() + ",";
+            RoleDtoClient roleDtoClientTimeKeepingAdmin = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_ADMIN);
+            if (roleDtoClientTimeKeepingAdmin != null) {
+                featureRoleStrs += roleDtoClientTimeKeepingAdmin.getId() + ",";
             }
-            RoleDto roleDtoTimeKeepingUser = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_USER);
-            if (roleDtoTimeKeepingUser != null) {
-                featureRoleStrs += roleDtoTimeKeepingUser.getId();
+            RoleDtoClient roleDtoClientTimeKeepingUser = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_USER);
+            if (roleDtoClientTimeKeepingUser != null) {
+                featureRoleStrs += roleDtoClientTimeKeepingUser.getId();
             }
             Feature feature = featureServices.getFeature(Const.TIME_KEEPING_MODULE);
             if (feature == null) {
@@ -64,13 +64,13 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             return convertFeatureToFeatureDto(newFeature);
         } else if (Objects.equals(request.getName(), Const.AREA_RESTRICTION_CONTROL_MODULE)) {
             String featureRoleStrs = "";
-            RoleDto roleDtoAreaRestrictionAdmin = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
-            if (roleDtoAreaRestrictionAdmin != null) {
-                featureRoleStrs += roleDtoAreaRestrictionAdmin.getId() + ",";
+            RoleDtoClient roleDtoClientAreaRestrictionAdmin = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
+            if (roleDtoClientAreaRestrictionAdmin != null) {
+                featureRoleStrs += roleDtoClientAreaRestrictionAdmin.getId() + ",";
             }
-            RoleDto roleDtoAreaRestrictionUser = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_USER);
-            if (roleDtoAreaRestrictionUser != null) {
-                featureRoleStrs += roleDtoAreaRestrictionUser.getId();
+            RoleDtoClient roleDtoClientAreaRestrictionUser = featureServices.findRoleByName(Const.ROLE_AREA_RESTRICTION_CONTROL_USER);
+            if (roleDtoClientAreaRestrictionUser != null) {
+                featureRoleStrs += roleDtoClientAreaRestrictionUser.getId();
             }
             Feature feature = featureServices.getFeature(Const.AREA_RESTRICTION_CONTROL_MODULE);
             if (feature == null) {
@@ -84,13 +84,13 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             return convertFeatureToFeatureDto(newFeature);
         } else if (Objects.equals(request.getName(), Const.BEHAVIOR_CONTROL_MODULE)) {
             String featureRoleStrs = "";
-            RoleDto roleDtoBehaviorAdmin = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
-            if (roleDtoBehaviorAdmin != null) {
-                featureRoleStrs += roleDtoBehaviorAdmin.getId() + ",";
+            RoleDtoClient roleDtoClientBehaviorAdmin = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
+            if (roleDtoClientBehaviorAdmin != null) {
+                featureRoleStrs += roleDtoClientBehaviorAdmin.getId() + ",";
             }
-            RoleDto roleDtoBehaviorUser = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_USER);
-            if (roleDtoBehaviorUser != null) {
-                featureRoleStrs += roleDtoBehaviorUser.getId();
+            RoleDtoClient roleDtoClientBehaviorUser = featureServices.findRoleByName(Const.ROLE_BEHAVIOR_CONTROL_USER);
+            if (roleDtoClientBehaviorUser != null) {
+                featureRoleStrs += roleDtoClientBehaviorUser.getId();
             }
             Feature feature = featureServices.getFeature(Const.BEHAVIOR_CONTROL_MODULE);
             if (feature == null) {
@@ -135,19 +135,19 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             for (String s : feature.getRoleIds().split(",")) {
                 roleIds.add(Integer.parseInt(s));
             }
-            Set<UserDto> userDtos = new HashSet<>();
+            Set<UserDtoClient> userDtoClients = new HashSet<>();
             Set<Integer> organizationIds = new HashSet<>();
 
             roleIds.forEach(roleId -> {
-                featureServices.getUsersOfRole(roleId).forEach(userDto -> {
-                    if (!Objects.equals(userDto.getStatus(), Const.DELETED)) {
-                        userDtos.add(userDto);
-                        organizationIds.add(userDto.getOrganizationId());
+                featureServices.getUsersOfRole(roleId).forEach(userDtoClient -> {
+                    if (!Objects.equals(userDtoClient.getStatus(), Const.DELETED)) {
+                        userDtoClients.add(userDtoClient);
+                        organizationIds.add(userDtoClient.getOrganizationId());
                     }
                 });
             });
             featureDto.setNumberOrganization(organizationIds.size());
-            featureDto.setNumberAccount(userDtos.size());
+            featureDto.setNumberAccount(userDtoClients.size());
             return featureDto;
         } catch (Exception e) {
             return null;

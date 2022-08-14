@@ -1,13 +1,11 @@
 package com.comit.services.location.service;
 
-import com.comit.services.location.client.AccountClient;
-import com.comit.services.location.client.CameraClient;
-import com.comit.services.location.client.EmployeeClient;
-import com.comit.services.location.client.TimeKeepingClient;
-import com.comit.services.location.client.data.OrganizationDto;
-import com.comit.services.location.client.response.CheckRoleResponse;
-import com.comit.services.location.client.response.CountResponse;
-import com.comit.services.location.client.response.OrganizationResponse;
+import com.comit.services.location.client.*;
+import com.comit.services.location.client.data.OrganizationDtoClient;
+import com.comit.services.location.client.response.CheckRoleResponseClient;
+import com.comit.services.location.client.response.CountResponseClient;
+import com.comit.services.location.client.response.OrganizationResponseClient;
+import com.comit.services.location.client.response.UserResponseClient;
 import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.response.BaseResponse;
@@ -35,6 +33,8 @@ public class LocationServicesImpl implements LocationServices {
     private EmployeeClient employeeClient;
     @Autowired
     private CameraClient cameraClient;
+    @Autowired
+    private OrganizationClient organizationClient;
     @Autowired
     private HttpServletRequest httpServletRequest;
 
@@ -82,22 +82,26 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
-    public OrganizationDto getOrganizationOfCurrentUser() {
-        OrganizationResponse organizationResponse = accountClient.getOrganizationOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (organizationResponse == null) {
+    public OrganizationDtoClient getOrganizationOfCurrentUser() {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getOrganizationId() == null) {
+            return null;
+        }
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
+        if (organizationResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponse.getOrganizationDto();
+        return organizationResponseClient.getOrganization();
     }
 
     @Override
     public boolean hasPermissionManagerLocation(String type) {
-        CheckRoleResponse checkRoleResponse = accountClient.hasPermissionManagerLocation(httpServletRequest.getHeader("token"), type).getBody();
-        if (checkRoleResponse == null) {
+        CheckRoleResponseClient checkRoleResponseClient = accountClient.hasPermissionManagerLocation(httpServletRequest.getHeader("token"), type).getBody();
+        if (checkRoleResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
-        return checkRoleResponse.getHasRole();
+        return checkRoleResponseClient.getHasRole();
     }
 
     @Override
@@ -136,32 +140,32 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public int getNumberEmployeeOfLocation(int locationId) {
-        CountResponse countResponse = employeeClient.getNumberEmployeeOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (countResponse == null) {
+        CountResponseClient countResponseClient = employeeClient.getNumberEmployeeOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (countResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return countResponse.getNumber();
+        return countResponseClient.getNumber();
     }
 
     @Override
     public int getNumberCameraOfLocation(int locationId) {
-        CountResponse countResponse = cameraClient.getNumberCameraOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (countResponse == null) {
+        CountResponseClient countResponseClient = cameraClient.getNumberCameraOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (countResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return countResponse.getNumber();
+        return countResponseClient.getNumber();
     }
 
     @Override
     public int getNumberUserOfLocation(int locationId) {
-        CountResponse countResponse = accountClient.getNumberUserOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (countResponse == null) {
+        CountResponseClient countResponseClient = accountClient.getNumberUserOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (countResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
 
-        return countResponse.getNumber();
+        return countResponseClient.getNumber();
     }
 
     @Override

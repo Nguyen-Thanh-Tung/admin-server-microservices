@@ -1,7 +1,7 @@
 package com.comit.services.account.client;
 
-import com.comit.services.account.client.request.OrganizationRequest;
-import com.comit.services.account.client.response.OrganizationResponse;
+import com.comit.services.account.client.request.OrganizationRequestClient;
+import com.comit.services.account.client.response.OrganizationResponseClient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "organization-service")
 public interface OrganizationClient {
 
-    @GetMapping("/organizations/{organizationId}")
-    ResponseEntity<OrganizationResponse> getOrganization(@RequestHeader String token, @PathVariable("organizationId") Integer organizationId);
+    @GetMapping("/organizations/{id}")
+    ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("id") Integer organizationId);
 
     @GetMapping("/organizations/name/{organizationName}")
-    ResponseEntity<OrganizationResponse> getOrganization(@RequestHeader String token, @PathVariable("organizationName") String organizationName);
+    ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("organizationName") String organizationName);
 
     @PostMapping("/organizations")
-    ResponseEntity<OrganizationResponse> addOrganization(@RequestHeader String token, @RequestBody OrganizationRequest organization);
+    ResponseEntity<OrganizationResponseClient> addOrganization(@RequestHeader String token, @RequestBody OrganizationRequestClient organization);
 }

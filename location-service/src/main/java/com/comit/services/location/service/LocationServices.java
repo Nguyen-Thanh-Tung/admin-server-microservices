@@ -1,6 +1,6 @@
 package com.comit.services.location.service;
 
-import com.comit.services.location.client.data.OrganizationDto;
+import com.comit.services.location.client.data.OrganizationDtoClient;
 import com.comit.services.location.model.entity.Location;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +22,7 @@ public interface LocationServices {
 
     List<Location> getAllLocationByOrganizationId(int organizationId);
 
-    OrganizationDto getOrganizationOfCurrentUser();
+    OrganizationDtoClient getOrganizationOfCurrentUser();
 
     boolean hasPermissionManagerLocation(String timeKeepingType);
 

@@ -2,8 +2,8 @@ package com.comit.services.employee.adapter;
 
 import com.comit.services.employee.client.AccountClient;
 import com.comit.services.employee.client.UserLogClient;
-import com.comit.services.employee.client.request.UserLogRequest;
-import com.comit.services.employee.client.response.UserResponse;
+import com.comit.services.employee.client.request.UserLogRequestClient;
+import com.comit.services.employee.client.response.UserResponseClient;
 import com.comit.services.employee.controller.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -67,9 +67,9 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
             content = "Xóa nhân sự";
         }
         if (!content.equals("")) {
-            UserResponse userResponse = accountClient.getCurrentUser(request.getHeader("token")).getBody();
-            if (userResponse != null && userResponse.getCode() == 1) {
-                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(userResponse.getUserDto().getId(), content, new Date())).getBody();
+            UserResponseClient userResponseClient = accountClient.getCurrentUser(request.getHeader("token")).getBody();
+            if (userResponseClient != null && userResponseClient.getCode() == 1) {
+                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequestClient(userResponseClient.getUser().getId(), content, new Date())).getBody();
             }
         }
     }

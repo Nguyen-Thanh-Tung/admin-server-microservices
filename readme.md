@@ -61,9 +61,9 @@ Our sample microservices-based system consists of the following modules:
   on in-memory repository of employees
 - **department-service** - a module containing the second of our sample microservices that allows to perform CRUD
   operation on in-memory repository of departments. It communicates with employee-service.
-- **organizationDto-service** - a module containing the third of our sample microservices that allows to perform CRUD
+- **organizationDtoClient-service** - a module containing the third of our sample microservices that allows to perform CRUD
   operation on in-memory repository of organizationDtos. It communicates with both employee-service and
-  organizationDto-service.
+  organizationDtoClient-service.
 
 The following picture illustrates the architecture described above.
 

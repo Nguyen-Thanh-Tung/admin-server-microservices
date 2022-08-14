@@ -2,8 +2,8 @@ package com.comit.services.organization.adapter;
 
 import com.comit.services.organization.client.AccountClient;
 import com.comit.services.organization.client.UserLogClient;
-import com.comit.services.organization.client.request.UserLogRequest;
-import com.comit.services.organization.client.response.UserResponse;
+import com.comit.services.organization.client.request.UserLogRequestClient;
+import com.comit.services.organization.client.response.UserResponseClient;
 import com.comit.services.organization.controller.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -67,9 +67,9 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
             content = "Xóa tổ chức";
         }
         if (!content.equals("")) {
-            UserResponse userResponse = accountClient.getCurrentUser(request.getHeader("token")).getBody();
-            if (userResponse != null && userResponse.getCode() == 1) {
-                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequest(userResponse.getUserDto().getId(), content, new Date())).getBody();
+            UserResponseClient userResponseClient = accountClient.getCurrentUser(request.getHeader("token")).getBody();
+            if (userResponseClient != null && userResponseClient.getCode() == 1) {
+                userLogClient.saveUserLog(request.getHeader("token"), new UserLogRequestClient(userResponseClient.getUser().getId(), content, new Date())).getBody();
             }
         }
     }

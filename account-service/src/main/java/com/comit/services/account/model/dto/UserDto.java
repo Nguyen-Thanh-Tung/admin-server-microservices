@@ -1,8 +1,8 @@
 package com.comit.services.account.model.dto;
 
-import com.comit.services.account.client.data.LocationDto;
-import com.comit.services.account.client.data.MetadataDto;
-import com.comit.services.account.client.data.OrganizationDto;
+import com.comit.services.account.client.data.LocationDtoClient;
+import com.comit.services.account.client.data.MetadataDtoClient;
+import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -30,11 +30,11 @@ public class UserDto extends BaseModelDto {
     private UserDto parent;
 
     @JsonIncludeProperties({"id", "path", "type"})
-    private MetadataDto avatar;
+    private MetadataDtoClient avatar;
 
     @JsonIncludeProperties({"id", "name"})
-    private OrganizationDto organization;
+    private OrganizationDtoClient organization;
 
     @JsonIncludeProperties({"id", "name"})
-    private LocationDto location;
+    private LocationDtoClient location;
 }
