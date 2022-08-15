@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LocationResponse extends BaseResponseClient {
+public class LocationResponseClient extends BaseResponseClient {
     @JsonProperty(value = "location")
     private LocationDtoClient locationDtoClient;
 
-    public LocationResponse(int code, String message, LocationDtoClient locationDtoClient) {
+    public LocationResponseClient(int code, String message, LocationDtoClient locationDtoClient) {
         this.code = code;
         this.message = message;
         this.locationDtoClient = locationDtoClient;

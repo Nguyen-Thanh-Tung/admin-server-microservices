@@ -86,7 +86,8 @@ public class NotificationHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=time_keeping_notification_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        TimeKeepingNotificationExcelExporter excelExporter = new TimeKeepingNotificationExcelExporter(historyPage.getContent(), historyServices);
+        List<NotificationHistoryDto> historyDtos = notificationHistoryBusiness.getAllNotificationHistory(historyPage.getContent());
+        TimeKeepingNotificationExcelExporter excelExporter = new TimeKeepingNotificationExcelExporter(historyDtos);
         excelExporter.export(response);
     }
 
@@ -106,7 +107,8 @@ public class NotificationHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=area_restriction_notification_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        AreaRestrictionNotificationExcelExporter excelExporter = new AreaRestrictionNotificationExcelExporter(historyPage.getContent(), historyServices);
+        List<NotificationHistoryDto> historyDtos = notificationHistoryBusiness.getAllNotificationHistory(historyPage.getContent());
+        AreaRestrictionNotificationExcelExporter excelExporter = new AreaRestrictionNotificationExcelExporter(historyDtos);
         excelExporter.export(response);
     }
 

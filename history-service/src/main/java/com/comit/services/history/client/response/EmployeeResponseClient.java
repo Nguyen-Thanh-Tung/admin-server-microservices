@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EmployeeResponse extends BaseResponseClient {
+public class EmployeeResponseClient extends BaseResponseClient {
     @JsonProperty(value = "employee")
     private EmployeeDtoClient employee;
 
-    public EmployeeResponse(int code, String message, EmployeeDtoClient employee) {
+    public EmployeeResponseClient(int code, String message, EmployeeDtoClient employee) {
         this.code = code;
         this.message = message;
         this.employee = employee;

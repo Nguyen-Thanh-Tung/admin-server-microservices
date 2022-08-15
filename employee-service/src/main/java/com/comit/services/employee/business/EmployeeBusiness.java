@@ -1,6 +1,7 @@
 package com.comit.services.employee.business;
 
 import com.comit.services.employee.controller.request.SendQrCodeRequest;
+import com.comit.services.employee.model.dto.BaseEmployeeDto;
 import com.comit.services.employee.model.dto.EmployeeDto;
 import com.comit.services.employee.model.entity.Employee;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,9 @@ public interface EmployeeBusiness {
 
     EmployeeDto updateEmployee(int id, HttpServletRequest servletRequest);
 
-    EmployeeDto getEmployee(int id, boolean isFullInfo);
+    EmployeeDto getEmployee(int id);
+
+    BaseEmployeeDto getEmployeeBase(int id);
 
     EmployeeDto getEmployee(String code);
 

@@ -20,6 +20,8 @@ public interface UserBusiness {
 
     UserDto getUser(int id);
 
+    BaseUserDto getUserBase(int id);
+
     UserDto addUser(AddUserRequest addUserRequest);
 
     boolean deleteUser(int id);

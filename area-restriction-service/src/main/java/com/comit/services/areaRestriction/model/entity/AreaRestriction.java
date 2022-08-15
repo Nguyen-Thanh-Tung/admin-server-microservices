@@ -18,6 +18,7 @@ public class AreaRestriction extends BaseModel {
     @Column(name = "code")
     private String code;
 
+    @Column(name = "manager_ids")
     private String managerIds;
 
     @Column(name = "time_start")

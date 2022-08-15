@@ -140,7 +140,7 @@ public class FeatureBusinessImpl implements FeatureBusiness {
 
             roleIds.forEach(roleId -> {
                 featureServices.getUsersOfRole(roleId).forEach(userDtoClient -> {
-                    if (!Objects.equals(userDtoClient.getStatus(), Const.DELETED)) {
+                    if (Objects.equals(userDtoClient.getStatus(), Const.ACTIVE)) {
                         userDtoClients.add(userDtoClient);
                         organizationIds.add(userDtoClient.getOrganizationId());
                     }

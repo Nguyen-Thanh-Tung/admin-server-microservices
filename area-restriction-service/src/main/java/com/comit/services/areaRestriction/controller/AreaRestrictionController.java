@@ -9,10 +9,7 @@ import com.comit.services.areaRestriction.controller.request.AreaEmployeeTimeLis
 import com.comit.services.areaRestriction.controller.request.AreaRestrictionNotificationRequest;
 import com.comit.services.areaRestriction.controller.request.AreaRestrictionRequest;
 import com.comit.services.areaRestriction.controller.response.*;
-import com.comit.services.areaRestriction.model.dto.AreaEmployeeTimeDto;
-import com.comit.services.areaRestriction.model.dto.AreaRestrictionDto;
-import com.comit.services.areaRestriction.model.dto.AreaRestrictionNotificationDto;
-import com.comit.services.areaRestriction.model.dto.NotificationMethodDto;
+import com.comit.services.areaRestriction.model.dto.*;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -101,6 +98,12 @@ public class AreaRestrictionController {
     @GetMapping("/{id}")
     ResponseEntity<BaseResponse> getAreaRestriction(@PathVariable Integer id) {
         AreaRestrictionDto areaRestrictionDto = areaRestrictionBusiness.getAreaRestriction(id);
+        return new ResponseEntity<>(new AreaRestrictionResponse(AreaRestrictionErrorCode.SUCCESS, areaRestrictionDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/base")
+    ResponseEntity<BaseResponse> getAreaRestrictionBase(@PathVariable Integer id) {
+        BaseAreaRestrictionDto areaRestrictionDto = areaRestrictionBusiness.getAreaRestrictionBase(id);
         return new ResponseEntity<>(new AreaRestrictionResponse(AreaRestrictionErrorCode.SUCCESS, areaRestrictionDto), HttpStatus.OK);
     }
 

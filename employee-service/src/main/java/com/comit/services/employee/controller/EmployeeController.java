@@ -8,6 +8,7 @@ import com.comit.services.employee.controller.response.BaseResponse;
 import com.comit.services.employee.controller.response.CountResponse;
 import com.comit.services.employee.controller.response.EmployeeListResponse;
 import com.comit.services.employee.controller.response.EmployeeResponse;
+import com.comit.services.employee.model.dto.BaseEmployeeDto;
 import com.comit.services.employee.model.dto.EmployeeDto;
 import com.comit.services.employee.model.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +53,13 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BaseResponse> getEmployee(@PathVariable int id) {
-        EmployeeDto employeeDto = employeeBusiness.getEmployee(id, false);
+        EmployeeDto employeeDto = employeeBusiness.getEmployee(id);
         return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/full")
+    @GetMapping("/{id}/base")
     public ResponseEntity<BaseResponse> getEmployeeFullInfo(@PathVariable int id) {
-        EmployeeDto employeeDto = employeeBusiness.getEmployee(id, true);
+        BaseEmployeeDto employeeDto = employeeBusiness.getEmployeeBase(id);
         return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
     }
 

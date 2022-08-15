@@ -85,7 +85,7 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     }
 
     @Override
-    public Page<NotificationHistory> getNotificationHistoryPage(String status, int page, int size) throws ParseException {
+    public Page<NotificationHistory> getNotificationHistoryPage(String status, int page, int size) {
         permissionManageNotificationHistory();
         LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);

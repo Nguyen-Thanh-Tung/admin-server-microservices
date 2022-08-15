@@ -10,6 +10,7 @@ import com.comit.services.camera.controller.request.CameraRequest;
 import com.comit.services.camera.exception.RestApiException;
 import com.comit.services.camera.middleware.CameraVerifyRequestServices;
 import com.comit.services.camera.model.dto.AreaRestrictionDto;
+import com.comit.services.camera.model.dto.BaseCameraDto;
 import com.comit.services.camera.model.dto.CameraDto;
 import com.comit.services.camera.model.dto.LocationDto;
 import com.comit.services.camera.model.entity.Camera;
@@ -247,6 +248,16 @@ public class CameraBusinessImpl implements CameraBusiness {
     }
 
     @Override
+    public BaseCameraDto getCameraBase(int id, String status) {
+        Camera camera = cameraServices.getCamera(id, status);
+        if (camera == null) {
+            throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
+        }
+
+        return convertCameraToBaseCameraDto(camera);
+    }
+
+    @Override
     public boolean updatePolygonCamera(int id, CameraPolygonsRequest cameraRequest) {
         Camera camera = cameraServices.getCamera(id, Const.ACTIVE);
         if (camera == null) {
@@ -272,6 +283,15 @@ public class CameraBusinessImpl implements CameraBusiness {
         return cameraServices.getNumberCameraOfAreaRestriction(areaRestrictionId);
     }
 
+    public BaseCameraDto convertCameraToBaseCameraDto(Camera camera) {
+        if (camera == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(camera, BaseCameraDto.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
     public CameraDto convertCameraToCameraDto(Camera camera) {
         if (camera == null) return null;
         try {

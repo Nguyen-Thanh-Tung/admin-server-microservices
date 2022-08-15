@@ -1,6 +1,8 @@
 package com.comit.services.history.model.excel;
 
 import com.comit.services.history.client.data.EmployeeDtoClient;
+import com.comit.services.history.model.dto.EmployeeDto;
+import com.comit.services.history.model.dto.NotificationHistoryDto;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,14 +19,12 @@ import java.util.List;
 
 public class TimeKeepingNotificationExcelExporter {
     private final XSSFWorkbook workbook;
-    private final List<NotificationHistory> notificationHistories;
+    private final List<NotificationHistoryDto> notificationHistories;
     private XSSFSheet sheet;
-    private final HistoryServices historyServices;
 
-    public TimeKeepingNotificationExcelExporter(List<NotificationHistory> notificationHistories, HistoryServices historyServices) {
+    public TimeKeepingNotificationExcelExporter(List<NotificationHistoryDto> notificationHistories) {
         this.notificationHistories = notificationHistories;
         this.workbook = new XSSFWorkbook();
-        this.historyServices = historyServices;
     }
 
 
@@ -72,23 +72,16 @@ public class TimeKeepingNotificationExcelExporter {
         font.setFontHeight(14);
         style.setFont(font);
 
-        for (NotificationHistory history : notificationHistories) {
+        for (NotificationHistoryDto history : notificationHistories) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
-            EmployeeDtoClient employeeDtoClient = null;
-            EmployeeDtoClient managerDto = null;
+            EmployeeDto employeeDto = history.getEmployee();
+            EmployeeDto managerDto = history.getEmployee() == null ? null : history.getEmployee().getManager();
 
-            if (history.getEmployeeId() != null) {
-                employeeDtoClient = historyServices.getEmployee(history.getEmployeeId());
-                if (employeeDtoClient != null) {
-                    managerDto = employeeDtoClient.getManager();
-                }
-
-            }
             createCell(row, columnCount++, history.getType(), style);
-            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getName() : "", style);
-            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getCode() : "", style);
+            createCell(row, columnCount++, employeeDto != null ? employeeDto.getName() : "", style);
+            createCell(row, columnCount++, employeeDto != null ? employeeDto.getCode() : "", style);
             createCell(row, columnCount++, managerDto != null ? managerDto.getName() : "", style);
             createCell(row, columnCount++, history.getTime().toString(), style);
 

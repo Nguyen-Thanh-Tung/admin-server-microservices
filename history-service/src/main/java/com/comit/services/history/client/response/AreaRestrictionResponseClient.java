@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AreaRestrictionResponse extends BaseResponseClient {
+public class AreaRestrictionResponseClient extends BaseResponseClient {
     @JsonProperty(value = "area_restriction")
     private AreaRestrictionDtoClient areaRestriction;
 
-    public AreaRestrictionResponse(int code, String message, AreaRestrictionDtoClient areaRestriction) {
+    public AreaRestrictionResponseClient(int code, String message, AreaRestrictionDtoClient areaRestriction) {
         this.code = code;
         this.message = message;
         this.areaRestriction = areaRestriction;

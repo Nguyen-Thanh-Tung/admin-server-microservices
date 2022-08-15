@@ -1,7 +1,7 @@
 package com.comit.services.history.service;
 
 import com.comit.services.history.client.AreaRestrictionClient;
-import com.comit.services.history.client.response.NotificationMethodResponse;
+import com.comit.services.history.client.response.NotificationMethodResponseClient;
 import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.exception.RestApiException;
@@ -114,8 +114,8 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
         List<Integer> areaRestrictionIds = notificationHistoryRepository.getAreaRestrictionHasNotifyNotResolve(locationId, timeStart, timeEnd, "Chưa xử lý");
         AtomicInteger numberARHasNotifyNotResolveAndUsingRing = new AtomicInteger(0);
         areaRestrictionIds.forEach(areaRestrictionId -> {
-            NotificationMethodResponse notificationMethodResponse = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
-            if (notificationMethodResponse != null && notificationMethodResponse.getNotificationMethod().isUseRing()) {
+            NotificationMethodResponseClient notificationMethodResponseClient = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+            if (notificationMethodResponseClient != null && notificationMethodResponseClient.getNotificationMethod().isUseRing()) {
                 numberARHasNotifyNotResolveAndUsingRing.getAndIncrement();
             }
         });

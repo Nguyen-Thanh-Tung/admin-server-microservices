@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MetadataResponse extends BaseResponseClient {
+public class MetadataResponseClient extends BaseResponseClient {
     @JsonProperty(value = "metadata")
     private MetadataDtoClient metadata;
 
-    public MetadataResponse(
+    public MetadataResponseClient(
             int code,
             String message,
             MetadataDtoClient metadata) {

@@ -6,9 +6,7 @@ import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.request.SendQrCodeRequest;
 import com.comit.services.employee.exception.RestApiException;
 import com.comit.services.employee.middleware.EmployeeVerifyRequestServices;
-import com.comit.services.employee.model.dto.EmployeeDto;
-import com.comit.services.employee.model.dto.MetadataDto;
-import com.comit.services.employee.model.dto.ShiftDto;
+import com.comit.services.employee.model.dto.*;
 import com.comit.services.employee.model.entity.Employee;
 import com.comit.services.employee.service.EmployeeServices;
 import com.comit.services.employee.util.ExcelUtil;
@@ -53,7 +51,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     public List<EmployeeDto> getAllEmployee(List<Employee> employees) {
         List<EmployeeDto> employeeDtos = new ArrayList<>();
         employees.forEach(employee -> {
-            employeeDtos.add(convertEmployeeToEmployeeFullDto(employee));
+            employeeDtos.add(convertEmployeeToEmployeeDto(employee));
         });
         return employeeDtos;
     }
@@ -132,11 +130,11 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                                     if (employeeServices.isAreaRestrictionModule() || employeeServices.isBehaviorModule()) {
                                         String areaEmployees = request.getParameter("area_employees");
                                         if (areaEmployees != null && !areaEmployees.trim().isEmpty()) {
-                                            List<AreaEmployeeTimeDtoClient> employeeAreaRestrictions = employeeServices.saveEmployeeAreaRestrictionList(areaEmployees, newEmployee.getId());
+                                            employeeServices.saveEmployeeAreaRestrictionList(areaEmployees, newEmployee.getId());
                                         }
                                     }
 
-                                    return convertEmployeeToEmployeeFullDto(newEmployee);
+                                    return convertEmployeeToEmployeeDto(newEmployee);
                                 } catch (Exception e) {
                                     if (e instanceof RestApiException) {
                                         throw e;
@@ -252,13 +250,13 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
             Employee newEmployee = employeeServices.saveEmployee(employee);
 
-            return convertEmployeeToEmployeeFullDto(newEmployee);
+            return convertEmployeeToEmployeeDto(newEmployee);
         }
         return null;
     }
 
     @Override
-    public EmployeeDto getEmployee(int id, boolean isFullInfo) {
+    public EmployeeDto getEmployee(int id) {
         // Is user and has role manage employee (Ex: Time keeping user)
         permissionManageEmployee();
 
@@ -269,7 +267,22 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
-        return isFullInfo ? convertEmployeeToEmployeeFullDto(employee) : convertEmployeeToEmployeeDto(employee);
+        return convertEmployeeToEmployeeDto(employee);
+    }
+
+    @Override
+    public BaseEmployeeDto getEmployeeBase(int id) {
+        // Is user and has role manage employee (Ex: Time keeping user)
+        permissionManageEmployee();
+
+        // Get employee in location
+        LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
+        Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
+        if (employee == null) {
+            throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
+        }
+
+        return convertEmployeeToBaseEmployeeDto(employee);
     }
 
     @Override
@@ -351,7 +364,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             employee.setManagerId(newManager.getId());
             employeeServices.saveEmployee(employee);
         }
-        return convertEmployeeToEmployeeFullDto(newManager);
+        return convertEmployeeToEmployeeDto(newManager);
     }
 
     private void permissionManageEmployee() {
@@ -463,17 +476,25 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         employeeServices.sendQrCodeEmail(mailTo, fullname, employeeCode, organizationName, locationName, locationCode);
     }
 
-    public EmployeeDto convertEmployeeToEmployeeDto(Employee employee) {
+    public BaseEmployeeDto convertEmployeeToBaseEmployeeDto(Employee employee) {
         if (employee == null) return null;
         try {
             ModelMapper modelMapper = new ModelMapper();
-            return modelMapper.map(employee, EmployeeDto.class);
+            BaseEmployeeDto employeeDto = modelMapper.map(employee, BaseEmployeeDto.class);
+            // Manager of employee
+            if (employee.getManagerId() != null && employee.getLocationId() != null) {
+                Employee manager = employeeServices.getEmployee(employee.getManagerId(), employee.getLocationId());
+                if (manager != null) {
+                    employeeDto.setManager(modelMapper.map(manager, BaseEmployeeDto.class));
+                }
+            }
+            return employeeDto;
         } catch (Exception e) {
             return null;
         }
     }
 
-    public EmployeeDto convertEmployeeToEmployeeFullDto(Employee employee) {
+    public EmployeeDto convertEmployeeToEmployeeDto(Employee employee) {
         if (employee == null) return null;
         try {
             ModelMapper modelMapper = new ModelMapper();
@@ -489,7 +510,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             List<Employee> employeesOfEmployee = employeeServices.getEmployeeOfManager(employee.getId());
             List<EmployeeDto> employeesOfEmployeeDtos = new ArrayList<>();
             employeesOfEmployee.forEach(tmp -> {
-                employeesOfEmployeeDtos.add(convertEmployeeToEmployeeFullDto(tmp));
+                employeesOfEmployeeDtos.add(convertEmployeeToEmployeeDto(tmp));
             });
             employeeDto.setEmployees(employeesOfEmployeeDtos);
             if (employee.getShiftIds() != null) {
@@ -516,14 +537,38 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                 }
             }
 
-            // Area Employee Time list of employee
-//            List<AreaEmployeeTimeDtoClient> areaEmployeeTimeDtoClients = employeeServices.getAreaEmployeeTimesOfEmployee(employee.getId());
-//            employeeDto.setAreaEmployeeTimes(areaEmployeeTimeDtoClients);
+            //  Area Employee Time list of employee
+            List<AreaEmployeeTimeDtoClient> areaEmployeeTimeDtoClients = employeeServices.getAreaEmployeeTimesOfEmployee(employee.getId());
+            List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
+            areaEmployeeTimeDtoClients.forEach(areaEmployeeTimeDtoClient -> {
+                areaEmployeeTimeDtos.add(convertAreaEmployeeTimeFromClient(areaEmployeeTimeDtoClient));
+            });
+            employeeDto.setAreaEmployeeTimes(areaEmployeeTimeDtos);
 
             return employeeDto;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public AreaEmployeeTimeDto convertAreaEmployeeTimeFromClient(AreaEmployeeTimeDtoClient areaEmployeeTimeDtoClient) {
+        AreaEmployeeTimeDto areaEmployeeTimeDto = new AreaEmployeeTimeDto();
+        areaEmployeeTimeDto.setId(areaEmployeeTimeDtoClient.getId());
+        areaEmployeeTimeDto.setEmployeeDto(areaEmployeeTimeDtoClient.getEmployee());
+        areaEmployeeTimeDto.setAreaRestriction(convertAreaRestrictionDtoFromClient(areaEmployeeTimeDtoClient.getAreaRestriction()));
+        areaEmployeeTimeDto.setTimeStart(areaEmployeeTimeDtoClient.getTimeStart());
+        areaEmployeeTimeDto.setTimeEnd(areaEmployeeTimeDtoClient.getTimeEnd());
+        return areaEmployeeTimeDto;
+    }
+
+    public AreaRestrictionDto convertAreaRestrictionDtoFromClient(AreaRestrictionDtoClient areaRestrictionDtoClient) {
+        AreaRestrictionDto areaRestrictionDto = new AreaRestrictionDto();
+        areaRestrictionDto.setId(areaRestrictionDtoClient.getId());
+        areaRestrictionDto.setName(areaRestrictionDtoClient.getName());
+        areaRestrictionDto.setCode(areaRestrictionDtoClient.getCode());
+        areaRestrictionDto.setTimeStart(areaRestrictionDtoClient.getTimeStart());
+        areaRestrictionDto.setTimeEnd(areaRestrictionDtoClient.getTimeEnd());
+        return areaRestrictionDto;
     }
 
     public ShiftDto convertShiftDtoFromClient(ShiftDtoClient shiftDtoClient) {

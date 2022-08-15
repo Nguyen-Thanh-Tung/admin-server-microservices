@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NotificationMethodResponse extends BaseResponseClient {
+public class NotificationMethodResponseClient extends BaseResponseClient {
     @JsonProperty("notification_method")
     private NotificationMethodDtoClient notificationMethod;
 
-    public NotificationMethodResponse(int code, String message, NotificationMethodDtoClient notificationMethod) {
+    public NotificationMethodResponseClient(int code, String message, NotificationMethodDtoClient notificationMethod) {
         this.code = code;
         this.message = message;
         this.notificationMethod = notificationMethod;

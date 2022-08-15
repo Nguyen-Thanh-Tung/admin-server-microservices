@@ -10,7 +10,6 @@ import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.middleware.UserVerifyRequestServices;
-import com.comit.services.account.model.dto.BaseModelDto;
 import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
@@ -72,6 +71,22 @@ public class UserBusinessImpl implements UserBusiness {
             user.setParent(null);
         }
         return convertUserToUserDto(user);
+    }
+
+    @Override
+    public BaseUserDto getUserBase(int id) {
+        User currentUser = commonBusiness.getCurrentUser();
+        User user = userServices.getUser(id);
+        // Check permission red info user
+        if (user == null || (currentUser.getId() != id && !userServices.hasPermissionManageUser(currentUser, user))) {
+            return null;
+        }
+
+        // Remove information parent user if parent user is super admin
+        if (user.getParent() != null && Objects.equals(user.getParent().getUsername(), superAdminUsername)) {
+            user.setParent(null);
+        }
+        return convertUserToBaseUserDto(user);
     }
 
     @Override

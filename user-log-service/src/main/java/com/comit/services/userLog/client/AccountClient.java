@@ -16,6 +16,6 @@ public interface AccountClient {
     @GetMapping("/users/current")
     ResponseEntity<UserResponseClient> getCurrentUser(@RequestHeader String token);
 
-    @GetMapping("/users/{userId}")
-    ResponseEntity<UserResponseClient> getUserById(@RequestHeader String token, @PathVariable Integer userId);
+    @GetMapping("/users/{id}")
+    ResponseEntity<UserResponseClient> getUserById(@RequestHeader String token, @PathVariable("id") Integer userId);
 }

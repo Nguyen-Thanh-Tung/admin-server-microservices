@@ -11,7 +11,7 @@ import java.util.List;
 public class AreaRestrictionNotificationDto extends BaseModelDto {
 
     @JsonProperty(value = "area_restriction")
-    private AreaRestrictionDto areaRestrictionDto;
+    private BaseAreaRestrictionDto areaRestrictionDto;
 
     @JsonProperty(value = "notification_method")
     private NotificationMethodDto notificationMethod;

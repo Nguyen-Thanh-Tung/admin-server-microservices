@@ -60,6 +60,12 @@ public class UserController {
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{id}/base")
+    public ResponseEntity<UserResponse> getUserBase(@PathVariable int id) {
+        BaseUserDto userDto = userBusiness.getUserBase(id);
+        return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
+    }
+
     /**
      * Add user
      * Super admin add admin

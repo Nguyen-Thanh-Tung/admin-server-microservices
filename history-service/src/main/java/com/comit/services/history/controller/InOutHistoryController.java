@@ -73,7 +73,8 @@ public class InOutHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=time_keeping_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        TimeKeepingExcelExporter excelExporter = new TimeKeepingExcelExporter(historyPage.getContent(), historyServices);
+        List<InOutHistoryDto> historyDtos = inOutHistoryBusiness.getAllInOutHistory(historyPage.getContent());
+        TimeKeepingExcelExporter excelExporter = new TimeKeepingExcelExporter(historyDtos);
         excelExporter.export(response);
     }
 
@@ -93,7 +94,8 @@ public class InOutHistoryController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=area_restriction_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        AreaRestrictionExcelExporter excelExporter = new AreaRestrictionExcelExporter(historyPage.getContent(), historyServices);
+        List<InOutHistoryDto> historyDtos = inOutHistoryBusiness.getAllInOutHistory(historyPage.getContent());
+        AreaRestrictionExcelExporter excelExporter = new AreaRestrictionExcelExporter(historyDtos);
         excelExporter.export(response);
     }
 }

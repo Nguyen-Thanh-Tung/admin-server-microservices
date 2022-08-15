@@ -64,7 +64,7 @@ public class FeatureServicesImpl implements FeatureServices {
         if (roleListResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return roleListResponseClient.getRoleDtoClients();
+        return roleListResponseClient.getRoles();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.comit.services.employee.client.data;
+package com.comit.services.employee.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AreaRestrictionDtoClient {
+public class AreaRestrictionDto {
     private Integer id;
     private String name;
 

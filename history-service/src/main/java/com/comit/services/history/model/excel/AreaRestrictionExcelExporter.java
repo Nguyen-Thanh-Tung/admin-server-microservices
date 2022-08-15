@@ -3,6 +3,10 @@ package com.comit.services.history.model.excel;
 import com.comit.services.history.client.data.AreaRestrictionDtoClient;
 import com.comit.services.history.client.data.CameraDtoClient;
 import com.comit.services.history.client.data.EmployeeDtoClient;
+import com.comit.services.history.model.dto.AreaRestrictionDto;
+import com.comit.services.history.model.dto.CameraDto;
+import com.comit.services.history.model.dto.EmployeeDto;
+import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.*;
@@ -17,14 +21,12 @@ import java.util.List;
 
 public class AreaRestrictionExcelExporter {
     private final XSSFWorkbook workbook;
-    private final List<InOutHistory> inOutHistories;
+    private final List<InOutHistoryDto> inOutHistories;
     private XSSFSheet sheet;
-    private final HistoryServices historyServices;
 
-    public AreaRestrictionExcelExporter(List<InOutHistory> inOutHistories, HistoryServices historyServices) {
+    public AreaRestrictionExcelExporter(List<InOutHistoryDto> inOutHistories) {
         this.inOutHistories = inOutHistories;
         this.workbook = new XSSFWorkbook();
-        this.historyServices = historyServices;
     }
 
 
@@ -77,31 +79,19 @@ public class AreaRestrictionExcelExporter {
         font.setFontHeight(14);
         style.setFont(font);
 
-        for (InOutHistory history : inOutHistories) {
+        for (InOutHistoryDto history : inOutHistories) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-            CameraDtoClient cameraDtoClient = null;
-            AreaRestrictionDtoClient areaRestrictionDtoClient = null;
-            EmployeeDtoClient employeeDtoClient = null;
-            EmployeeDtoClient managerDto = null;
-            if (history.getCameraId() != null) {
-                cameraDtoClient = historyServices.getCamera(history.getCameraId());
-                if (cameraDtoClient != null) {
-                    areaRestrictionDtoClient = cameraDtoClient.getAreaRestriction();
-                }
-            }
-            if (history.getEmployeeId() != null) {
-                employeeDtoClient = historyServices.getEmployee(history.getEmployeeId());
-                if (employeeDtoClient != null) {
-                    managerDto = employeeDtoClient.getManager();
-                }
+            CameraDto cameraDto = history.getCamera();
+            AreaRestrictionDto areaRestrictionDto = history.getCamera() == null ? null : history.getCamera().getAreaRestriction();
+            EmployeeDto employeeDto = history.getEmployee();
+            EmployeeDto managerDto = history.getEmployee() == null ? null : history.getEmployee().getManager();
 
-            }
-            createCell(row, columnCount++, cameraDtoClient != null ? cameraDtoClient.getName() : "", style);
-            createCell(row, columnCount++, areaRestrictionDtoClient != null ? areaRestrictionDtoClient.getName() : "", style);
+            createCell(row, columnCount++, cameraDto != null ? cameraDto.getName() : "", style);
+            createCell(row, columnCount++, areaRestrictionDto != null ? areaRestrictionDto.getName() : "", style);
             createCell(row, columnCount++, history.getType(), style);
-            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getName() : "", style);
-            createCell(row, columnCount++, employeeDtoClient != null ? employeeDtoClient.getCode() : "", style);
+            createCell(row, columnCount++, employeeDto != null ? employeeDto.getName() : "", style);
+            createCell(row, columnCount++, employeeDto != null ? employeeDto.getCode() : "", style);
             createCell(row, columnCount++, managerDto != null ? managerDto.getName() : "", style);
             createCell(row, columnCount++, history.getTime().toString(), style);
 

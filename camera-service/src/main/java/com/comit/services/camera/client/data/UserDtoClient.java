@@ -14,7 +14,7 @@ public class UserDtoClient {
     private Integer id;
     private String username;
     private String password;
-    private String fullName;
+    private String fullname;
     private String email;
     private String status;
     private String code;

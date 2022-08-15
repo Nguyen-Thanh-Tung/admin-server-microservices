@@ -123,8 +123,8 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         inOutHistory.setTime(TimeUtil.stringDateToDate(request.getTime()));
         inOutHistory.setType(cameraDtoClient.getType());
         inOutHistory.setImageId(request.getImageId());
-        inOutHistory.setLocationId(cameraDtoClient.getLocation().getId());
-        inOutHistory.setAreaRestrictionId(cameraDtoClient.getAreaRestriction().getId());
+        inOutHistory.setLocationId(cameraDtoClient.getLocationId());
+        inOutHistory.setAreaRestrictionId(cameraDtoClient.getAreaRestrictionId());
         InOutHistory newInOutHistory = inOutHistoryServices.saveInOutHistory(inOutHistory);
         return historyBusiness.convertInOutHistoryToInOutHistoryDto(newInOutHistory);
     }

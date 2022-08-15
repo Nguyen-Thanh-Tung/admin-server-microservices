@@ -3,6 +3,7 @@ package com.comit.services.camera.business;
 
 import com.comit.services.camera.controller.request.CameraPolygonsRequest;
 import com.comit.services.camera.controller.request.CameraRequest;
+import com.comit.services.camera.model.dto.BaseCameraDto;
 import com.comit.services.camera.model.dto.CameraDto;
 import com.comit.services.camera.model.entity.Camera;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,8 @@ public interface CameraBusiness {
     boolean deleteCamera(int id);
 
     CameraDto getCamera(int id, String status);
+
+    BaseCameraDto getCameraBase(int id, String status);
 
     boolean updatePolygonCamera(int id, CameraPolygonsRequest cameraRequest);
 

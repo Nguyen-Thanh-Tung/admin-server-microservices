@@ -20,24 +20,22 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         ModelMapper modelMapper = new ModelMapper();
         InOutHistoryDto inOutHistoryDto = modelMapper.map(inOutHistory, InOutHistoryDto.class);
         if (inOutHistory.getCameraId() != null) {
-            CameraDtoClient cameraDtoClient = historyServices.getCamera(inOutHistory.getCameraId());
-            inOutHistoryDto.setCamera(convertCameraDtoFromClient(cameraDtoClient));
+            inOutHistoryDto.setCamera(convertCameraDtoFromClient(inOutHistory.getCameraId()));
         }
 
         if (inOutHistory.getEmployeeId() != null) {
-            EmployeeDtoClient employeeDtoClient = historyServices.getEmployee(inOutHistory.getEmployeeId());
-            inOutHistoryDto.setEmployee(convertEmployeeDtoFromClient(employeeDtoClient));
+            inOutHistoryDto.setEmployee(convertEmployeeDtoFromClient(inOutHistory.getEmployeeId()));
         }
 
         if (inOutHistory.getImageId() != null) {
-            MetadataDtoClient metadataDtoClient = historyServices.getMetadata(inOutHistory.getImageId());
-            inOutHistoryDto.setImage(convertMetadataDtoFromClient(metadataDtoClient));
+            inOutHistoryDto.setImage(convertMetadataDtoFromClient(inOutHistory.getImageId()));
         }
         return inOutHistoryDto;
     }
 
-    public CameraDto convertCameraDtoFromClient(CameraDtoClient cameraDtoClient) {
-        if (cameraDtoClient == null) return null;
+    public CameraDto convertCameraDtoFromClient(Integer cameraId) {
+        if (cameraId == null) return null;
+        CameraDtoClient cameraDtoClient = historyServices.getCamera(cameraId);
         CameraDto cameraDto = new CameraDto();
         cameraDto.setId(cameraDtoClient.getId());
         cameraDto.setName(cameraDtoClient.getName());
@@ -45,13 +43,14 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         cameraDto.setTaken(cameraDtoClient.getTaken());
         cameraDto.setType(cameraDtoClient.getType());
         cameraDto.setStatus(cameraDtoClient.getStatus());
-        cameraDto.setLocation(convertLocationDtoFromClient(cameraDtoClient.getLocation()));
-        cameraDto.setAreaRestriction(convertAreaRestrictionDtoFromClient(cameraDtoClient.getAreaRestriction()));
+        cameraDto.setLocation(convertLocationDtoFromClient(cameraDtoClient.getLocationId()));
+        cameraDto.setAreaRestriction(convertAreaRestrictionDtoFromClient(cameraDtoClient.getLocationId(), cameraDtoClient.getAreaRestrictionId()));
         return cameraDto;
     }
 
-    public LocationDto convertLocationDtoFromClient(LocationDtoClient locationDtoClient) {
-        if (locationDtoClient == null) return null;
+    public LocationDto convertLocationDtoFromClient(Integer locationId) {
+        if (locationId == null) return null;
+        LocationDtoClient locationDtoClient = historyServices.getLocation(locationId);
         LocationDto locationDto = new LocationDto();
         locationDto.setId(locationDtoClient.getId());
         locationDto.setName(locationDtoClient.getName());
@@ -61,8 +60,9 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         return locationDto;
     }
 
-    public AreaRestrictionDto convertAreaRestrictionDtoFromClient(AreaRestrictionDtoClient areaRestrictionDtoClient) {
-        if (areaRestrictionDtoClient == null) return null;
+    public AreaRestrictionDto convertAreaRestrictionDtoFromClient(Integer locationId, Integer areaRestrictionId) {
+        if (locationId == null || areaRestrictionId == null) return null;
+        AreaRestrictionDtoClient areaRestrictionDtoClient = historyServices.getAreaRestriction(locationId, areaRestrictionId);
         AreaRestrictionDto areaRestrictionDto = new AreaRestrictionDto();
         areaRestrictionDto.setId(areaRestrictionDtoClient.getId());
         areaRestrictionDto.setName(areaRestrictionDtoClient.getName());
@@ -72,22 +72,24 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         return areaRestrictionDto;
     }
 
-    public EmployeeDto convertEmployeeDtoFromClient(EmployeeDtoClient employeeDtoClient) {
-        if (employeeDtoClient == null) return null;
+    public EmployeeDto convertEmployeeDtoFromClient(Integer employeeId) {
+        if (employeeId == null) return null;
+        EmployeeDtoClient employeeDtoClient = historyServices.getEmployee(employeeId);
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setId(employeeDtoClient.getId());
         employeeDto.setName(employeeDtoClient.getName());
         employeeDto.setCode(employeeDtoClient.getCode());
-        employeeDto.setImage(convertMetadataDtoFromClient(employeeDtoClient.getImage()));
+        employeeDto.setImage(convertMetadataDtoFromClient(employeeDtoClient.getImageId()));
         employeeDto.setEmail(employeeDtoClient.getEmail());
         employeeDto.setStatus(employeeDtoClient.getStatus());
-        employeeDto.setManager(convertEmployeeDtoFromClient(employeeDtoClient.getManager()));
+        employeeDto.setManager(employeeDtoClient.getManager() == null ? null : convertEmployeeDtoFromClient(employeeDtoClient.getManager().getId()));
         employeeDto.setPhone(employeeDtoClient.getPhone());
         return employeeDto;
     }
 
-    public MetadataDto convertMetadataDtoFromClient(MetadataDtoClient metadataDtoClient) {
-        if (metadataDtoClient == null) return null;
+    public MetadataDto convertMetadataDtoFromClient(Integer metadataId) {
+        if (metadataId == null) return null;
+        MetadataDtoClient metadataDtoClient = historyServices.getMetadata(metadataId);
         MetadataDto metadataDto = new MetadataDto();
         metadataDto.setId(metadataDtoClient.getId());
         metadataDto.setPath(metadataDtoClient.getPath());
@@ -112,26 +114,22 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         try {
             ModelMapper modelMapper = new ModelMapper();
             NotificationHistoryDto notificationHistoryDto = modelMapper.map(notificationHistory, NotificationHistoryDto.class);
-            EmployeeDtoClient employeeDtoClient = historyServices.getEmployee(notificationHistory.getEmployeeId());
-            if (employeeDtoClient != null) {
-                notificationHistoryDto.setEmployee(convertEmployeeDtoFromClient(employeeDtoClient));
+            if (notificationHistory.getEmployeeId() != null) {
+                notificationHistoryDto.setEmployee(convertEmployeeDtoFromClient(notificationHistory.getEmployeeId()));
             }
 
-            CameraDtoClient cameraDtoClient = historyServices.getCamera(notificationHistory.getCameraId());
-            if (cameraDtoClient != null) {
-                if (cameraDtoClient.getAreaRestriction() != null) {
-                    AreaRestrictionDtoClient areaRestrictionDtoClient = cameraDtoClient.getAreaRestriction();
-                    cameraDtoClient.setAreaRestriction(areaRestrictionDtoClient);
-                    NotificationMethodDtoClient notificationMethodDtoClient = historyServices.getNotificationMethodOfAreaRestriction(areaRestrictionDtoClient.getId());
+            if (notificationHistory.getCameraId() != null) {
+                CameraDto cameraDto = convertCameraDtoFromClient(notificationHistory.getCameraId());
+                if (cameraDto.getAreaRestriction() != null) {
+                    NotificationMethodDtoClient notificationMethodDtoClient = historyServices.getNotificationMethodOfAreaRestriction(cameraDto.getAreaRestriction().getId());
                     notificationHistoryDto.setNotificationMethod(convertNotificationMethodDtoFromClient(notificationMethodDtoClient));
-
                 }
-                notificationHistoryDto.setCamera(convertCameraDtoFromClient(cameraDtoClient));
+                notificationHistoryDto.setCamera(cameraDto);
+
             }
 
-            MetadataDtoClient metadataDtoClient = historyServices.getMetadata(notificationHistory.getImageId());
-            if (metadataDtoClient != null) {
-                notificationHistoryDto.setImage(convertMetadataDtoFromClient(metadataDtoClient));
+            if (notificationHistory.getImageId() != null) {
+                notificationHistoryDto.setImage(convertMetadataDtoFromClient(notificationHistory.getImageId()));
             }
 
             return notificationHistoryDto;

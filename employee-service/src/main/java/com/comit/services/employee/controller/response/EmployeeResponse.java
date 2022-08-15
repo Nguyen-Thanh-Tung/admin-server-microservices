@@ -1,6 +1,7 @@
 package com.comit.services.employee.controller.response;
 
 import com.comit.services.employee.constant.EmployeeErrorCode;
+import com.comit.services.employee.model.dto.BaseModelDto;
 import com.comit.services.employee.model.dto.EmployeeDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -14,9 +15,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EmployeeResponse extends BaseResponse {
     @JsonProperty(value = "employee")
-    private EmployeeDto employeeDto;
+    private BaseModelDto employeeDto;
 
-    public EmployeeResponse(EmployeeErrorCode errorCode, EmployeeDto employeeDto) {
+    public EmployeeResponse(EmployeeErrorCode errorCode, BaseModelDto employeeDto) {
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
         this.employeeDto = employeeDto;

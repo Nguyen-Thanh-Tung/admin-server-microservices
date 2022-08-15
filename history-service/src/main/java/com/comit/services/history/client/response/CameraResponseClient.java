@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CameraResponse extends BaseResponseClient {
+public class CameraResponseClient extends BaseResponseClient {
     @JsonProperty(value = "camera")
     private CameraDtoClient camera;
 
-    public CameraResponse(int code, String message, CameraDtoClient camera) {
+    public CameraResponseClient(int code, String message, CameraDtoClient camera) {
         this.code = code;
         this.message = message;
         this.camera = camera;

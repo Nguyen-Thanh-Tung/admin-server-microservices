@@ -32,11 +32,11 @@ public class HistoryServicesImpl implements HistoryServices {
         if (locationId == null) {
             return null;
         }
-        LocationResponse locationResponse = locationClient.getLocation(httpServletRequest.getHeader("token"), locationId).getBody();
-        if (locationResponse == null) {
+        LocationResponseClient locationResponseClient = locationClient.getLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (locationResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocationDtoClient();
+        return locationResponseClient.getLocationDtoClient();
     }
 
     @Override
@@ -45,11 +45,11 @@ public class HistoryServicesImpl implements HistoryServices {
         if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
             return null;
         }
-        LocationResponse locationResponse = locationClient.getLocation(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
-        if (locationResponse == null) {
+        LocationResponseClient locationResponseClient = locationClient.getLocation(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        if (locationResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return locationResponse.getLocationDtoClient();
+        return locationResponseClient.getLocationDtoClient();
     }
 
 
@@ -58,11 +58,11 @@ public class HistoryServicesImpl implements HistoryServices {
         if (locationId == null) {
             return null;
         }
-        AreaRestrictionResponse areaRestrictionResponse = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
-        if (areaRestrictionResponse == null) {
+        AreaRestrictionResponseClient areaRestrictionResponseClient = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        if (areaRestrictionResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return areaRestrictionResponse.getAreaRestriction();
+        return areaRestrictionResponseClient.getAreaRestriction();
     }
 
     @Override
@@ -70,11 +70,11 @@ public class HistoryServicesImpl implements HistoryServices {
         if (cameraId == null) {
             return null;
         }
-        CameraResponse cameraResponse = cameraClient.getCamera(httpServletRequest.getHeader("token"), cameraId).getBody();
-        if (cameraResponse == null) {
+        CameraResponseClient cameraResponseClient = cameraClient.getCamera(httpServletRequest.getHeader("token"), cameraId).getBody();
+        if (cameraResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return cameraResponse.getCamera();
+        return cameraResponseClient.getCamera();
     }
 
     @Override
@@ -82,11 +82,11 @@ public class HistoryServicesImpl implements HistoryServices {
         if (employeeId == null) {
             return null;
         }
-        EmployeeResponse employeeResponse = employeeClient.getEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
-        if (employeeResponse == null) {
+        EmployeeResponseClient employeeResponseClient = employeeClient.getEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
+        if (employeeResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return employeeResponse.getEmployee();
+        return employeeResponseClient.getEmployee();
     }
 
     @Override
@@ -94,11 +94,11 @@ public class HistoryServicesImpl implements HistoryServices {
         if (areaRestrictionId == null) {
             return null;
         }
-        NotificationMethodResponse notificationMethodResponse = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
-        if (notificationMethodResponse == null) {
+        NotificationMethodResponseClient notificationMethodResponseClient = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        if (notificationMethodResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return notificationMethodResponse.getNotificationMethod();
+        return notificationMethodResponseClient.getNotificationMethod();
     }
 
     @Override
@@ -107,10 +107,10 @@ public class HistoryServicesImpl implements HistoryServices {
             return null;
         }
 
-        MetadataResponse metadataResponse = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
-        if (metadataResponse == null) {
+        MetadataResponseClient metadataResponseClient = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
+        if (metadataResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return metadataResponse.getMetadata();
+        return metadataResponseClient.getMetadata();
     }
 }

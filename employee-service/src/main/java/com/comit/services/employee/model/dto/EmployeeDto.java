@@ -40,7 +40,7 @@ public class EmployeeDto extends BaseModelDto {
     @JsonIncludeProperties(value = {"id", "name", "time_start", "time_end"})
     private List<ShiftDto> shifts;
 
-//    @JsonIncludeProperties(value = {"id", "area_restriction", "time_start", "time_end"})
-//    @JsonProperty(value = "area_employees")
-//    private List<AreaEmployeeTimeDtoClient> areaEmployeeTimes;
+    @JsonIncludeProperties(value = {"id", "area_restriction", "time_start", "time_end"})
+    @JsonProperty(value = "area_employees")
+    private List<AreaEmployeeTimeDto> areaEmployeeTimes;
 }

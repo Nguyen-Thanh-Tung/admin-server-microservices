@@ -9,6 +9,7 @@ import com.comit.services.camera.controller.response.BaseResponse;
 import com.comit.services.camera.controller.response.CameraListResponse;
 import com.comit.services.camera.controller.response.CameraResponse;
 import com.comit.services.camera.controller.response.CountResponse;
+import com.comit.services.camera.model.dto.BaseCameraDto;
 import com.comit.services.camera.model.dto.CameraDto;
 import com.comit.services.camera.model.entity.Camera;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,12 @@ public class CameraController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<BaseResponse> getCamera(@PathVariable int id, @RequestParam(required = false) String status) {
         CameraDto cameraDto = cameraBusiness.getCamera(id, status);
+        return new ResponseEntity<>(new CameraResponse(CameraErrorCode.SUCCESS, cameraDto), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/base")
+    public ResponseEntity<BaseResponse> getCameraBase(@PathVariable int id, @RequestParam(required = false) String status) {
+        BaseCameraDto cameraDto = cameraBusiness.getCameraBase(id, status);
         return new ResponseEntity<>(new CameraResponse(CameraErrorCode.SUCCESS, cameraDto), HttpStatus.OK);
     }
 
