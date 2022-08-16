@@ -84,7 +84,13 @@ public class LocationServicesImpl implements LocationServices {
     @Override
     public OrganizationDtoClient getOrganizationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getOrganizationId() == null) {
+        if (userResponseClient == null) {
+            throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != LocationErrorCode.SUCCESS.getCode()) {
+            throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getOrganizationId() == null) {
             return null;
         }
         OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();

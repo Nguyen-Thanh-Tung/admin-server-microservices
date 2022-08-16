@@ -2,6 +2,8 @@ package com.comit.services.account.repository;
 
 import com.comit.services.account.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +31,16 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     int countByLocationIdAndStatus(Integer locationId, String active);
 
     int countByOrganizationIdAndStatus(Integer organizationId, String active);
+
+    @Query("select count(u.id) from User u join u.roles r where r.id in :roleIds and u.organizationId = :organizationId")
+    int getNumberUserOfRoles(
+            @Param("organizationId") Integer organizationId,
+            @Param("roleIds") List<Integer> roleIds);
+
+    @Query("select count(u.id) from User u join u.roles r where r.id in :roleIds")
+    int getNumberUserOfRoles(
+            @Param("roleIds") List<Integer> roleIds);
+
+    @Query("select count(distinct u.organizationId) from User u join u.roles r where r.id in :roleIds")
+    int getNumberOrganizationOfRoles(@Param("roleIds") List<Integer> roleIds);
 }

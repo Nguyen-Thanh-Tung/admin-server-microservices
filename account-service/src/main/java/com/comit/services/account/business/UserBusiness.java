@@ -49,4 +49,8 @@ public interface UserBusiness {
     UserDto convertUserToUserDto(User user);
 
     int getNumberUserOfLocation(Integer locationId);
+
+    int getNumberUserOfRoles(String roleIds);
+
+    int getNumberOrganizationOfRoles(String roleIds);
 }

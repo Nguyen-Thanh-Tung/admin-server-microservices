@@ -1,6 +1,7 @@
 package com.comit.services.location.business;
 
 import com.comit.services.location.controller.request.LocationRequest;
+import com.comit.services.location.model.dto.BaseLocationDto;
 import com.comit.services.location.model.dto.LocationDto;
 import com.comit.services.location.model.entity.Location;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ public interface LocationBusiness {
     boolean deleteLocation(int id);
 
     LocationDto getLocation(int id);
+
+    BaseLocationDto getLocationBase(int id);
 
     List<LocationDto> getAllLocationByOrganizationId(int organizationId);
 }

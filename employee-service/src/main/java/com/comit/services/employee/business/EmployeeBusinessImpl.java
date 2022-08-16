@@ -499,6 +499,11 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         try {
             ModelMapper modelMapper = new ModelMapper();
             EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
+            // Location of employee
+            if (employee.getLocationId() != null) {
+                LocationDtoClient locationDtoClient = employeeServices.getLocationById(employee.getLocationId());
+                employeeDto.setLocation(convertLocationFromClient(locationDtoClient));
+            }
             // Manager of employee
             if (employee.getManagerId() != null && employee.getLocationId() != null) {
                 Employee manager = employeeServices.getEmployee(employee.getManagerId(), employee.getLocationId());
@@ -549,6 +554,15 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public LocationDto convertLocationFromClient(LocationDtoClient locationDtoClient) {
+        LocationDto locationDto = new LocationDto();
+        locationDto.setId(locationDtoClient.getId());
+        locationDto.setName(locationDtoClient.getName());
+        locationDto.setCode(locationDtoClient.getCode());
+        locationDto.setType(locationDtoClient.getType());
+        return locationDto;
     }
 
     public AreaEmployeeTimeDto convertAreaEmployeeTimeFromClient(AreaEmployeeTimeDtoClient areaEmployeeTimeDtoClient) {

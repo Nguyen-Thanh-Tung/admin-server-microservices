@@ -7,6 +7,7 @@ import com.comit.services.location.controller.request.LocationRequest;
 import com.comit.services.location.controller.response.BaseResponse;
 import com.comit.services.location.controller.response.LocationListResponse;
 import com.comit.services.location.controller.response.LocationResponse;
+import com.comit.services.location.model.dto.BaseLocationDto;
 import com.comit.services.location.model.dto.LocationDto;
 import com.comit.services.location.model.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,12 @@ public class LocationController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<BaseResponse> getLocation(@PathVariable int id) {
         LocationDto locationDto = locationBusiness.getLocation(id);
+        return new ResponseEntity<>(new LocationResponse(LocationErrorCode.SUCCESS, locationDto), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/base")
+    public ResponseEntity<BaseResponse> getLocationBase(@PathVariable int id) {
+        BaseLocationDto locationDto = locationBusiness.getLocationBase(id);
         return new ResponseEntity<>(new LocationResponse(LocationErrorCode.SUCCESS, locationDto), HttpStatus.OK);
     }
 

@@ -1,6 +1,7 @@
 package com.comit.services.feature.client.response;
 
 import com.comit.services.feature.client.data.RoleDtoClient;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,5 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleResponseClient extends BaseResponseClient {
-    private RoleDtoClient roleDtoClient;
+    @JsonProperty("role")
+    private RoleDtoClient role;
 }

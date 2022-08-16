@@ -13,6 +13,6 @@ public interface LocationClient {
     @GetMapping("/locations/organization/{organizationId}")
     ResponseEntity<LocationListResponseClient> getLocationsByOrganizationId(@RequestHeader String token, @PathVariable(name = "organizationId") int organizationId);
 
-    @GetMapping("/locations/{id}")
+    @GetMapping("/locations/{id}/base")
     ResponseEntity<LocationResponseClient> getLocationById(@RequestHeader String token, @PathVariable("id") Integer locationId);
 }

@@ -404,4 +404,32 @@ public class UserBusinessImpl implements UserBusiness {
     public int getNumberUserOfLocation(Integer locationId) {
         return userServices.getNumberUserOfLocation(locationId);
     }
+
+    @Override
+    public int getNumberUserOfRoles(String roleIdStrs) {
+        User currentUser = commonBusiness.getCurrentUser();
+        String[] tmp = roleIdStrs.split(",");
+        List<Integer> roleIds = new ArrayList<>();
+        for (String s : tmp) {
+            roleIds.add(Integer.parseInt(s));
+        }
+        if (Objects.equals(currentUser.getUsername(), superAdminUsername)) {
+            return userServices.getNumberUserOfRoles(roleIds);
+        }
+        return userServices.getNumberUserOfRoles(currentUser.getOrganizationId(), roleIds);
+    }
+
+    @Override
+    public int getNumberOrganizationOfRoles(String roleIdStrs) {
+        User currentUser = commonBusiness.getCurrentUser();
+        String[] tmp = roleIdStrs.split(",");
+        List<Integer> roleIds = new ArrayList<>();
+        for (String s : tmp) {
+            roleIds.add(Integer.parseInt(s));
+        }
+        if (Objects.equals(currentUser.getUsername(), superAdminUsername)) {
+            return userServices.getNumberOrganizationOfRoles(roleIds);
+        }
+        return 0;
+    }
 }

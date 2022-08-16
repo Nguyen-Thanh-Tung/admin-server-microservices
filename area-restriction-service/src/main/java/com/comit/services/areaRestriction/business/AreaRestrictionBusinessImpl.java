@@ -243,6 +243,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         int numberHistories = areaRestrictionService.getNumberNotificationOfAreaRestriction(areaRestriction, startDay, now.toDate());
         areaRestrictionDto.setNumberNotification(numberHistories);
         LocationDtoClient locationDtoClient = areaRestrictionService.getLocationOfCurrentUser();
+        areaRestrictionDto.setLocation(convertLocationDtoFromClient(locationDtoClient));
         // Set manager for area restriction
         if (areaRestriction.getManagerIds() != null) {
             List<EmployeeDto> employeeDtos = new ArrayList<>();
@@ -270,5 +271,15 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         employeeDto.setLocationId(employeeDtoClient.getLocationId());
         employeeDto.setStatus(employeeDtoClient.getStatus());
         return employeeDto;
+    }
+
+    public LocationDto convertLocationDtoFromClient(LocationDtoClient locationDtoClient) {
+        LocationDto locationDto = new LocationDto();
+        locationDto.setId(locationDtoClient.getId());
+        locationDto.setName(locationDtoClient.getName());
+        locationDto.setCode(locationDtoClient.getCode());
+        locationDto.setType(locationDtoClient.getType());
+        locationDto.setOrganizationId(locationDtoClient.getOrganizationId());
+        return locationDto;
     }
 }

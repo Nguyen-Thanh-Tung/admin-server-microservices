@@ -276,6 +276,21 @@ public class UserServicesImpl implements UserServices {
         return userRepository.countByLocationIdAndStatus(locationId, Const.ACTIVE);
     }
 
+    @Override
+    public int getNumberUserOfRoles(Integer organizationId, List<Integer> roleIds) {
+        return userRepository.getNumberUserOfRoles(organizationId, roleIds);
+    }
+
+    @Override
+    public int getNumberUserOfRoles(List<Integer> roleIds) {
+        return userRepository.getNumberUserOfRoles(roleIds);
+    }
+
+    @Override
+    public int getNumberOrganizationOfRoles(List<Integer> roleIds) {
+        return userRepository.getNumberOrganizationOfRoles(roleIds);
+    }
+
     public boolean belongOrganization(User user, Integer organizationId) {
         if (organizationId == null) {
             return false;

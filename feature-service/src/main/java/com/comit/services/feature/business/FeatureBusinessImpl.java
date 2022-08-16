@@ -131,23 +131,16 @@ public class FeatureBusinessImpl implements FeatureBusiness {
         try {
             ModelMapper modelMapper = new ModelMapper();
             FeatureDto featureDto = modelMapper.map(feature, FeatureDto.class);
-            Set<Integer> roleIds = new HashSet<>();
-            for (String s : feature.getRoleIds().split(",")) {
-                roleIds.add(Integer.parseInt(s));
-            }
-            Set<UserDtoClient> userDtoClients = new HashSet<>();
-            Set<Integer> organizationIds = new HashSet<>();
+            if (feature.getRoleIds() == null || Objects.equals(feature.getRoleIds(), "")) {
+                featureDto.setNumberOrganization(0);
+                featureDto.setNumberAccount(0);
+            } else {
+                int numberOrganizationUsingFeature = featureServices.getNumberOrganizationUsingFeature(feature.getRoleIds());
+                int numberAccountUsingFeature = featureServices.getNumberAccountUsingFeature(feature.getRoleIds());
 
-            roleIds.forEach(roleId -> {
-                featureServices.getUsersOfRole(roleId).forEach(userDtoClient -> {
-                    if (Objects.equals(userDtoClient.getStatus(), Const.ACTIVE)) {
-                        userDtoClients.add(userDtoClient);
-                        organizationIds.add(userDtoClient.getOrganizationId());
-                    }
-                });
-            });
-            featureDto.setNumberOrganization(organizationIds.size());
-            featureDto.setNumberAccount(userDtoClients.size());
+                featureDto.setNumberOrganization(numberOrganizationUsingFeature);
+                featureDto.setNumberAccount(numberAccountUsingFeature);
+            }
             return featureDto;
         } catch (Exception e) {
             return null;

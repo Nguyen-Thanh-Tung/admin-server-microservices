@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 public class OrganizationResponseClient extends BaseResponseClient {
     @JsonProperty(value = "organization")
-    private OrganizationDtoClient organizationDtoClient;
+    private OrganizationDtoClient organization;
 
     public OrganizationResponseClient(int code, String message, OrganizationDtoClient organizationDtoClient) {
         this.code = code;
         this.message = message;
-        this.organizationDtoClient = organizationDtoClient;
+        this.organization = organizationDtoClient;
     }
 }

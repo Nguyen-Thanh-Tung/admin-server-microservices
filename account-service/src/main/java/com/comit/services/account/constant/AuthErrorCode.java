@@ -18,7 +18,8 @@ public enum AuthErrorCode {
     PERMISSION_DENIED(0, "Bạn không có quyền thực hiện chức năng này"),
     INTERNAL_ERROR(0, "Có lỗi xảy ra, hãy thử lại sau!"),
     CANT_ADD_ORGANIZATION(0, "Không thể thêm tổ chức"),
-    CANT_GET_ORGANIZATION(0, "Không thể lấy thông tin tổ chức");
+    CANT_GET_ORGANIZATION(0, "Không thể lấy thông tin tổ chức"),
+    JWT_EXPIRED(0, "Token đã hết hạn, hãy đăng nhập lại");
     private final int code;
     private String message;
 

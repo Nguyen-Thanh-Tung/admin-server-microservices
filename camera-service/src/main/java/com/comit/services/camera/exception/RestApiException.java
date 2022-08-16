@@ -17,6 +17,11 @@ public class RestApiException extends RuntimeException {
         this.message = errorCode.getMessage();
     }
 
+    public RestApiException(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
     public String getResponseMessage() {
         return this.message;
     }

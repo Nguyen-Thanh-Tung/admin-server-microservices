@@ -181,4 +181,16 @@ public class UserController {
         int numberUserOfLocation = userBusiness.getNumberUserOfLocation(locationId);
         return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUserOfLocation), HttpStatus.OK);
     }
+
+    @GetMapping("/number-user-of-roles")
+    ResponseEntity<CountResponse> getNumberUserOfRoles(@RequestParam("role_ids") String roleIds) {
+        int numberUserOfRoles = userBusiness.getNumberUserOfRoles(roleIds);
+        return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUserOfRoles), HttpStatus.OK);
+    }
+
+    @GetMapping("/number-organization-of-roles")
+    ResponseEntity<CountResponse> getNumberOrganizationOfRoles(@RequestParam("role_ids") String roleIds) {
+        int numberUserOfRoles = userBusiness.getNumberOrganizationOfRoles(roleIds);
+        return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUserOfRoles), HttpStatus.OK);
+    }
 }

@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "location-service")
 public interface LocationClient {
 
-    @GetMapping("/locations/{id}")
+    @GetMapping("/locations/{id}/base")
     ResponseEntity<LocationResponseClient> getLocation(@RequestHeader String token, @PathVariable("id") Integer locationId);
 }

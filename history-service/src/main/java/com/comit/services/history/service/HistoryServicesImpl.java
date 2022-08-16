@@ -36,20 +36,26 @@ public class HistoryServicesImpl implements HistoryServices {
         if (locationResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return locationResponseClient.getLocationDtoClient();
+        return locationResponseClient.getLocation();
     }
 
     @Override
     public LocationDtoClient getLocationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
+        if (userResponseClient == null) {
+            throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != HistoryErrorCode.SUCCESS.getCode()) {
+            throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getLocationId() == null) {
             return null;
         }
         LocationResponseClient locationResponseClient = locationClient.getLocation(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
-        return locationResponseClient.getLocationDtoClient();
+        return locationResponseClient.getLocation();
     }
 
 

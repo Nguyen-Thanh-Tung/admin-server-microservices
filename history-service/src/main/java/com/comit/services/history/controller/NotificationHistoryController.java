@@ -118,7 +118,7 @@ public class NotificationHistoryController {
         return new ResponseEntity<>(new BaseResponse(updateSuccess ? HistoryErrorCode.SUCCESS : HistoryErrorCode.FAIL), HttpStatus.OK);
     }
 
-    @GetMapping("/area-restriction/{areaRestrictionId}")
+    @GetMapping("/area-restriction/{areaRestrictionId}/number-notify")
     public ResponseEntity<BaseResponse> getNumberNotificationOfAreaRestriction(@PathVariable Integer areaRestrictionId) {
         int numberNotificationOfAreaRestriction = notificationHistoryBusiness.getNumberNotificationOfAreaRestriction(areaRestrictionId);
         return new ResponseEntity<>(new CountResponse(HistoryErrorCode.SUCCESS, numberNotificationOfAreaRestriction), HttpStatus.OK);

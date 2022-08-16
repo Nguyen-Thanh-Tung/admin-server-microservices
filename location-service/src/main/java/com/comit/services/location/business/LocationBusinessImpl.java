@@ -6,11 +6,14 @@ import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.request.LocationRequest;
 import com.comit.services.location.exception.RestApiException;
 import com.comit.services.location.middleware.LocationVerifyRequestServices;
+import com.comit.services.location.model.dto.BaseLocationDto;
 import com.comit.services.location.model.dto.LocationDto;
 import com.comit.services.location.model.entity.Location;
 import com.comit.services.location.service.LocationServices;
+import org.bouncycastle.math.raw.Mod;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,12 +49,7 @@ public class LocationBusinessImpl implements LocationBusiness {
     public List<LocationDto> getAllLocation(List<Location> locations) {
         List<LocationDto> locationDtos = new ArrayList<>();
         locations.forEach(location -> {
-            LocationDto locationDto = convertLocationToLocationDto(location);
-            int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
-            int numberCameraOfLocation = locationServices.getNumberCameraOfLocation(location.getId());
-            locationDto.setNumberCamera(numberCameraOfLocation);
-            locationDto.setNumberEmployees(numberEmployeeOfLocation);
-            locationDtos.add(locationDto);
+            locationDtos.add(convertLocationToLocationDto(location));
         });
         return locationDtos;
     }
@@ -88,10 +86,7 @@ public class LocationBusinessImpl implements LocationBusiness {
         } else if (Objects.equals(newLocation.getType(), Const.AREA_RESTRICTION_TYPE)) {
 
         }
-        LocationDto locationDto = convertLocationToLocationDto(newLocation);
-        locationDto.setNumberEmployees(0);
-        locationDto.setNumberCamera(0);
-        return locationDto;
+        return convertLocationToLocationDto(newLocation);
     }
 
     @Override
@@ -114,12 +109,7 @@ public class LocationBusinessImpl implements LocationBusiness {
         location.setCode(request.getCode());
         location.setOrganizationId(organizationDtoClient.getId());
         Location newLocation = locationServices.saveLocation(location);
-        LocationDto locationDto = convertLocationToLocationDto(newLocation);
-        int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
-        int numberCameraOfLocation = locationServices.getNumberCameraOfLocation(location.getId());
-        locationDto.setNumberCamera(numberCameraOfLocation);
-        locationDto.setNumberEmployees(numberEmployeeOfLocation);
-        return locationDto;
+        return convertLocationToLocationDto(newLocation);
     }
 
     @Override
@@ -157,6 +147,16 @@ public class LocationBusinessImpl implements LocationBusiness {
     }
 
     @Override
+    public BaseLocationDto getLocationBase(int id) {
+        Location location = locationServices.getLocation(id);
+        if (location == null) {
+            throw new RestApiException(LocationErrorCode.LOCATION_NOT_EXIST);
+        }
+
+        return convertLocationToBaseLocationDto(location);
+    }
+
+    @Override
     public List<LocationDto> getAllLocationByOrganizationId(int organizationId) {
         List<Location> locations = locationServices.getAllLocationByOrganizationId(organizationId);
         List<LocationDto> locationDtos = new ArrayList<>();
@@ -166,11 +166,25 @@ public class LocationBusinessImpl implements LocationBusiness {
         return locationDtos;
     }
 
+    public BaseLocationDto convertLocationToBaseLocationDto(Location location) {
+        if (location == null) return null;
+        try {
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(location, BaseLocationDto.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
     public LocationDto convertLocationToLocationDto(Location location) {
         if (location == null) return null;
         try {
             ModelMapper modelMapper = new ModelMapper();
-            return modelMapper.map(location, LocationDto.class);
+            LocationDto locationDto = modelMapper.map(location, LocationDto.class);
+            int numberEmployeeOfLocation = locationServices.getNumberEmployeeOfLocation(location.getId());
+            int numberCameraOfLocation = locationServices.getNumberCameraOfLocation(location.getId());
+            locationDto.setNumberCamera(numberCameraOfLocation);
+            locationDto.setNumberEmployees(numberEmployeeOfLocation);
+            return locationDto;
         } catch (Exception e) {
             return null;
         }

@@ -24,7 +24,13 @@ public class TimeKeepingServicesImpl implements TimeKeepingServices {
     @Override
     public LocationDtoClient getLocationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
+        if (userResponseClient == null) {
+            throw new TimeKeepingCommonException(TimeKeepingErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != TimeKeepingErrorCode.SUCCESS.getCode()) {
+            throw new TimeKeepingCommonException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getLocationId() == null) {
             return null;
         }
         LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();

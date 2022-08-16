@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 public class LocationResponseClient extends BaseResponseClient {
     @JsonProperty(value = "location")
-    private LocationDtoClient locationDtoClient;
+    private LocationDtoClient location;
 
     public LocationResponseClient(int code, String message, LocationDtoClient locationDtoClient) {
         this.code = code;
         this.message = message;
-        this.locationDtoClient = locationDtoClient;
+        this.location = locationDtoClient;
     }
 }

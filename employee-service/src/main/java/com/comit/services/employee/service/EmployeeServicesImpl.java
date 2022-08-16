@@ -218,14 +218,20 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Override
     public LocationDtoClient getLocationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
+        if (userResponseClient == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != EmployeeErrorCode.SUCCESS.getCode()) {
+            throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getLocationId() == null) {
             return null;
         }
         LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
-        return locationResponseClient.getLocationDtoClient();
+        return locationResponseClient.getLocation();
     }
 
     @Override
@@ -297,7 +303,13 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Override
     public OrganizationDtoClient getOrganizationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getOrganizationId() == null) {
+        if (userResponseClient == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != EmployeeErrorCode.SUCCESS.getCode()) {
+            throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getOrganizationId() == null) {
             return null;
         }
         OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
@@ -305,7 +317,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
 
-        return organizationResponseClient.getOrganizationDtoClient();
+        return organizationResponseClient.getOrganization();
     }
 
     @Override
@@ -346,5 +358,14 @@ public class EmployeeServicesImpl implements EmployeeServices {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
         return areaEmployeeTimeListResponseClient.getAreaEmployeeTimes();
+    }
+
+    @Override
+    public LocationDtoClient getLocationById(Integer locationId) {
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        if (locationResponseClient == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        return locationResponseClient.getLocation();
     }
 }

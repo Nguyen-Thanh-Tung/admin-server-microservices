@@ -60,4 +60,10 @@ public interface UserServices {
     MetadataDtoClient getMetadata(int id);
 
     int getNumberUserOfLocation(Integer locationId);
+
+    int getNumberUserOfRoles(Integer organizationId, List<Integer> roleIds);
+
+    int getNumberUserOfRoles(List<Integer> roleIds);
+
+    int getNumberOrganizationOfRoles(List<Integer> roleIds);
 }

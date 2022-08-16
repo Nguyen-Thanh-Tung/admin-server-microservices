@@ -1,5 +1,7 @@
 package com.comit.services.account.jwt;
 
+import com.comit.services.account.constant.AuthErrorCode;
+import com.comit.services.account.exeption.AuthException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -39,9 +41,17 @@ public class JwtProvider {
     }
 
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody().getSubject();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(jwtSecret)
+                    .parseClaimsJws(token)
+                    .getBody().getSubject();
+        } catch (Exception e) {
+            if (e instanceof ExpiredJwtException) {
+                throw new AuthException(AuthErrorCode.JWT_EXPIRED);
+            } else {
+                throw new AuthException(AuthErrorCode.INTERNAL_ERROR);
+            }
+        }
     }
 }

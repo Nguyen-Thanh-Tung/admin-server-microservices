@@ -3,10 +3,7 @@ package com.comit.services.feature.service;
 import com.comit.services.feature.client.AccountClient;
 import com.comit.services.feature.client.data.RoleDtoClient;
 import com.comit.services.feature.client.data.UserDtoClient;
-import com.comit.services.feature.client.response.CheckRoleResponseClient;
-import com.comit.services.feature.client.response.RoleListResponseClient;
-import com.comit.services.feature.client.response.RoleResponseClient;
-import com.comit.services.feature.client.response.UserListResponseClient;
+import com.comit.services.feature.client.response.*;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.exception.RestApiException;
 import com.comit.services.feature.model.entity.Feature;
@@ -81,20 +78,29 @@ public class FeatureServicesImpl implements FeatureServices {
     }
 
     @Override
-    public List<UserDtoClient> getUsersOfRole(Integer roleId) {
-        UserListResponseClient userListResponseClient = accountClient.getUsersOfRole(httpServletRequest.getHeader("token"), roleId).getBody();
-        if (userListResponseClient == null) {
-            throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
-        }
-        return userListResponseClient.getUserDtoClients();
-    }
-
-    @Override
     public RoleDtoClient findRoleByName(String roleName) {
         RoleResponseClient roleResponseClient = accountClient.getRoleByName(httpServletRequest.getHeader("token"), roleName).getBody();
         if (roleResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
-        return roleResponseClient.getRoleDtoClient();
+        return roleResponseClient.getRole();
+    }
+
+    @Override
+    public int getNumberOrganizationUsingFeature(String roleIds) {
+        CountResponseClient countResponseClient = accountClient.getNumberOrganizationOfRoles(httpServletRequest.getHeader("token"), roleIds).getBody();
+        if (countResponseClient == null) {
+            throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
+        }
+        return countResponseClient.getNumber();
+    }
+
+    @Override
+    public int getNumberAccountUsingFeature(String roleIds) {
+        CountResponseClient countResponseClient = accountClient.getNumberUserOfRoles(httpServletRequest.getHeader("token"), roleIds).getBody();
+        if (countResponseClient == null) {
+            throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
+        }
+        return countResponseClient.getNumber();
     }
 }

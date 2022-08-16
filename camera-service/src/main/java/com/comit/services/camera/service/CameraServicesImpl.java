@@ -213,7 +213,13 @@ public class CameraServicesImpl implements CameraServices {
     @Override
     public OrganizationDtoClient getOrganizationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getOrganizationId() == null) {
+        if (userResponseClient == null) {
+            throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != CameraErrorCode.SUCCESS.getCode()) {
+            throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getOrganizationId() == null) {
             return null;
         }
         OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
@@ -227,7 +233,13 @@ public class CameraServicesImpl implements CameraServices {
     @Override
     public LocationDtoClient getLocationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
-        if (userResponseClient == null || userResponseClient.getUser() == null || userResponseClient.getUser().getLocationId() == null) {
+        if (userResponseClient == null) {
+            throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+        }
+        if (userResponseClient.getUser() == null && userResponseClient.getCode() != CameraErrorCode.SUCCESS.getCode()) {
+            throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
+        }
+        if (userResponseClient.getUser().getLocationId() == null) {
             return null;
         }
         LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();

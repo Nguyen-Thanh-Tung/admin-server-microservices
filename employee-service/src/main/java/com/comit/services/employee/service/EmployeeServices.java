@@ -64,4 +64,6 @@ public interface EmployeeServices {
     MetadataDtoClient getMetadata(Integer imageId);
 
     List<AreaEmployeeTimeDtoClient> getAreaEmployeeTimesOfEmployee(int employeeId);
+
+    LocationDtoClient getLocationById(Integer locationId);
 }

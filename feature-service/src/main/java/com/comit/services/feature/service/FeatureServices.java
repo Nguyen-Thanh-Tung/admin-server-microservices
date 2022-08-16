@@ -21,7 +21,9 @@ public interface FeatureServices {
 
     List<Feature> getFeaturesOfRole(Integer roleId);
 
-    List<UserDtoClient> getUsersOfRole(Integer roleId);
-
     RoleDtoClient findRoleByName(String roleTimeKeepingAdmin);
+
+    int getNumberOrganizationUsingFeature(String roleIds);
+
+    int getNumberAccountUsingFeature(String roleIds);
 }
