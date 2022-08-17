@@ -9,7 +9,5 @@ public interface TimeKeepingNotificationServices {
 
     boolean saveTimeKeepingNotification(TimeKeepingNotification timeKeepingNotification);
 
-    boolean hasPermissionManageTimeKeepingNotification(String locationType);
-
     boolean deleteTimeKeepingNotificationByLocationId(Integer locationId);
 }

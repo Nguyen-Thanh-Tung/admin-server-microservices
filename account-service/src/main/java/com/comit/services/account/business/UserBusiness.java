@@ -1,7 +1,5 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.data.LocationDtoClient;
-import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;

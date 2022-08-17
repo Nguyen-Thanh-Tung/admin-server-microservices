@@ -31,7 +31,7 @@ public class TimeKeepingServicesImpl implements TimeKeepingServices {
             throw new TimeKeepingCommonException(userResponseClient.getCode(), userResponseClient.getMessage());
         }
         if (userResponseClient.getUser().getLocationId() == null) {
-            return null;
+            throw new TimeKeepingCommonException(TimeKeepingErrorCode.PERMISSION_DENIED);
         }
         LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {

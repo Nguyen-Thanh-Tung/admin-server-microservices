@@ -25,7 +25,8 @@ public enum EmployeeErrorCode {
     INTERNAL_ERROR(0, "Có lỗi xảy ra, vui lòng thử lại sau!"),
     PERMISSION_DENIED(0, "Bạn không có quyền thực hiện chức năng này"),
     MISSING_FILE_FIELD(0, "File là bắt buộc"),
-    UN_SUPPORT_FILE_UPLOAD(0, "Không hỗ trợ kiểu file");
+    UN_SUPPORT_FILE_UPLOAD(0, "Không hỗ trợ kiểu file"),
+    MANAGER_IS_EMPLOYEE(0, "Quản lý và nhân viên là quản lý của nhau");
 
     private final int code;
     private final String message;

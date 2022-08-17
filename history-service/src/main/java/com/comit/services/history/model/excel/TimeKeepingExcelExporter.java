@@ -1,12 +1,8 @@
 package com.comit.services.history.model.excel;
 
-import com.comit.services.history.client.data.CameraDtoClient;
-import com.comit.services.history.client.data.EmployeeDtoClient;
 import com.comit.services.history.model.dto.CameraDto;
 import com.comit.services.history.model.dto.EmployeeDto;
 import com.comit.services.history.model.dto.InOutHistoryDto;
-import com.comit.services.history.model.entity.InOutHistory;
-import com.comit.services.history.service.HistoryServices;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;

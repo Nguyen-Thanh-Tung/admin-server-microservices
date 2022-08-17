@@ -1,6 +1,5 @@
 package com.comit.services.employee.model.dto;
 
-import com.comit.services.employee.client.data.AreaRestrictionDtoClient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;

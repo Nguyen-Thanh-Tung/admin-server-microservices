@@ -2,9 +2,7 @@ package com.comit.services.history.business;
 
 import com.comit.services.history.client.data.CameraDtoClient;
 import com.comit.services.history.client.data.LocationDtoClient;
-import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
-import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
@@ -35,7 +33,6 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         // Is user and has role manage employee (Ex: Time keeping user)
         LocationDtoClient locationDtoClient;
         if (locationId == null) {
-            permissionManageInOutHistory();
             locationDtoClient = historyServices.getLocationOfCurrentUser();
         } else {
             locationDtoClient = historyServices.getLocation(locationId);
@@ -70,9 +67,7 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
 
     @Override
     public Page<InOutHistory> getInOutHistoryPage(String cameraIdStrs, String areaRestrictionIdStrs, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
-        // Is user and has role manage employee (Ex: Time keeping user)
         if (locationId == null) {
-            permissionManageInOutHistory();
             LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
             locationId = locationDtoClient.getId();
         }
@@ -113,9 +108,6 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
 
     @Override
     public InOutHistoryDto saveInOutHistory(InOutHistoryRequest request) throws ParseException {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageInOutHistory();
-
         InOutHistory inOutHistory = new InOutHistory();
         CameraDtoClient cameraDtoClient = historyServices.getCamera(request.getCameraId());
         inOutHistory.setCameraId(request.getCameraId());
@@ -139,14 +131,5 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
 
         return inOutHistoryServices.getNumberCheckInCurrentDay(locationDtoClient.getId(), timeStart, timeEnd);
-    }
-
-    private void permissionManageInOutHistory() {
-        // Check role for employee
-        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
-
-        if (!inOutHistoryServices.hasPermissionManageInOutHistory(locationDtoClient != null ? locationDtoClient.getType() : null)) {
-            throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
-        }
     }
 }

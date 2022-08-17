@@ -9,6 +9,7 @@ eureka:
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+  config: location-service/src/main/resources/log4j2.yml
 
 springdoc:
   packagesToScan: com.comit.services.location

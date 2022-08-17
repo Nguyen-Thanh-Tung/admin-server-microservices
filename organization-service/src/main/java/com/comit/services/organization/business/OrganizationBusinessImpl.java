@@ -1,8 +1,6 @@
 package com.comit.services.organization.business;
 
 import com.comit.services.organization.client.data.LocationDtoClient;
-import com.comit.services.organization.client.data.UserDtoClient;
-import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.exception.RestApiException;
@@ -25,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class OrganizationBusinessImpl implements OrganizationBusiness {

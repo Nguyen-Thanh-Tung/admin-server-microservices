@@ -33,13 +33,6 @@ public class TimeKeepingNotificationServicesImpl implements TimeKeepingNotificat
     }
 
     @Override
-    public boolean hasPermissionManageTimeKeepingNotification(String locationType) {
-//        return locationType != null && requestHelper.hasRole(Const.ROLE_TIME_KEEPING_USER)
-//                && Objects.equals(locationType, Const.TIME_KEEPING_TYPE);
-        return true;
-    }
-
-    @Override
     public boolean deleteTimeKeepingNotificationByLocationId(Integer locationId) {
         try {
             timeKeepingNotificationRepository.deleteByLocationId(locationId);

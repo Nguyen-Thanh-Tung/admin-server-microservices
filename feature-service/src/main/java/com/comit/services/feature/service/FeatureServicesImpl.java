@@ -2,8 +2,10 @@ package com.comit.services.feature.service;
 
 import com.comit.services.feature.client.AccountClient;
 import com.comit.services.feature.client.data.RoleDtoClient;
-import com.comit.services.feature.client.data.UserDtoClient;
-import com.comit.services.feature.client.response.*;
+import com.comit.services.feature.client.response.CheckRoleResponseClient;
+import com.comit.services.feature.client.response.CountResponseClient;
+import com.comit.services.feature.client.response.RoleListResponseClient;
+import com.comit.services.feature.client.response.RoleResponseClient;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.exception.RestApiException;
 import com.comit.services.feature.model.entity.Feature;

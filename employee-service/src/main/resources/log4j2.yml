@@ -1,0 +1,80 @@
+Configuration:
+  status: warn
+
+  Properties:
+    Property:
+      name: log-path
+      value: "employee-service/logs"
+
+  Appenders:
+    Console:
+      - name: CONSOLE_ROOT
+        target: SYSTEM_OUT
+        PatternLayout:
+          alwaysWriteExceptions: true
+          pattern: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n"
+
+    RollingFile:
+      - name: SESSION_APPENDER
+        fileName: ${log-path}/session/session.log
+        filePattern: "${log-path}/session/session.%d{yyyy-MM-dd}.log"
+        Policies:
+          TimeBasedTriggeringPolicy:
+            interval: "1"
+            modulate: "true"
+
+      - name: ERROR_APPENDER
+        fileName: ${log-path}/error/error.log
+        filePattern: "${log-path}/error/error.%d{yyyy-MM-dd}.log"
+        Policies:
+          TimeBasedTriggeringPolicy:
+            interval: "1"
+            modulate: "true"
+
+        JSONLayout:
+          compact: true
+          complete: false
+          objectMessageAsJsonObject: true
+          eventEol: true
+
+      - name: SCHEDULER_APPENDER
+        fileName: ${log-path}/scheduler/scheduler.log
+        filePattern: "${log-path}/scheduler/scheduler.%d{yyyy-MM-dd}.log"
+        Policies:
+          TimeBasedTriggeringPolicy:
+            interval: "1"
+            modulate: "true"
+
+        JSONLayout:
+          compact: true
+          complete: false
+          objectMessageAsJsonObject: true
+          eventEol: true
+
+  Loggers:
+    Logger:
+      - name: CUSTOM_LOGGER
+        level: info
+        additivity: false
+        AppenderRef:
+          - ref: SESSION_APPENDER
+          - ref: CONSOLE_ROOT
+
+      - name: ERROR_LOGGER
+        level: error
+        additivity: false
+        AppenderRef:
+          - ref: ERROR_APPENDER
+          - ref: CONSOLE_ROOT
+
+      - name: SCHEDULER_LOGGER
+        level: info
+        additivity: false
+        AppenderRef:
+          - ref: SCHEDULER_APPENDER
+          - ref: CONSOLE_ROOT
+
+    Root:
+      level: warn
+      AppenderRef:
+        ref: CONSOLE_ROOT

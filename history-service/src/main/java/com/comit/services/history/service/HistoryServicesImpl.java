@@ -49,7 +49,7 @@ public class HistoryServicesImpl implements HistoryServices {
             throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
         }
         if (userResponseClient.getUser().getLocationId() == null) {
-            return null;
+            throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
         }
         LocationResponseClient locationResponseClient = locationClient.getLocation(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {

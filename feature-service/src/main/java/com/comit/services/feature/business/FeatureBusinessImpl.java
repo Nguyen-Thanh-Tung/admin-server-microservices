@@ -1,7 +1,6 @@
 package com.comit.services.feature.business;
 
 import com.comit.services.feature.client.data.RoleDtoClient;
-import com.comit.services.feature.client.data.UserDtoClient;
 import com.comit.services.feature.constant.Const;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.controller.request.FeatureRequest;

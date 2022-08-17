@@ -38,9 +38,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public Page<Employee> getEmployeePage(String status, int page, int size, String search) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         Pageable paging = PageRequest.of(page, size);
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
 
@@ -58,9 +55,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public EmployeeDto saveEmployee(HttpServletRequest request) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Check content type
         String contentType = request.getContentType();
         if (contentType == null || !contentType.contains("multipart/form-data")) {
@@ -162,9 +156,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public EmployeeDto updateEmployee(int id, HttpServletRequest request) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Get employee of location
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
@@ -230,6 +221,9 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                     if (manager == null) {
                         throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
                     }
+                    if (manager.getManagerId() != null && manager.getManagerId() == employee.getId()) {
+                        throw new RestApiException(EmployeeErrorCode.MANAGER_IS_EMPLOYEE);
+                    }
                     employee.setManagerId(manager.getId());
                 } else {
                     employee.setManagerId(null);
@@ -257,9 +251,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public EmployeeDto getEmployee(int id) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Get employee in location
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
@@ -272,9 +263,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public BaseEmployeeDto getEmployeeBase(int id) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Get employee in location
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
@@ -287,9 +275,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public EmployeeDto getEmployee(String code) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Get employee in location
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(code, locationDtoClient.getId());
@@ -302,9 +287,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public boolean deleteEmployee(int id) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Get employee in location
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
@@ -338,9 +320,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public EmployeeDto changeManager(int oldManagerId, int newManagerId) {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageEmployee();
-
         // Get old manager and new manager
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee oldManager = employeeServices.getEmployee(oldManagerId, locationDtoClient.getId());
@@ -365,15 +344,6 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             employeeServices.saveEmployee(employee);
         }
         return convertEmployeeToEmployeeDto(newManager);
-    }
-
-    private void permissionManageEmployee() {
-        // Check role for employee
-        LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
-
-        if (!employeeServices.hasPermissionManageEmployee(locationDtoClient != null ? locationDtoClient.getType() : null)) {
-            throw new RestApiException(EmployeeErrorCode.PERMISSION_DENIED);
-        }
     }
 
     @Override

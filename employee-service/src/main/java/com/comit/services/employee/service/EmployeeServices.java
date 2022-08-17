@@ -21,8 +21,6 @@ public interface EmployeeServices {
 
     List<Employee> saveAllEmployee(List<Employee> oldManagerEmployees);
 
-    boolean hasPermissionManageEmployee(String locationType);
-
     String getSaveEmployeeImageResponse(MultipartFile file, Integer locationId);
 
     String getUpdateEmployeeImageResponse(int id, MultipartFile file);

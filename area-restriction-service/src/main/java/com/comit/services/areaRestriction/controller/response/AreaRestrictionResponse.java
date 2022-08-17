@@ -1,7 +1,6 @@
 package com.comit.services.areaRestriction.controller.response;
 
 import com.comit.services.areaRestriction.constant.AreaRestrictionErrorCode;
-import com.comit.services.areaRestriction.model.dto.AreaRestrictionDto;
 import com.comit.services.areaRestriction.model.dto.BaseModelDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

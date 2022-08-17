@@ -1,7 +1,6 @@
 package com.comit.services.feature.service;
 
 import com.comit.services.feature.client.data.RoleDtoClient;
-import com.comit.services.feature.client.data.UserDtoClient;
 import com.comit.services.feature.model.entity.Feature;
 
 import java.util.List;

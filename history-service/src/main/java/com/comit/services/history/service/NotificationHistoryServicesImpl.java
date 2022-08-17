@@ -83,18 +83,6 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
     }
 
     @Override
-    public boolean hasPermissionManageNotificationHistory(String locationType) {
-//        return locationType != null &&
-//                ((requestHelper.hasRole(Const.ROLE_TIME_KEEPING_USER)
-//                        && Objects.equals(locationType, Const.TIME_KEEPING_TYPE)) ||
-//                        (requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER)
-//                                && Objects.equals(locationType, Const.AREA_RESTRICTION_TYPE)) ||
-//                        (requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER)
-//                                && Objects.equals(locationType, Const.BEHAVIOR_TYPE)));
-        return true;
-    }
-
-    @Override
     public int getNumberNotificationInDay(Integer locationId, Date timeStart, Date timeEnd) {
         return notificationHistoryRepository.countByLocationIdAndTimeAfterAndTimeBefore(locationId, timeStart, timeEnd);
     }

@@ -2,7 +2,6 @@ package com.comit.services.timeKeeping.business;
 
 import com.comit.services.timeKeeping.client.data.LocationDtoClient;
 import com.comit.services.timeKeeping.constant.Const;
-import com.comit.services.timeKeeping.constant.TimeKeepingErrorCode;
 import com.comit.services.timeKeeping.constant.TimeKeepingNotificationErrorCode;
 import com.comit.services.timeKeeping.controller.request.TimeKeepingNotificationRequest;
 import com.comit.services.timeKeeping.exception.TimeKeepingCommonException;
@@ -31,8 +30,6 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
 
     @Override
     public TimeKeepingNotificationDto getTimeKeepingNotification() {
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageTimeKeepingNotification();
 
         LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
 
@@ -43,9 +40,6 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
     @Override
     public TimeKeepingNotificationDto updateTimeKeepingNotification(int id, TimeKeepingNotificationRequest request) {
         timeKeepingVerifyRequestServices.verifyUpdateTimeKeepingNotificationRequest(request);
-
-        // Is user and has role manage employee (Ex: Time keeping user)
-        permissionManageTimeKeepingNotification();
 
         // Get time keeping notification
         LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
@@ -95,15 +89,6 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
     @Override
     public boolean deleteTimeKeepingNotificationOfLocation(Integer locationId) {
         return timeKeepingNotificationServices.deleteTimeKeepingNotificationByLocationId(locationId);
-    }
-
-    private void permissionManageTimeKeepingNotification() {
-        // Check role for employee
-        LocationDtoClient locationDtoClient = timeKeepingServices.getLocationOfCurrentUser();
-
-        if (!timeKeepingNotificationServices.hasPermissionManageTimeKeepingNotification(locationDtoClient != null ? locationDtoClient.getType() : null)) {
-            throw new TimeKeepingCommonException(TimeKeepingErrorCode.PERMISSION_DENIED);
-        }
     }
 
     public TimeKeepingNotificationDto convertTimeKeepingNotificationToDto(TimeKeepingNotification timeKeepingNotification) {

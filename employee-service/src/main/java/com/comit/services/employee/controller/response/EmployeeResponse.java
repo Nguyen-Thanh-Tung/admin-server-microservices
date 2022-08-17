@@ -2,7 +2,6 @@ package com.comit.services.employee.controller.response;
 
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.model.dto.BaseModelDto;
-import com.comit.services.employee.model.dto.EmployeeDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

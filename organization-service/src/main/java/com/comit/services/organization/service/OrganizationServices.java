@@ -1,7 +1,6 @@
 package com.comit.services.organization.service;
 
 import com.comit.services.organization.client.data.LocationDtoClient;
-import com.comit.services.organization.client.data.UserDtoClient;
 import com.comit.services.organization.model.entity.Organization;
 
 import java.util.List;

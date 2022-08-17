@@ -97,11 +97,6 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public boolean hasPermissionManageEmployee(String locationType) {
-        return true;
-    }
-
-    @Override
     public String getSaveEmployeeImageResponse(MultipartFile file, Integer locationId) {
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -225,7 +220,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
             throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
         }
         if (userResponseClient.getUser().getLocationId() == null) {
-            return null;
+            throw  new RestApiException(EmployeeErrorCode.PERMISSION_DENIED);
         }
         LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {

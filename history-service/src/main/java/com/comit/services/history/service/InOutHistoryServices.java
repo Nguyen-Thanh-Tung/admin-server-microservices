@@ -18,8 +18,6 @@ public interface InOutHistoryServices {
 
     InOutHistory saveInOutHistory(InOutHistory inOutHistory);
 
-    boolean hasPermissionManageInOutHistory(String locationType);
-
     Page<InOutHistory> getInOutHistoryPageOfAreaRestrictionList(List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, Pageable paging);
 
     int getNumberCheckInCurrentDay(Integer id, Date timeStart, Date timeEnd);

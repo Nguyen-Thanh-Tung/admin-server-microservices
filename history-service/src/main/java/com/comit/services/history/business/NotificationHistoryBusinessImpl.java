@@ -1,9 +1,7 @@
 package com.comit.services.history.business;
 
 import com.comit.services.history.client.data.LocationDtoClient;
-import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.NotificationHistoryRequest;
-import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.dto.NotificationHistoryDto;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.service.HistoryServices;
@@ -35,7 +33,6 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         // Is user and has role manage employee (Ex: Time keeping user)
         LocationDtoClient locationDtoClient;
         if (locationId == null) {
-            permissionManageNotificationHistory();
             locationDtoClient = historyServices.getLocationOfCurrentUser();
         } else {
             locationDtoClient = historyServices.getLocation(locationId);
@@ -73,7 +70,6 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(boolean hasEmployee, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
-        permissionManageNotificationHistory();
         LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
 
@@ -86,7 +82,6 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String status, int page, int size) {
-        permissionManageNotificationHistory();
         LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
 
@@ -98,7 +93,6 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         // Is user and has role manage employee (Ex: Time keeping user)
         LocationDtoClient locationDtoClient;
         if (locationId == null) {
-            permissionManageNotificationHistory();
             locationDtoClient = historyServices.getLocationOfCurrentUser();
         } else {
             locationDtoClient = historyServices.getLocation(locationId);
@@ -158,7 +152,6 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIdStrs, String status, int page, int size) {
-        permissionManageNotificationHistory();
         LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
         String[] areaRestrictionIds = areaRestrictionIdStrs.split(",");
@@ -171,7 +164,6 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
     @Override
     public boolean updateStatusNotificationHistory(Integer id) {
-        permissionManageNotificationHistory();
         return notificationHistoryServices.updateStatusNotificationHistory(id);
     }
 
@@ -242,14 +234,5 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
 
         return notificationHistoryServices.getNumberNotificationOfAreaRestriction(areaRestrictionId, timeStart, timeEnd);
-    }
-
-    private void permissionManageNotificationHistory() {
-        // Check role for employee
-        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
-
-        if (!notificationHistoryServices.hasPermissionManageNotificationHistory(locationDtoClient != null ? locationDtoClient.getType() : null)) {
-            throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
-        }
     }
 }

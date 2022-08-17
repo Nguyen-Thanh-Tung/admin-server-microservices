@@ -3,7 +3,6 @@ package com.comit.services.organization.client;
 import com.comit.services.organization.client.response.CheckRoleResponseClient;
 import com.comit.services.organization.client.response.CountUserResponse;
 import com.comit.services.organization.client.response.UserResponseClient;
-import com.comit.services.organization.controller.response.UserListResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,6 @@
 package com.comit.services.employee.client.data;
 
 import com.comit.services.employee.model.dto.BaseEmployeeDto;
-import com.comit.services.employee.model.dto.EmployeeDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;

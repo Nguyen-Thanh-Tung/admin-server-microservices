@@ -43,19 +43,6 @@ public class InOutHistoryServicesImpl implements InOutHistoryServices {
     }
 
     @Override
-    public boolean hasPermissionManageInOutHistory(String locationType) {
-        return true;
-//        return locationType != null &&
-//                ((requestHelper.hasRole(Const.ROLE_TIME_KEEPING_USER)
-//                        && Objects.equals(locationType, Const.TIME_KEEPING_TYPE)) || (
-//                        requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER)
-//                                && Objects.equals(locationType, Const.AREA_RESTRICTION_TYPE)) || (
-//                        requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER)
-//                                && Objects.equals(locationType, Const.BEHAVIOR_TYPE)
-//                ));
-    }
-
-    @Override
     public Page<InOutHistory> getInOutHistoryPageOfAreaRestrictionList(List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, Pageable paging) {
         return inOutHistoryRepository.findByAreaRestrictionIdInAndTimeAfterAndTimeBeforeOrderByTimeDesc(areaRestrictionIds, timeStart, timeEnd, paging);
     }

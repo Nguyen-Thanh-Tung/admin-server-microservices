@@ -25,7 +25,7 @@ public class EmployeeDto extends BaseModelDto {
     @JsonProperty("embedding_id")
     private Integer embeddingId;
 
-    @JsonIncludeProperties(value = {"id", "code", "name", "image", "email", "phone", "status", "shifts"})
+    @JsonIncludeProperties(value = {"id", "code", "name", "image", "email", "phone", "status", "area_employees", "manager", "shifts"})
     private List<EmployeeDto> employees;
 
     @JsonProperty("manager")

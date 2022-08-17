@@ -28,8 +28,6 @@ public interface NotificationHistoryServices {
 
     NotificationHistory saveNotificationHistory(NotificationHistory notificationHistory);
 
-    boolean hasPermissionManageNotificationHistory(String locationType);
-
     int getNumberNotificationInDay(Integer locationId, Date timeStart, Date timeEnd);
 
     int getNumberNotificationNotResolve(Integer locationId, Date timeStart, Date timeEnd);
