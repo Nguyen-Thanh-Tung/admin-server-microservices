@@ -1,9 +1,7 @@
 package com.comit.services.mail.business;
 
 import com.comit.services.mail.constant.Const;
-import com.comit.services.mail.controller.request.MailCreateUserRequest;
-import com.comit.services.mail.controller.request.MailForgetPasswordRequest;
-import com.comit.services.mail.controller.request.MailQrCodeRequest;
+import com.comit.services.mail.loging.model.CommonLogger;
 import com.comit.services.mail.model.entity.Mail;
 import com.comit.services.mail.service.MailServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,37 +20,42 @@ public class MailBusinessImpl implements MailBusiness {
     private Environment env;
 
     @Override
-    public boolean sendQrCodeMail(MailQrCodeRequest mailQrCodeRequest) {
+    public boolean sendQrCodeMail(String email, String fullname, String employeeCode, String organizationName, String locationName, String locationCode, String type) {
         Mail mail = new Mail();
-        mail.setMailFrom(mailQrCodeRequest.getLocationName());
-        mail.setMailTo(mailQrCodeRequest.getMailTo());
-        mail.setMailSubject(Objects.equals(mailQrCodeRequest.getType(), Const.TIME_KEEPING_MODULE) ? "Nhận thông báo chấm công qua Telegram" : "Nhận thông báo cảnh báo đột nhập qua Telegram");
+        mail.setMailFrom(env.getProperty("spring.mail.username"));
+        mail.setMailTo(email);
+        mail.setMailSubject(Objects.equals(type, Const.TIME_KEEPING_MODULE) ? "Nhận thông báo chấm công qua Telegram" : "Nhận thông báo cảnh báo đột nhập qua Telegram");
 
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("name", mailQrCodeRequest.getFullname());
-        model.put("location", mailQrCodeRequest.getLocationName());
-        model.put("organization", mailQrCodeRequest.getOrganizationName());
+        model.put("name", fullname);
+        model.put("location", locationName);
+        model.put("organization", organizationName);
         model.put("qrcodeImage", env.getProperty("qrcode.image.url"));
         model.put("qrcodeUrl", env.getProperty("qrcode.url"));
-        model.put("code", mailQrCodeRequest.getEmployeeCode() + "_" + mailQrCodeRequest.getLocationCode());
+        model.put("code", employeeCode + "_" + locationCode);
         mail.setProps(model);
 
-        mailServices.sendEmail(mail, "send-qrcode-template");
+        try {
+            mailServices.sendEmail(mail, "send-qrcode-template");
+        } catch (Exception e) {
+            CommonLogger.error("Error send mail: " + e.getMessage());
+            return false;
+        }
         return true;
     }
 
     @Override
-    public boolean sendForgetPasswordMail(MailForgetPasswordRequest mailForgetPasswordRequest) {
+    public boolean sendForgetPasswordMail(Integer id, String fullname, String email, String code) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(mailForgetPasswordRequest.getMailTo());
+        mail.setMailTo(email);
         mail.setMailSubject("Change password");
 
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("name", mailForgetPasswordRequest.getFullname());
+        model.put("name", fullname);
         model.put("location", Const.MAIL_LOCATION);
         model.put("sign", Const.MAIL_ORGANIZATION_NAME);
-        model.put("link", env.getProperty("frontendServer") + "?user_id=" + mailForgetPasswordRequest.getUserId() + "&code=" + mailForgetPasswordRequest.getCode());
+        model.put("link", env.getProperty("frontendServer") + "?user_id=" + id + "&code=" + code);
         mail.setProps(model);
 
         mailServices.sendEmail(mail, "forgetPassword-template");
@@ -60,17 +63,17 @@ public class MailBusinessImpl implements MailBusiness {
     }
 
     @Override
-    public boolean sendConfirmCreateUserMail(MailCreateUserRequest mailCreateUserRequest) {
+    public boolean sendConfirmCreateUserMail(Integer id, String fullname, String email, String code) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(mailCreateUserRequest.getEmail());
+        mail.setMailTo(email);
         mail.setMailSubject("Confirm create user");
 
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("name", mailCreateUserRequest.getFullName());
+        model.put("name", fullname);
         model.put("location", Const.MAIL_LOCATION);
         model.put("sign", Const.MAIL_ORGANIZATION_NAME);
-        model.put("link", env.getProperty("frontendServer") + "?user_id=" + mailCreateUserRequest.getId() + "&code=" + mailCreateUserRequest.getCode());
+        model.put("link", env.getProperty("frontendServer") + "?user_id=" + id + "&code=" + code);
         mail.setProps(model);
 
         try {

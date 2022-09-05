@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "organization-service")
 public interface OrganizationClient {
 
-    @GetMapping("/organizations/{id}")
+    @GetMapping("/organizations/{id}/base")
     ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("id") Integer organizationId);
 
     @GetMapping("/organizations/name/{organizationName}")

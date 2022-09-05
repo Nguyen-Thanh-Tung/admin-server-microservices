@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.comit.services</groupId>
     <artifactId>time-keeping-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>time-keeping-service</name>
     <description>time-keeping-service</description>
     <properties>

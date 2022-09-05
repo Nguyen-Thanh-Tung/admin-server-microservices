@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-cm
+data:
+  branch: master
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-config-service
+  ports:
+    - port: 80
+      targetPort: 8088
+      protocol: TCP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-config-service
+  labels:
+    app: k8s-config-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-config-service
+  template:
+    metadata:
+      labels:
+        app: k8s-config-service
+    spec:
+      containers:
+        - name: config-service
+          image: thanhtungtvg95/config-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8088
+          env:
+            - name: branch
+              valueFrom:
+                configMapKeyRef:
+                  key: branch
+                  name: config-cm

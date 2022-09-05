@@ -77,8 +77,13 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public Employee getEmployee(String employeeCode, Integer locationId) {
-        return employeeRepository.findByCodeAndLocationId(employeeCode, locationId);
+    public Employee getEmployee(int employeeId) {
+        return employeeRepository.findById(employeeId);
+    }
+
+    @Override
+    public Employee getEmployee(String employeeCode) {
+        return employeeRepository.findByCode(employeeCode);
     }
 
     @Override
@@ -316,14 +321,6 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
-    public void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode) {
-        BaseResponse baseResponse = mailClient.sendQrCodeMail(httpServletRequest.getHeader("token"), new MailRequestClient(mailTo, fullname, employeeCode, organizationName, locationName, locationCode)).getBody();
-        if (baseResponse == null) {
-            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
-        }
-    }
-
-    @Override
     public int getNumberEmployeeOfLocation(Integer locationId) {
         return employeeRepository.countEmployeeByLocationIdAndStatus(locationId, Const.ACTIVE);
     }
@@ -362,5 +359,10 @@ public class EmployeeServicesImpl implements EmployeeServices {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
         return locationResponseClient.getLocation();
+    }
+
+    @Override
+    public Employee getEmployeeByEmbeddingId(int embeddingId) {
+        return employeeRepository.findByEmbeddingId(embeddingId);
     }
 }

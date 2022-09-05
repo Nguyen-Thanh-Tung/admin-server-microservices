@@ -6,6 +6,8 @@ import com.comit.services.timeKeeping.model.dto.TimeKeepingNotificationDto;
 public interface TimeKeepingNotificationBusiness {
     TimeKeepingNotificationDto getTimeKeepingNotification();
 
+    TimeKeepingNotificationDto getTimeKeepingNotification(Integer locationId);
+
     TimeKeepingNotificationDto updateTimeKeepingNotification(int id, TimeKeepingNotificationRequest request);
 
     boolean addTimeKeepingNotificationForLocation(Integer locationId);

@@ -14,7 +14,7 @@ import java.util.Set;
 
 public interface UserBusiness {
     // For user services
-    List<UserDto> getAllUser();
+    List<UserDto> getAllUser(String status);
 
     UserDto getUser(int id);
 
@@ -40,7 +40,7 @@ public interface UserBusiness {
 
     BaseUserDto getCurrentUser();
 
-    List<UserDto> getUsersOfCurrentUser();
+    List<BaseUserDto> getUsersOfCurrentUser();
 
     List<RoleDto> getRolesOfCurrentUser();
 

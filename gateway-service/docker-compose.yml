@@ -1,0 +1,9 @@
+version: "3"
+services:
+  gateway-service:
+    image: admin-server-microservices/gateway-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8070:8070"

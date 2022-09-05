@@ -3,8 +3,8 @@ package com.comit.services.history.controller;
 import com.comit.services.history.business.InOutHistoryBusiness;
 import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
-import com.comit.services.history.controller.response.BaseResponse;
-import com.comit.services.history.controller.response.InOutHistoryListResponse;
+import com.comit.services.history.controller.request.InOutHistoryRequest;
+import com.comit.services.history.controller.response.*;
 import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.model.excel.AreaRestrictionExcelExporter;
@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -97,5 +94,22 @@ public class InOutHistoryController {
         List<InOutHistoryDto> historyDtos = inOutHistoryBusiness.getAllInOutHistory(historyPage.getContent());
         AreaRestrictionExcelExporter excelExporter = new AreaRestrictionExcelExporter(historyDtos);
         excelExporter.export(response);
+    }
+
+    @GetMapping("/number-history")
+    public ResponseEntity<BaseResponse> getNumberHistory(
+            @RequestParam("location_id") Integer locationId,
+            @RequestParam("employee_id") Integer employeeId,
+            @RequestParam("time_start") String timeStart,
+            @RequestParam("time_end") String timeEnd) {
+        int numberHistory = inOutHistoryBusiness.getNumberHistory(locationId, employeeId, timeStart, timeEnd);
+        return new ResponseEntity<>(new CountResponse(HistoryErrorCode.SUCCESS, numberHistory), HttpStatus.OK);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<BaseResponse> saveInOutHistory(@RequestBody InOutHistoryRequest inOutHistoryRequest) {
+        InOutHistoryDto inOutHistoryDto = inOutHistoryBusiness.saveInOutHistory(inOutHistoryRequest);
+
+        return new ResponseEntity<>(new InOutHistoryResponse(HistoryErrorCode.SUCCESS, inOutHistoryDto), HttpStatus.OK);
     }
 }

@@ -1,13 +1,9 @@
 package com.comit.services.mail.business;
 
-import com.comit.services.mail.controller.request.MailCreateUserRequest;
-import com.comit.services.mail.controller.request.MailForgetPasswordRequest;
-import com.comit.services.mail.controller.request.MailQrCodeRequest;
-
 public interface MailBusiness {
-    boolean sendQrCodeMail(MailQrCodeRequest mailQrCodeRequest);
+    boolean sendQrCodeMail(String email, String fullname, String employeeCode, String organizationName, String locationName, String locationCode, String type);
 
-    boolean sendForgetPasswordMail(MailForgetPasswordRequest mailForgetPasswordRequest);
+    boolean sendForgetPasswordMail(Integer id, String fullname, String email, String code);
 
-    boolean sendConfirmCreateUserMail(MailCreateUserRequest mailCreateUserRequest);
+    boolean sendConfirmCreateUserMail(Integer id, String fullname, String email, String code);
 }

@@ -4,10 +4,7 @@ import com.comit.services.employee.business.EmployeeBusiness;
 import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.request.SendQrCodeRequest;
-import com.comit.services.employee.controller.response.BaseResponse;
-import com.comit.services.employee.controller.response.CountResponse;
-import com.comit.services.employee.controller.response.EmployeeListResponse;
-import com.comit.services.employee.controller.response.EmployeeResponse;
+import com.comit.services.employee.controller.response.*;
 import com.comit.services.employee.model.dto.BaseEmployeeDto;
 import com.comit.services.employee.model.dto.EmployeeDto;
 import com.comit.services.employee.model.entity.Employee;
@@ -33,10 +30,10 @@ public class EmployeeController {
             @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size,
             @RequestParam(required = false, value = "status") String status,
-            @RequestParam(required = false) String search
-
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, value = "location_id") Integer locationId
     ) {
-        Page<Employee> employeePage = employeeBusiness.getEmployeePage(status, page, size, search);
+        Page<Employee> employeePage = employeeBusiness.getEmployeePage(locationId, status, page, size, search);
         List<EmployeeDto> employeeDtos = new ArrayList<>();
         int currentPage = 0;
         long totalItems = 0;
@@ -49,6 +46,29 @@ public class EmployeeController {
         }
 
         return new ResponseEntity<>(new EmployeeListResponse(EmployeeErrorCode.SUCCESS, employeeDtos, currentPage, totalItems, totalPages), HttpStatus.OK);
+    }
+
+    @GetMapping("/base")
+    public ResponseEntity<BaseResponse> getAllEmployeeBase(
+            @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size,
+            @RequestParam(required = false, value = "status") String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, value = "location_id") Integer locationId
+    ) {
+        Page<Employee> employeePage = employeeBusiness.getEmployeePage(locationId, status, page, size, search);
+        List<BaseEmployeeDto> employeeDtos = new ArrayList<>();
+        int currentPage = 0;
+        long totalItems = 0;
+        int totalPages = 0;
+        if (employeePage != null) {
+            currentPage = employeePage.getNumber();
+            totalItems = employeePage.getTotalElements();
+            totalPages = employeePage.getTotalPages();
+            employeeDtos = employeeBusiness.getAllEmployeeBase(employeePage.getContent());
+        }
+
+        return new ResponseEntity<>(new EmployeeListBaseResponse(EmployeeErrorCode.SUCCESS, employeeDtos, currentPage, totalItems, totalPages), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -65,7 +85,13 @@ public class EmployeeController {
 
     @GetMapping("/code/{employeeCode}")
     public ResponseEntity<BaseResponse> getEmployee(@PathVariable String employeeCode) {
-        EmployeeDto employeeDto = employeeBusiness.getEmployee(employeeCode);
+        BaseEmployeeDto employeeDto = employeeBusiness.getEmployeeBase(employeeCode);
+        return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/embedding/{embeddingId}")
+    public ResponseEntity<BaseResponse> getEmployeeByEmbeddingId(@PathVariable int embeddingId) {
+        BaseEmployeeDto employeeDto = employeeBusiness.getEmployeeBaseByEmbeddingId(embeddingId);
         return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
     }
 

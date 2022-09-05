@@ -21,13 +21,13 @@ public class MetadataController {
     @PostMapping("/save-file")
     ResponseEntity<MetadataResponse> saveMetadataWithFile(MultipartFile file) {
         MetadataDto metadataDto = metadataBusiness.saveMetadata(file);
-        return new ResponseEntity<>(new MetadataResponse(metadataDto == null ? MetadataErrorCode.SUCCESS : MetadataErrorCode.FAIL, metadataDto), HttpStatus.OK);
+        return new ResponseEntity<>(new MetadataResponse(metadataDto != null ? MetadataErrorCode.SUCCESS : MetadataErrorCode.FAIL, metadataDto), HttpStatus.OK);
     }
 
     @PostMapping("/save-path")
     ResponseEntity<MetadataResponse> saveMetadataWithPath(@RequestBody MetadataRequest metadataRequest) {
         MetadataDto metadataDto = metadataBusiness.saveMetadata(metadataRequest);
-        return new ResponseEntity<>(new MetadataResponse(metadataDto == null ? MetadataErrorCode.SUCCESS : MetadataErrorCode.FAIL, metadataDto), HttpStatus.OK);
+        return new ResponseEntity<>(new MetadataResponse(metadataDto != null ? MetadataErrorCode.SUCCESS : MetadataErrorCode.FAIL, metadataDto), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

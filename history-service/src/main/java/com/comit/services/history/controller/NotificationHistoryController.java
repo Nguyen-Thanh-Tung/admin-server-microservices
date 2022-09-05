@@ -3,9 +3,10 @@ package com.comit.services.history.controller;
 import com.comit.services.history.business.NotificationHistoryBusiness;
 import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
-import com.comit.services.history.controller.response.BaseResponse;
-import com.comit.services.history.controller.response.CountResponse;
-import com.comit.services.history.controller.response.NotificationHistoryListResponse;
+import com.comit.services.history.controller.request.InOutHistoryRequest;
+import com.comit.services.history.controller.request.NotificationHistoryRequest;
+import com.comit.services.history.controller.response.*;
+import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.dto.NotificationHistoryDto;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.model.excel.AreaRestrictionNotificationExcelExporter;
@@ -119,8 +120,26 @@ public class NotificationHistoryController {
     }
 
     @GetMapping("/area-restriction/{areaRestrictionId}/number-notify")
-    public ResponseEntity<BaseResponse> getNumberNotificationOfAreaRestriction(@PathVariable Integer areaRestrictionId) {
-        int numberNotificationOfAreaRestriction = notificationHistoryBusiness.getNumberNotificationOfAreaRestriction(areaRestrictionId);
+    public ResponseEntity<BaseResponse> getNumberNotificationOfAreaRestriction(@PathVariable Integer areaRestrictionId, @RequestParam(required = false) String status) {
+        int numberNotificationOfAreaRestriction = notificationHistoryBusiness.getNumberNotificationOfAreaRestriction(areaRestrictionId, status);
         return new ResponseEntity<>(new CountResponse(HistoryErrorCode.SUCCESS, numberNotificationOfAreaRestriction), HttpStatus.OK);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<BaseResponse> saveNotificationHistory(@RequestBody NotificationHistoryRequest notificationHistoryRequest) {
+        NotificationHistoryDto notificationHistoryDto = notificationHistoryBusiness.saveNotificationHistory(notificationHistoryRequest);
+
+        return new ResponseEntity<>(new NotificationHistoryResponse(HistoryErrorCode.SUCCESS, notificationHistoryDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/number-history")
+    public ResponseEntity<BaseResponse> getNumberNotificationHistory(
+            @RequestParam("location_id") Integer locationId,
+            @RequestParam("employee_id") Integer employeeId,
+            @RequestParam("time_start") String timeStart,
+            @RequestParam("time_end") String timeEnd
+    ) {
+        int numberHistory = notificationHistoryBusiness.getNumberNotification(locationId, employeeId, timeStart, timeEnd);
+        return new ResponseEntity<>(new CountResponse(HistoryErrorCode.SUCCESS, numberHistory), HttpStatus.OK);
     }
 }

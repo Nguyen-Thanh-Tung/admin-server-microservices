@@ -10,12 +10,14 @@ import com.comit.services.account.controller.request.LoginRequest;
 import com.comit.services.account.controller.request.SignUpRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.exeption.AuthException;
+import com.comit.services.account.exeption.CommonLogger;
 import com.comit.services.account.jwt.JwtProvider;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.Organization;
 import com.comit.services.account.model.entity.Role;
 import com.comit.services.account.model.entity.User;
 import com.comit.services.account.model.entity.UserDetailImpl;
+import com.comit.services.account.service.KafkaServices;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
 import com.comit.services.account.service.VerifyAdminRequestServices;
@@ -43,6 +45,9 @@ public class AuthBusinessImpl implements AuthBusiness {
 
     @Autowired
     RoleServices roleServices;
+
+    @Autowired
+    KafkaServices kafkaServices;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -220,7 +225,12 @@ public class AuthBusinessImpl implements AuthBusiness {
 
         String code = IDGeneratorUtil.gen();
         user.setCode(code);
-        userServices.saveUser(user);
-        userServices.sendForgetPasswordMail(user);
+        User newUser = userServices.saveUser(user);
+        // Send mail
+        try {
+            kafkaServices.sendMessage("forgetPassword", "{\"id\": " + newUser.getId() + ", \"fullname\": \"" + newUser.getFullName() + "\", \"email\": \"" + newUser.getEmail() + "\", \"code\": \"" + newUser.getCode() + "\"}");
+        } catch (Exception e) {
+            CommonLogger.error("Error kafka");
+        }
     }
 }

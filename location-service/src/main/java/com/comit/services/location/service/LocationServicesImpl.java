@@ -77,8 +77,11 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
-    public List<Location> getAllLocationByOrganizationId(int organizationId) {
-        return locationRepository.findAllByOrganizationId(organizationId);
+    public List<Location> getAllLocationByOrganizationId(int organizationId, String type) {
+        if (type == null) {
+            return locationRepository.findAllByOrganizationId(organizationId);
+        }
+        return locationRepository.findAllByOrganizationIdAndType(organizationId, type);
     }
 
     @Override

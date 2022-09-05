@@ -9,7 +9,7 @@
     </parent>
     <artifactId>gateway-service</artifactId>
     <groupId>com.comit.services</groupId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <java.version>17</java.version>

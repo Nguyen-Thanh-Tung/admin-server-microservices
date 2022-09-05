@@ -14,6 +14,8 @@ public interface AreaRestrictionServices {
 
     AreaRestriction getAreaRestriction(Integer locationId, Integer id);
 
+    AreaRestriction getAreaRestriction(int id);
+
     AreaRestriction getAreaRestriction(Integer locationId, String name);
 
     AreaRestriction updateAreaRestriction(AreaRestriction areaRestriction);
@@ -24,7 +26,9 @@ public interface AreaRestrictionServices {
 
     int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate);
 
-    EmployeeDtoClient getEmployee(Integer employeeId, Integer locationId);
+//    EmployeeDtoClient getEmployee(Integer employeeId, Integer locationId);
+
+    EmployeeDtoClient getEmployee(Integer employeeId);
 
     int getNumberCameraOfAreaRestriction(int areaRestrictionId);
 

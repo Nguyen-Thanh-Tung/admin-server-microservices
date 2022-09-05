@@ -23,6 +23,13 @@ public class TimeKeepingNotificationController {
         return new ResponseEntity<>(new TimeKeepingNotificationResponse(TimeKeepingErrorCode.SUCCESS, timeKeepingNotificationDto), HttpStatus.OK);
     }
 
+
+    @GetMapping("/location/{locationId}")
+    ResponseEntity<BaseResponse> getTimeKeepingNotificationOfLocation(@PathVariable Integer locationId) {
+        TimeKeepingNotificationDto timeKeepingNotificationDto = timeKeepingNotificationBusiness.getTimeKeepingNotification(locationId);
+        return new ResponseEntity<>(new TimeKeepingNotificationResponse(TimeKeepingErrorCode.SUCCESS, timeKeepingNotificationDto), HttpStatus.OK);
+    }
+
     @PutMapping(value = "/{id}")
     public ResponseEntity<BaseResponse> updateTimeKeepingNotification(
             @PathVariable int id,

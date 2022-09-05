@@ -107,7 +107,7 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     }
 
     @Override
-    public InOutHistoryDto saveInOutHistory(InOutHistoryRequest request) throws ParseException {
+    public InOutHistoryDto saveInOutHistory(InOutHistoryRequest request) {
         InOutHistory inOutHistory = new InOutHistory();
         CameraDtoClient cameraDtoClient = historyServices.getCamera(request.getCameraId());
         inOutHistory.setCameraId(request.getCameraId());
@@ -131,5 +131,14 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
 
         return inOutHistoryServices.getNumberCheckInCurrentDay(locationDtoClient.getId(), timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberHistory(Integer locationId, Integer employeeId, String timeStartStr, String timeEndStr) {
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = TimeUtil.stringDateToDate(timeEndStr);
+
+        return inOutHistoryServices.getNumberHistory(locationId, employeeId, timeStart, timeEnd);
     }
 }

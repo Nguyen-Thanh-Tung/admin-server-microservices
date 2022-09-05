@@ -155,11 +155,11 @@ public class LocationBusinessImpl implements LocationBusiness {
     }
 
     @Override
-    public List<LocationDto> getAllLocationByOrganizationId(int organizationId) {
-        List<Location> locations = locationServices.getAllLocationByOrganizationId(organizationId);
-        List<LocationDto> locationDtos = new ArrayList<>();
+    public List<BaseLocationDto> getAllLocationByOrganizationId(int organizationId, String type) {
+        List<Location> locations = locationServices.getAllLocationByOrganizationId(organizationId, type);
+        List<BaseLocationDto> locationDtos = new ArrayList<>();
         locations.forEach(location -> {
-            locationDtos.add(convertLocationToLocationDto(location));
+            locationDtos.add(convertLocationToBaseLocationDto(location));
         });
         return locationDtos;
     }

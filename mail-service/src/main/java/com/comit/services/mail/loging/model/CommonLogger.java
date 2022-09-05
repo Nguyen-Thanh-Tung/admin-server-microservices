@@ -14,7 +14,7 @@ public class CommonLogger {
         customLogger.info(message);
     }
 
-    protected static void info(String message) {
+    public static void info(String message) {
         customLogger.info(message);
     }
 

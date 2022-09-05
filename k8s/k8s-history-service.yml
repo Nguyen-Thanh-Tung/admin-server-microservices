@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: history-cm
+data:
+  database_server_address: 10.10.2.202:3306
+  zipkin_server_address: http://10.10.2.202:9411
+  config_service_url: http://10.10.2.202:8088
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: history-service
+spec:
+  selector:
+    app: k8s-history-service
+  ports:
+    - port: 80
+      targetPort: 8087
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-history-service
+  labels:
+    app: k8s-history-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-history-service
+  template:
+    metadata:
+      labels:
+        app: k8s-history-service
+    spec:
+      containers:
+        - name: history-service
+          image: thanhtungtvg95/history-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8087
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: history-cm
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: history-cm
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: history-cm
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password

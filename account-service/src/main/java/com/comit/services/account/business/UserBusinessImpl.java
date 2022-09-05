@@ -9,12 +9,14 @@ import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
+import com.comit.services.account.exeption.CommonLogger;
 import com.comit.services.account.middleware.UserVerifyRequestServices;
 import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.Role;
 import com.comit.services.account.model.entity.User;
+import com.comit.services.account.service.KafkaServices;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
 import com.comit.services.account.util.IDGeneratorUtil;
@@ -36,6 +38,8 @@ public class UserBusinessImpl implements UserBusiness {
     @Autowired
     private RoleServices roleServices;
     @Autowired
+    private KafkaServices kafkaServices;
+    @Autowired
     private UserVerifyRequestServices verifyRequestServices;
     @Autowired
     private CommonBusiness commonBusiness;
@@ -44,8 +48,8 @@ public class UserBusinessImpl implements UserBusiness {
     private String superAdminUsername;
 
     @Override
-    public List<UserDto> getAllUser() {
-        List<User> users = userServices.getAllUser();
+    public List<UserDto> getAllUser(String status) {
+        List<User> users = userServices.getAllUser(status);
         List<UserDto> userDtos = new ArrayList<>();
         User currentUser = commonBusiness.getCurrentUser();
         // Filter list user
@@ -75,12 +79,7 @@ public class UserBusinessImpl implements UserBusiness {
 
     @Override
     public BaseUserDto getUserBase(int id) {
-        User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
-        // Check permission red info user
-        if (user == null || (currentUser.getId() != id && !userServices.hasPermissionManageUser(currentUser, user))) {
-            return null;
-        }
 
         // Remove information parent user if parent user is super admin
         if (user.getParent() != null && Objects.equals(user.getParent().getUsername(), superAdminUsername)) {
@@ -146,7 +145,11 @@ public class UserBusinessImpl implements UserBusiness {
         }
         User newUser = userServices.saveUser(currentUser, user);
         // Send mail
-        userServices.sendConfirmCreateUserMail(newUser);
+        try {
+            kafkaServices.sendMessage("createUser", "{\"id\": " + newUser.getId() + ", \"fullname\": \"" + newUser.getFullName() + "\", \"email\": \"" + newUser.getEmail() + "\", \"code\": \"" + newUser.getCode() + "\"}");
+        } catch (Exception e) {
+            CommonLogger.error("Error kafka");
+        }
         return convertUserToUserDto(newUser);
     }
 
@@ -320,13 +323,13 @@ public class UserBusinessImpl implements UserBusiness {
     public int getNumberAccount() {
         User currentUser = commonBusiness.getCurrentUser();
         if (userServices.hasRole(currentUser, Const.ROLE_SUPER_ADMIN)) {
-            List<User> users = userServices.getAllUser();
+            List<User> users = userServices.getAllUser(Const.ACTIVE);
             return users.size();
         } else if (currentUser.getParent() != null && Objects.equals(currentUser.getParent().getUsername(), superAdminUsername)) {
             Integer organizationId = commonBusiness.getCurrentUser().getOrganizationId();
             return userServices.getNumberUserOfOrganization(organizationId);
         } else {
-            return getAllUser().size();
+            return getAllUser(Const.ACTIVE).size();
         }
     }
 
@@ -342,12 +345,12 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public List<UserDto> getUsersOfCurrentUser() {
+    public List<BaseUserDto> getUsersOfCurrentUser() {
         User currentUser = commonBusiness.getCurrentUser();
         List<User> users = userServices.getUsersByParentId(currentUser.getId());
-        List<UserDto> userDtos = new ArrayList<>();
+        List<BaseUserDto> userDtos = new ArrayList<>();
         users.forEach(user -> {
-            userDtos.add(convertUserToUserDto(user));
+            userDtos.add(convertUserToBaseUserDto(user));
         });
         return userDtos;
     }

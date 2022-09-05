@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM khipu/openjdk17-alpine
 ENV APP_FILE config-service-1.0-SNAPSHOT.jar
 ENV APP_HOME /app
 EXPOSE 8088

@@ -9,6 +9,7 @@ import com.comit.services.employee.middleware.EmployeeVerifyRequestServices;
 import com.comit.services.employee.model.dto.*;
 import com.comit.services.employee.model.entity.Employee;
 import com.comit.services.employee.service.EmployeeServices;
+import com.comit.services.employee.service.KafkaServices;
 import com.comit.services.employee.util.ExcelUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -35,13 +36,20 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     private EmployeeVerifyRequestServices employeeVerifyRequestServices;
     @Autowired
     private EmployeeServices employeeServices;
+    @Autowired
+    private KafkaServices kafkaServices;
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
     @Override
-    public Page<Employee> getEmployeePage(String status, int page, int size, String search) {
+    public Page<Employee> getEmployeePage(Integer locationId, String status, int page, int size, String search) {
         Pageable paging = PageRequest.of(page, size);
-        LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
+        if (locationId == null) {
+            LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
+            locationId = locationDtoClient.getId();
+        }
 
-        return employeeServices.getEmployeePage(locationDtoClient.getId(), status, search, paging);
+        return employeeServices.getEmployeePage(locationId, status, search, paging);
     }
 
     @Override
@@ -49,6 +57,15 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         List<EmployeeDto> employeeDtos = new ArrayList<>();
         employees.forEach(employee -> {
             employeeDtos.add(convertEmployeeToEmployeeDto(employee));
+        });
+        return employeeDtos;
+    }
+
+    @Override
+    public List<BaseEmployeeDto> getAllEmployeeBase(List<Employee> employees) {
+        List<BaseEmployeeDto> employeeDtos = new ArrayList<>();
+        employees.forEach(employee -> {
+            employeeDtos.add(convertEmployeeToBaseEmployeeDto(employee));
         });
         return employeeDtos;
     }
@@ -263,9 +280,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public BaseEmployeeDto getEmployeeBase(int id) {
-        // Get employee in location
-        LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
-        Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
+        Employee employee = employeeServices.getEmployee(id);
         if (employee == null) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
@@ -274,15 +289,13 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     }
 
     @Override
-    public EmployeeDto getEmployee(String code) {
-        // Get employee in location
-        LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
-        Employee employee = employeeServices.getEmployee(code, locationDtoClient.getId());
+    public BaseEmployeeDto getEmployeeBase(String code) {
+        Employee employee = employeeServices.getEmployee(code);
         if (employee == null) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
-        return convertEmployeeToEmployeeDto(employee);
+        return convertEmployeeToBaseEmployeeDto(employee);
     }
 
     @Override
@@ -442,8 +455,19 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         return employeeServices.getNumberEmployeeOfLocation(locationId);
     }
 
+    @Override
+    public BaseEmployeeDto getEmployeeBaseByEmbeddingId(int embeddingId) {
+        Employee employee = employeeServices.getEmployeeByEmbeddingId(embeddingId);
+        if (employee == null) {
+            throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
+        }
+
+        return convertEmployeeToBaseEmployeeDto(employee);
+    }
+
     private void sendMailQrCode(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode) {
-        employeeServices.sendQrCodeEmail(mailTo, fullname, employeeCode, organizationName, locationName, locationCode);
+        String moduleName = httpServletRequest.getHeader(Const.HEADER_MODULE);
+        kafkaServices.sendMessage("qrCode", "{\"email\":\"" + mailTo + "\",\"fullname\":\"" + fullname + "\",\"employee_code\":\"" + employeeCode + "\",\"organization_name\":\"" + organizationName + "\",\"location_name\":\"" + locationName + "\",\"location_code\":\"" + locationCode + "\",\"type\":\"" + moduleName + "\"}");
     }
 
     public BaseEmployeeDto convertEmployeeToBaseEmployeeDto(Employee employee) {

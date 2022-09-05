@@ -51,4 +51,9 @@ public class InOutHistoryServicesImpl implements InOutHistoryServices {
     public int getNumberCheckInCurrentDay(Integer locationId, Date timeStart, Date timeEnd) {
         return inOutHistoryRepository.countNumberCheckIn(locationId, timeStart, timeEnd, Const.CHECK_IN);
     }
+
+    @Override
+    public int getNumberHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd) {
+        return inOutHistoryRepository.countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(locationId, employeeId, timeStart, timeEnd);
+    }
 }

@@ -8,6 +8,7 @@ import com.comit.services.feature.client.response.RoleListResponseClient;
 import com.comit.services.feature.client.response.RoleResponseClient;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.exception.RestApiException;
+import com.comit.services.feature.loging.model.CommonLogger;
 import com.comit.services.feature.model.entity.Feature;
 import com.comit.services.feature.repository.FeatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ public class FeatureServicesImpl implements FeatureServices {
     public boolean currentUserIsSuperAdmin() {
         CheckRoleResponseClient checkRoleResponseClient = accountClient.isCurrentUserSuperAdmin(httpServletRequest.getHeader("token")).getBody();
         if (checkRoleResponseClient == null) {
+            CommonLogger.error("Check current user is super admin error");
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }
         return checkRoleResponseClient.isSuperAdmin();

@@ -16,9 +16,14 @@ public class TimeUtil {
     // ================================ Time ================================
     public static DateTimeZone asiaHoChiMinh = DateTimeZone.forID("Asia/Ho_Chi_Minh");
 
-    public static Date stringDateToDate(String date) throws ParseException {
+    public static Date stringDateToDate(String date) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        return formatter.parse(date);
+        try {
+            return formatter.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new DateTime(asiaHoChiMinh).toDate();
     }
 
     public static String getCurrentDateTimeStr() {

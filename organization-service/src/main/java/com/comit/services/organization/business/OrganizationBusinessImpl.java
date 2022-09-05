@@ -5,6 +5,7 @@ import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.exception.RestApiException;
 import com.comit.services.organization.middleware.OrganizationVerifyRequestServices;
+import com.comit.services.organization.model.dto.BaseOrganizationDto;
 import com.comit.services.organization.model.dto.OrganizationDto;
 import com.comit.services.organization.model.entity.Organization;
 import com.comit.services.organization.service.OrganizationServices;
@@ -70,17 +71,22 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
     }
 
     @Override
-    public OrganizationDto getOrganization(String name) {
-        Organization organization = organizationServices.getOrganization(name);
-
-        boolean hasRole = organizationServices.hasPermissionManageOrganization();
-        if (!hasRole) {
-//            throw new CommonException(ErrorCode.PERMISSION_DENIED);
-            return null;
-        }
+    public BaseOrganizationDto getOrganizationBase(int id) {
+        Organization organization = organizationServices.getOrganization(id);
 
         if (organization != null) {
-            return convertOrganizationToOrganizationDto(organization);
+            return convertOrganizationToBaseOrganizationDto(organization);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public BaseOrganizationDto getOrganizationBase(String name) {
+        Organization organization = organizationServices.getOrganization(name);
+
+        if (organization != null) {
+            return convertOrganizationToBaseOrganizationDto(organization);
         } else {
             return null;
         }
@@ -172,6 +178,16 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
             }
         }
         return null;
+    }
+
+    public BaseOrganizationDto convertOrganizationToBaseOrganizationDto(Organization organization) {
+        if (organization == null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        try {
+            return modelMapper.map(organization, BaseOrganizationDto.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public OrganizationDto convertOrganizationToOrganizationDto(Organization organization) {

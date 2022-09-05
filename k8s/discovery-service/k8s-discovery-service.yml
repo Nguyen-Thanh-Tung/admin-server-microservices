@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: discovery-cm
+data:
+  discovery_service_address: http://k8s-discovery-service.discovery-service:8071/eureka
+  config_service_url: http://10.10.2.202:8088
+  zipkin_server_address: http://10.10.2.202:9411
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-service
+spec:
+  selector:
+    app: k8s-discovery-service
+  ports:
+    - port: 8071
+      name: discovery-service
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-lb
+  labels:
+    app: discovery-service
+spec:
+  selector:
+    app: k8s-discovery-service
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8071
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: k8s-discovery-service
+  labels:
+    app: k8s-discovery-service
+spec:
+  serviceName: "discovery-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-discovery-service
+  template:
+    metadata:
+      labels:
+        app: k8s-discovery-service
+    spec:
+      containers:
+        - name: discovery-service
+          image: thanhtungtvg95/discovery-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8071
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: discovery-cm
+            - name: DISCOVERY_SERVICE_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: discovery_service_address
+                  name: discovery-cm
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: discovery-cm
+

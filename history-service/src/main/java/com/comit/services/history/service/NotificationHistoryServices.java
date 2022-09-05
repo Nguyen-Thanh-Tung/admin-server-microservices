@@ -36,11 +36,15 @@ public interface NotificationHistoryServices {
 
     int getNumberARHasNotifyNotResolveAndUsingRing(Integer locationId, Date timeStart, Date timeEnd);
 
-    int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, Date startDay, Date now);
+    int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, Date startDay, Date now, String status);
 
     boolean updateStatusNotificationHistory(int id);
 
     int getNumberUserNotificationInDay(Integer locationId, Date timeStart, Date timeEnd);
 
     int getNumberLateInMonth(Integer locationId, Date timeStart, Date timeEnd);
+
+    boolean hasHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
+
+    int getNumberNotification(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
 }

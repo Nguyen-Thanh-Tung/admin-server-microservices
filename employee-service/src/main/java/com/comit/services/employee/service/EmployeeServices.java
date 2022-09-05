@@ -13,7 +13,9 @@ public interface EmployeeServices {
 
     Employee getEmployee(int employeeId, Integer locationId);
 
-    Employee getEmployee(String employeeCode, Integer locationId);
+    Employee getEmployee(int employeeId);
+
+    Employee getEmployee(String employeeCode);
 
     Employee saveEmployee(Employee employee);
 
@@ -53,8 +55,6 @@ public interface EmployeeServices {
 
     OrganizationDtoClient getOrganizationOfCurrentUser();
 
-    void sendQrCodeEmail(String mailTo, String fullname, String employeeCode, String organizationName, String locationName, String locationCode);
-
     int getNumberEmployeeOfLocation(Integer locationId);
 
     ShiftDtoClient getShift(int shiftId);
@@ -64,4 +64,6 @@ public interface EmployeeServices {
     List<AreaEmployeeTimeDtoClient> getAreaEmployeeTimesOfEmployee(int employeeId);
 
     LocationDtoClient getLocationById(Integer locationId);
+
+    Employee getEmployeeByEmbeddingId(int embeddingId);
 }

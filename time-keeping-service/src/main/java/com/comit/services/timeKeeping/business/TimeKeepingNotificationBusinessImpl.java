@@ -38,6 +38,12 @@ public class TimeKeepingNotificationBusinessImpl implements TimeKeepingNotificat
     }
 
     @Override
+    public TimeKeepingNotificationDto getTimeKeepingNotification(Integer locationId) {
+        TimeKeepingNotification timeKeepingNotification = timeKeepingNotificationServices.getTimeKeepingNotification(locationId);
+        return convertTimeKeepingNotificationToDto(timeKeepingNotification);
+    }
+
+    @Override
     public TimeKeepingNotificationDto updateTimeKeepingNotification(int id, TimeKeepingNotificationRequest request) {
         timeKeepingVerifyRequestServices.verifyUpdateTimeKeepingNotificationRequest(request);
 

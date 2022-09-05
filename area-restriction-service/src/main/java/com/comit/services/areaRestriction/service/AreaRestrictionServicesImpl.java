@@ -55,6 +55,11 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     }
 
     @Override
+    public AreaRestriction getAreaRestriction(int id) {
+        return areaRestrictionRepository.findById(id);
+    }
+
+    @Override
     public AreaRestriction getAreaRestriction(Integer locationId, String name) {
         return areaRestrictionRepository.findByLocationIdAndName(locationId, name);
     }
@@ -97,12 +102,12 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     }
 
     @Override
-    public EmployeeDtoClient getEmployee(Integer managerId, Integer locationId) {
+    public EmployeeDtoClient getEmployee(Integer managerId) {
         EmployeeResponseClient employeeResponseClient = employeeClient.getEmployee(httpServletRequest.getHeader("token"), managerId).getBody();
         if (employeeResponseClient == null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
         }
-        return Objects.equals(employeeResponseClient.getEmployee().getLocationId(), locationId) ? employeeResponseClient.getEmployee() : null;
+        return employeeResponseClient.getEmployee();
     }
 
     @Override

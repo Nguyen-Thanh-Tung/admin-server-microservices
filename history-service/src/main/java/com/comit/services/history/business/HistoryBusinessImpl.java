@@ -51,6 +51,7 @@ public class HistoryBusinessImpl implements HistoryBusiness {
     public LocationDto convertLocationDtoFromClient(Integer locationId) {
         if (locationId == null) return null;
         LocationDtoClient locationDtoClient = historyServices.getLocation(locationId);
+        if (locationDtoClient == null) return null;
         LocationDto locationDto = new LocationDto();
         locationDto.setId(locationDtoClient.getId());
         locationDto.setName(locationDtoClient.getName());
@@ -63,6 +64,7 @@ public class HistoryBusinessImpl implements HistoryBusiness {
     public AreaRestrictionDto convertAreaRestrictionDtoFromClient(Integer locationId, Integer areaRestrictionId) {
         if (locationId == null || areaRestrictionId == null) return null;
         AreaRestrictionDtoClient areaRestrictionDtoClient = historyServices.getAreaRestriction(locationId, areaRestrictionId);
+        if (areaRestrictionDtoClient == null) return null;
         AreaRestrictionDto areaRestrictionDto = new AreaRestrictionDto();
         areaRestrictionDto.setId(areaRestrictionDtoClient.getId());
         areaRestrictionDto.setName(areaRestrictionDtoClient.getName());
@@ -75,6 +77,7 @@ public class HistoryBusinessImpl implements HistoryBusiness {
     public EmployeeDto convertEmployeeDtoFromClient(Integer employeeId) {
         if (employeeId == null) return null;
         EmployeeDtoClient employeeDtoClient = historyServices.getEmployee(employeeId);
+        if (employeeDtoClient == null) return null;
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setId(employeeDtoClient.getId());
         employeeDto.setName(employeeDtoClient.getName());
@@ -90,6 +93,7 @@ public class HistoryBusinessImpl implements HistoryBusiness {
     public MetadataDto convertMetadataDtoFromClient(Integer metadataId) {
         if (metadataId == null) return null;
         MetadataDtoClient metadataDtoClient = historyServices.getMetadata(metadataId);
+        if (metadataDtoClient == null) return null;
         MetadataDto metadataDto = new MetadataDto();
         metadataDto.setId(metadataDtoClient.getId());
         metadataDto.setPath(metadataDtoClient.getPath());

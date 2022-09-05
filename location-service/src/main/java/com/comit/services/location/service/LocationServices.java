@@ -20,7 +20,7 @@ public interface LocationServices {
 
     boolean existLocation(String code, Integer organizationId);
 
-    List<Location> getAllLocationByOrganizationId(int organizationId);
+    List<Location> getAllLocationByOrganizationId(int organizationId, String type);
 
     OrganizationDtoClient getOrganizationOfCurrentUser();
 

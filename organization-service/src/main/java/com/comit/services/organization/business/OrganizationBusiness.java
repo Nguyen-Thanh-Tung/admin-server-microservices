@@ -1,6 +1,7 @@
 package com.comit.services.organization.business;
 
 import com.comit.services.organization.controller.request.OrganizationRequest;
+import com.comit.services.organization.model.dto.BaseOrganizationDto;
 import com.comit.services.organization.model.dto.OrganizationDto;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +13,9 @@ public interface OrganizationBusiness {
 
     OrganizationDto getOrganization(int id);
 
-    OrganizationDto getOrganization(String search);
+    BaseOrganizationDto getOrganizationBase(int id);
+
+    BaseOrganizationDto getOrganizationBase(String search);
 
     OrganizationDto addOrganization(OrganizationRequest addOrganizationRequest);
 

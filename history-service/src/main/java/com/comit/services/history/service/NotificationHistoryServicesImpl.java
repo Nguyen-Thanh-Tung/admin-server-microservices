@@ -111,8 +111,11 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
     }
 
     @Override
-    public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, Date startDay, Date now) {
-        return notificationHistoryRepository.countByAreaRestrictionIdAndTimeAfterAndTimeBefore(areaRestrictionId, startDay, now);
+    public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, Date startDay, Date now, String status) {
+        if (status == null) {
+            return notificationHistoryRepository.countByAreaRestrictionIdAndTimeAfterAndTimeBefore(areaRestrictionId, startDay, now);
+        }
+        return notificationHistoryRepository.countByAreaRestrictionIdAndTimeAfterAndTimeBeforeAndStatus(areaRestrictionId, startDay, now, status);
     }
 
     @Override
@@ -134,5 +137,15 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
     @Override
     public int getNumberLateInMonth(Integer locationId, Date timeStart, Date timeEnd) {
         return notificationHistoryRepository.countByLocationIdAndTimeAfterAndTimeBeforeAndType(locationId, timeStart, timeEnd, Const.MONTH_NOTIFICATION_TYPE);
+    }
+
+    @Override
+    public boolean hasHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd) {
+        return notificationHistoryRepository.countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(locationId, employeeId, timeStart, timeEnd) > 0;
+    }
+
+    @Override
+    public int getNumberNotification(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd) {
+        return notificationHistoryRepository.countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(locationId, employeeId, timeStart, timeEnd);
     }
 }

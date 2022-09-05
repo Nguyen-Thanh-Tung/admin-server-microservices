@@ -171,8 +171,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public BaseAreaRestrictionDto getAreaRestrictionBase(Integer id) {
-        LocationDtoClient locationDtoClient = areaRestrictionService.getLocationOfCurrentUser();
-        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDtoClient.getId(), id);
+        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(id);
         if (areaRestriction != null) {
             return convertAreaRestrictionToBaseAreaRestrictionDto(areaRestriction);
         }
@@ -181,19 +180,18 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public AreaRestrictionNotificationDto getAreaRestrictionNotification(Integer areaRestrictionId) {
-        LocationDtoClient locationDtoClient = areaRestrictionService.getLocationOfCurrentUser();
         NotificationMethod notificationMethod = notificationMethodServices.getNotificationMethodOfAreaRestriction(areaRestrictionId);
         List<AreaRestrictionManagerNotification> areaRestrictionManagerNotifications = areaRestrictionManagerNotificationBusiness.getAreaManagerTimeList(areaRestrictionId);
         AreaRestrictionNotificationDto areaRestrictionNotificationDto = new AreaRestrictionNotificationDto();
         List<AreaRestrictionManagerNotificationDto> areaRestrictionManagerNotificationDtos = new ArrayList<>();
         for (AreaRestrictionManagerNotification areaRestrictionManagerNotification : areaRestrictionManagerNotifications) {
-            EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(areaRestrictionManagerNotification.getManagerId(), locationDtoClient.getId());
+            EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(areaRestrictionManagerNotification.getManagerId());
             AreaRestrictionManagerNotificationDto areaRestrictionManagerNotificationDto = new AreaRestrictionManagerNotificationDto();
             areaRestrictionManagerNotificationDto.setManager(convertEmployeeDtoFromClient(employeeDtoClient));
             areaRestrictionManagerNotificationDto.setTimeSkip(areaRestrictionManagerNotification.getTimeSkip());
             areaRestrictionManagerNotificationDtos.add(areaRestrictionManagerNotificationDto);
         }
-        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDtoClient.getId(), areaRestrictionId);
+        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(areaRestrictionId);
         areaRestrictionNotificationDto.setAreaRestrictionDto(convertAreaRestrictionToBaseAreaRestrictionDto(areaRestriction));
         areaRestrictionNotificationDto.setAreaRestrictionManagerNotifications(areaRestrictionManagerNotificationDtos);
         areaRestrictionNotificationDto.setNotificationMethod(NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod));
@@ -249,7 +247,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
             List<EmployeeDto> employeeDtos = new ArrayList<>();
             String[] tmp = areaRestriction.getManagerIds().split(",");
             for (String managerIdStr : tmp) {
-                EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(Integer.parseInt(managerIdStr), locationDtoClient.getId());
+                EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(Integer.parseInt(managerIdStr));
                 if (employeeDtoClient != null) {
                     employeeDtos.add(convertEmployeeDtoFromClient(employeeDtoClient));
                 }

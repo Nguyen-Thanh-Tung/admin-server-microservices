@@ -22,10 +22,9 @@ public class AreaRestrictionManagerNotificationBusinessImpl implements AreaRestr
 
     @Override
     public List<AreaRestrictionManagerNotification> saveAreaManagerTimeList(List<ManagerTimeSkip> managerTimeSkips, Integer areaRestrictionId) {
-        LocationDtoClient locationDtoClient = areaRestrictionServices.getLocationOfCurrentUser();
         List<AreaRestrictionManagerNotification> areaRestrictionManagerNotifications = new ArrayList<>();
         managerTimeSkips.forEach(managerTimeSkip -> {
-            EmployeeDtoClient managerDto = areaRestrictionServices.getEmployee(managerTimeSkip.getManagerId(), locationDtoClient.getId());
+            EmployeeDtoClient managerDto = areaRestrictionServices.getEmployee(managerTimeSkip.getManagerId());
             if (managerDto != null) {
                 AreaRestrictionManagerNotification areaRestrictionManagerNotification = new AreaRestrictionManagerNotification();
 

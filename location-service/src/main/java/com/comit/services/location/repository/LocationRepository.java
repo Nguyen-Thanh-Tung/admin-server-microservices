@@ -21,4 +21,6 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
     Page<Location> findByOrganizationIdAndTypeAndNameContainingOrOrganizationIdAndTypeAndCodeContainingOrderByIdDesc(Integer organizationId, String type, String search, Integer organizationId1, String type1, String search1, Pageable paging);
 
     List<Location> findAllByOrganizationId(int organizationId);
+
+    List<Location> findAllByOrganizationIdAndType(int organizationId, String type);
 }

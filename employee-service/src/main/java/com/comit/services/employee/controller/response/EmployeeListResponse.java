@@ -3,9 +3,13 @@ package com.comit.services.employee.controller.response;
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.model.dto.EmployeeDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class EmployeeListResponse extends BasePagingResponse {
     @JsonProperty(value = "employees")
     List<EmployeeDto> employeeDtos;

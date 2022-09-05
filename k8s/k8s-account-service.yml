@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: account-cm
+data:
+  database_server_address: 10.10.2.202:3306
+  zipkin_server_address: http://10.10.2.202:9411
+  kafka_server_address: 10.10.2.202:29092
+  change_password_url: http://10.10.2.202:3005/authentication/change-password
+  config_service_url: http://10.10.2.202:8088
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: account-service
+spec:
+  selector:
+    app: k8s-account-service
+  ports:
+    - port: 80
+      targetPort: 8080
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-account-service
+  labels:
+    app: k8s-account-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-account-service
+  template:
+    metadata:
+      labels:
+        app: k8s-account-service
+    spec:
+      containers:
+        - name: account-service
+          image: thanhtungtvg95/account-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: account-cm
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: account-cm
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: account-cm
+            - name: KAFKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: kafka_server_address
+                  name: account-cm
+            - name: CHANGE_PASSWORD_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: change_password_url
+                  name: account-cm
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: SUPERADMIN_FULLNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: sa_full_name
+            - name: SUPERADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: sa_username
+            - name: SUPERADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: sa_email
+            - name: SUPERADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: sa_password
+            - name: SUPERADMIN_ORGANIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: sa_organization
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: jwt_secret
+
+

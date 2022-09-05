@@ -2,4 +2,6 @@
 /.settings/
 .idea
 */logs
+.DS_Store
+logs
 

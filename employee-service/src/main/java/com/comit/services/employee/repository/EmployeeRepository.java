@@ -14,6 +14,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Employee findByIdAndLocationId(int id, Integer locationId);
 
+    Employee findById(int id);
+
+    Employee findByCode(String code);
+
     Employee findByCodeAndLocationId(String code, Integer locationId);
 
     Page<Employee> findByLocationIdAndNameContainingOrLocationIdAndCodeContainingOrderByStatusAscIdDescIdDesc(Integer location, String search, Integer location1, String search1, Pageable pageable);
@@ -27,4 +31,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     List<Employee> getByManagerId(int managerId);
 
     int countEmployeeByLocationIdAndStatus(Integer locationId, String status);
+
+    Employee findByEmbeddingId(int embeddingId);
 }

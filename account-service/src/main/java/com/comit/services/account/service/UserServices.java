@@ -15,7 +15,7 @@ public interface UserServices {
 
     boolean existUserByEmail(String email);
 
-    List<User> getAllUser();
+    List<User> getAllUser(String status);
 
     User getUser(int id);
 
@@ -47,11 +47,7 @@ public interface UserServices {
 
     OrganizationDtoClient addOrganization(Organization organization);
 
-    void sendForgetPasswordMail(User user);
-
     LocationDtoClient getLocation(Integer locationId);
-
-    void sendConfirmCreateUserMail(User newUser);
 
     MetadataDtoClient saveMetadata(MultipartFile file);
 

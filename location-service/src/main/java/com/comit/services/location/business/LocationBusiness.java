@@ -23,5 +23,5 @@ public interface LocationBusiness {
 
     BaseLocationDto getLocationBase(int id);
 
-    List<LocationDto> getAllLocationByOrganizationId(int organizationId);
+    List<BaseLocationDto> getAllLocationByOrganizationId(int organizationId, String type);
 }

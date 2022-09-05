@@ -6,6 +6,7 @@ import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.controller.response.BaseResponse;
 import com.comit.services.organization.controller.response.OrganizationListResponse;
 import com.comit.services.organization.controller.response.OrganizationResponse;
+import com.comit.services.organization.model.dto.BaseOrganizationDto;
 import com.comit.services.organization.model.dto.OrganizationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,17 @@ public class OrganizationController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<BaseResponse> getOrganization(@PathVariable int id) {
         OrganizationDto organizationDto = organizationBusiness.getOrganization(id);
+
+        if (organizationDto != null) {
+            return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.SUCCESS, organizationDto), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.SUCCESS, null), HttpStatus.OK);
+        }
+    }
+
+    @GetMapping(value = "/{id}/base")
+    public ResponseEntity<BaseResponse> getOrganizationBase(@PathVariable int id) {
+        BaseOrganizationDto organizationDto = organizationBusiness.getOrganizationBase(id);
 
         if (organizationDto != null) {
             return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.SUCCESS, organizationDto), HttpStatus.OK);
@@ -108,7 +120,7 @@ public class OrganizationController {
      */
     @GetMapping(value = "/name/{name}")
     public ResponseEntity<BaseResponse> getOrganization(@PathVariable String name) {
-        OrganizationDto organizationDto = organizationBusiness.getOrganization(name);
+        BaseOrganizationDto organizationDto = organizationBusiness.getOrganizationBase(name);
 
         if (organizationDto != null) {
             return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.SUCCESS, organizationDto), HttpStatus.OK);

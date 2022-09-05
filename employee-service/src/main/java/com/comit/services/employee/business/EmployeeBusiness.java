@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.util.List;
 
 public interface EmployeeBusiness {
-    Page<Employee> getEmployeePage(String status, int page, int size, String search);
+    Page<Employee> getEmployeePage(Integer locationId, String status, int page, int size, String search);
 
     List<EmployeeDto> getAllEmployee(List<Employee> content);
+
+    List<BaseEmployeeDto> getAllEmployeeBase(List<Employee> content);
 
     EmployeeDto saveEmployee(HttpServletRequest servletRequest);
 
@@ -23,7 +25,7 @@ public interface EmployeeBusiness {
 
     BaseEmployeeDto getEmployeeBase(int id);
 
-    EmployeeDto getEmployee(String code);
+    BaseEmployeeDto getEmployeeBase(String code);
 
     boolean deleteEmployee(int id);
 
@@ -34,4 +36,6 @@ public interface EmployeeBusiness {
     boolean sendQrCode(SendQrCodeRequest request);
 
     int getNumberEmployeeOfLocation(Integer locationId);
+
+    BaseEmployeeDto getEmployeeBaseByEmbeddingId(int embeddingId);
 }

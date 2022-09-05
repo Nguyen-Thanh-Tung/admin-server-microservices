@@ -86,11 +86,10 @@ public class AreaEmployeeTimeBusinessImpl implements AreaEmployeeTimeBusiness {
 
     public AreaEmployeeTimeDto convertAreaEmployeeTimeToAreaEmployeeTimeDto(AreaEmployeeTime areaEmployeeTime) {
         if (areaEmployeeTime == null) return null;
-        LocationDtoClient locationDtoClient = areaRestrictionServices.getLocationOfCurrentUser();
         try {
             ModelMapper modelMapper = new ModelMapper();
             AreaEmployeeTimeDto areaEmployeeTimeDto = modelMapper.map(areaEmployeeTime, AreaEmployeeTimeDto.class);
-            EmployeeDtoClient employeeDtoClient = areaRestrictionServices.getEmployee(areaEmployeeTime.getEmployeeId(), locationDtoClient.getId());
+            EmployeeDtoClient employeeDtoClient = areaRestrictionServices.getEmployee(areaEmployeeTime.getEmployeeId());
             EmployeeDto employeeDto = areaRestrictionBusiness.convertEmployeeDtoFromClient(employeeDtoClient);
             areaEmployeeTimeDto.setEmployee(employeeDto);
             return areaEmployeeTimeDto;

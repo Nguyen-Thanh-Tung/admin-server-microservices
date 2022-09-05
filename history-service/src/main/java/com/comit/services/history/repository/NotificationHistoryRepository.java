@@ -50,4 +50,8 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
     NotificationHistory findById(int id);
 
     int countByLocationIdAndTimeAfterAndTimeBeforeAndType(Integer locationId, Date timeStart, Date timeEnd, String monthNotificationType);
+
+    int countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(Integer locationId, Integer employeeId, Date time, Date time2);
+
+    int countByAreaRestrictionIdAndTimeAfterAndTimeBeforeAndStatus(Integer areaRestrictionId, Date startDay, Date now, String status);
 }

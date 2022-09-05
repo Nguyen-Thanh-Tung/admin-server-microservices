@@ -1,17 +1,9 @@
 FROM khipu/openjdk17-alpine
-
-RUN mkdir /app
-
-RUN addgroup -g 1001 -S comit
-
-RUN adduser -S crd -u 1001
-
-COPY target/*.jar /app/app.jar
-
-WORKDIR /app
-
-RUN chown -R crd:comit /app
-
-ENV TZ Asia/Ho_Chi_Minh
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV CONFIG_SERVICE_URL ""
+ENV APP_FILE account-service-1.0-SNAPSHOT.jar
+ENV APP_HOME /app
+EXPOSE 8080
+COPY target/$APP_FILE $APP_HOME/
+WORKDIR $APP_HOME
+ENTRYPOINT ["sh", "-c"]
+CMD ["exec java -jar $APP_FILE --configServiceUrl=$CONFIG_SERVICE_URL"]

@@ -139,13 +139,15 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     }
 
     @Override
-    public NotificationHistoryDto saveNotificationHistory(NotificationHistoryRequest request) throws ParseException {
+    public NotificationHistoryDto saveNotificationHistory(NotificationHistoryRequest request) {
         NotificationHistory notificationHistory = new NotificationHistory();
         notificationHistory.setCameraId(request.getCameraId());
         notificationHistory.setEmployeeId(request.getEmployeeId());
         notificationHistory.setTime(TimeUtil.stringDateToDate(request.getTime()));
         notificationHistory.setType(request.getType());
         notificationHistory.setImageId(request.getImageId());
+        notificationHistory.setAreaRestrictionId(request.getAreaRestrictionId());
+        notificationHistory.setLocationId(request.getLocationId());
         NotificationHistory newNotificationHistory = notificationHistoryServices.saveNotificationHistory(notificationHistory);
         return historyBusiness.convertNotificationHistoryToNotificationHistoryDto(newNotificationHistory);
     }
@@ -228,11 +230,27 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     }
 
     @Override
-    public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId) {
+    public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, String status) {
         // If param not have timeStart and timeEnd then set default
         Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
 
-        return notificationHistoryServices.getNumberNotificationOfAreaRestriction(areaRestrictionId, timeStart, timeEnd);
+        return notificationHistoryServices.getNumberNotificationOfAreaRestriction(areaRestrictionId, timeStart, timeEnd, status);
+    }
+
+    @Override
+    public boolean hasHistory(Integer locationId, Integer employeeId, String timeStartStr, String timeEndStr) {
+        Date timeStart = TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = TimeUtil.stringDateToDate(timeEndStr);
+
+        return notificationHistoryServices.hasHistory(locationId, employeeId, timeStart, timeEnd);
+    }
+
+    @Override
+    public int getNumberNotification(Integer locationId, Integer employeeId, String timeStartStr, String timeEndStr) {
+        Date timeStart = TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = TimeUtil.stringDateToDate(timeEndStr);
+
+        return notificationHistoryServices.getNumberNotification(locationId, employeeId, timeStart, timeEnd);
     }
 }

@@ -43,4 +43,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("select count(distinct u.organizationId) from User u join u.roles r where r.id in :roleIds")
     int getNumberOrganizationOfRoles(@Param("roleIds") List<Integer> roleIds);
+
+    List<User> findAllByStatusOrderByStatusAscIdDesc(String status);
 }

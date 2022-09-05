@@ -1,12 +1,10 @@
 package com.comit.services.account.service;
 
-import com.comit.services.account.client.MailClient;
 import com.comit.services.account.client.MetadataClient;
 import com.comit.services.account.client.OrganizationClient;
 import com.comit.services.account.client.data.LocationDtoClient;
 import com.comit.services.account.client.data.MetadataDtoClient;
 import com.comit.services.account.client.data.OrganizationDtoClient;
-import com.comit.services.account.client.request.MailRequestClient;
 import com.comit.services.account.client.request.OrganizationRequestClient;
 import com.comit.services.account.client.response.LocationResponseClient;
 import com.comit.services.account.client.response.MetadataResponseClient;
@@ -26,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -38,8 +35,6 @@ public class UserServicesImpl implements UserServices {
 
     @Autowired
     RequestHelper requestHelper;
-    @Autowired
-    MailClient mailClient;
     @Autowired
     OrganizationClient organizationClient;
     @Autowired
@@ -60,11 +55,11 @@ public class UserServicesImpl implements UserServices {
         return userRepository.existsByEmailAndStatusNotIn(email, List.of(Const.DELETED));
     }
 
-    public List<User> getAllUser() {
-        Iterable<User> userIterable = userRepository.findAllByStatusNotIn(List.of(Const.DELETED));
-        List<User> users = new ArrayList<>();
-        userIterable.forEach(users::add);
-        return users;
+    public List<User> getAllUser(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return userRepository.findAll();
+        }
+        return userRepository.findAllByStatusOrderByStatusAscIdDesc(status);
     }
 
     public User getUser(int id) {
@@ -219,12 +214,6 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public void sendForgetPasswordMail(User user) {
-        MailRequestClient mailRequestClient = new MailRequestClient(user.getEmail(), user.getFullName(), user.getId(), user.getCode());
-        mailClient.sendMailForgetPassword(httpServletRequest.getHeader("token"), mailRequestClient);
-    }
-
-    @Override
     public LocationDtoClient getLocation(Integer locationId) {
         if (locationId == null) {
             return null;
@@ -240,12 +229,6 @@ public class UserServicesImpl implements UserServices {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
         return locationResponseClient.getLocation();
-    }
-
-    @Override
-    public void sendConfirmCreateUserMail(User newUser) {
-        MailRequestClient mailRequestClient = new MailRequestClient(newUser.getEmail(), newUser.getFullName(), newUser.getId(), newUser.getCode());
-        mailClient.sendMailConfirmCreateUser(httpServletRequest.getHeader("token"), mailRequestClient);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.request.LocationRequest;
 import com.comit.services.location.controller.response.BaseResponse;
+import com.comit.services.location.controller.response.LocationListBaseResponse;
 import com.comit.services.location.controller.response.LocationListResponse;
 import com.comit.services.location.controller.response.LocationResponse;
 import com.comit.services.location.model.dto.BaseLocationDto;
@@ -96,8 +97,8 @@ public class LocationController {
     }
 
     @GetMapping("/organization/{organizationId}")
-    ResponseEntity<LocationListResponse> getLocationsByOrganizationId(@PathVariable int organizationId) {
-        List<LocationDto> locationDtos = locationBusiness.getAllLocationByOrganizationId(organizationId);
-        return new ResponseEntity<>(new LocationListResponse(LocationErrorCode.SUCCESS, locationDtos, 0, locationDtos.size(), 1), HttpStatus.OK);
+    ResponseEntity<LocationListBaseResponse> getLocationsByOrganizationId(@PathVariable int organizationId, @RequestParam(required = false) String type) {
+        List<BaseLocationDto> locationDtos = locationBusiness.getAllLocationByOrganizationId(organizationId, type);
+        return new ResponseEntity<>(new LocationListBaseResponse(LocationErrorCode.SUCCESS, locationDtos, 0, locationDtos.size(), 1), HttpStatus.OK);
     }
 }

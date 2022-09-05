@@ -19,7 +19,7 @@ public interface NotificationHistoryBusiness {
 
     List<NotificationHistoryDto> getAllNotificationHistory(List<NotificationHistory> content);
 
-    NotificationHistoryDto saveNotificationHistory(NotificationHistoryRequest request) throws ParseException;
+    NotificationHistoryDto saveNotificationHistory(NotificationHistoryRequest request);
 
     Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIds, String status, int page, int size);
 
@@ -37,5 +37,9 @@ public interface NotificationHistoryBusiness {
 
     int getNumberARHasNotifyNotResolveAndUsingRing();
 
-    int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId);
+    int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, String status);
+
+    boolean hasHistory(Integer locationId, Integer employeeId, String timeStart, String timeEnd);
+
+    int getNumberNotification(Integer locationId, Integer employeeId, String timeStart, String timeEnd);
 }

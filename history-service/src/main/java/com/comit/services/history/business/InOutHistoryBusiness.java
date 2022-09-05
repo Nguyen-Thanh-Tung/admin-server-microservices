@@ -15,7 +15,9 @@ public interface InOutHistoryBusiness {
 
     List<InOutHistoryDto> getAllInOutHistory(List<InOutHistory> content);
 
-    InOutHistoryDto saveInOutHistory(InOutHistoryRequest inOutHistoryRequest) throws ParseException;
+    InOutHistoryDto saveInOutHistory(InOutHistoryRequest inOutHistoryRequest);
 
     int getNumberCheckInCurrentDay();
+
+    int getNumberHistory(Integer locationId, Integer employeeId, String timeStart, String timeEnd);
 }

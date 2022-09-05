@@ -21,4 +21,6 @@ public interface InOutHistoryServices {
     Page<InOutHistory> getInOutHistoryPageOfAreaRestrictionList(List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, Pageable paging);
 
     int getNumberCheckInCurrentDay(Integer id, Date timeStart, Date timeEnd);
+
+    int getNumberHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
 }

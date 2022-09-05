@@ -24,4 +24,6 @@ public interface InOutHistoryRepository extends JpaRepository<InOutHistory, Inte
 
     @Query("select count (distinct o.employeeId) from InOutHistory o where o.locationId = ?1 and o.time between ?2 and ?3 and o.type = ?4")
     int countNumberCheckIn(Integer locationId, Date timeStart, Date timeEnd, String type);
+
+    int countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
 }

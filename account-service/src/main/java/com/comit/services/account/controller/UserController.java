@@ -35,8 +35,8 @@ public class UserController {
      * @return BaseResponse
      */
     @GetMapping(value = "")
-    public ResponseEntity<BaseResponse> getAllUser() {
-        List<UserDto> userDtos = userBusiness.getAllUser();
+    public ResponseEntity<BaseResponse> getAllUser(@RequestParam(required = false) String status) {
+        List<UserDto> userDtos = userBusiness.getAllUser(status);
         return new ResponseEntity<>(new UserListResponse(UserErrorCode.SUCCESS, userDtos), HttpStatus.OK);
     }
 
@@ -165,9 +165,9 @@ public class UserController {
     }
 
     @GetMapping("/current/users")
-    ResponseEntity<UserListResponse> getUsersOfCurrentUser() {
-        List<UserDto> userDtos = userBusiness.getUsersOfCurrentUser();
-        return new ResponseEntity<>(new UserListResponse(UserErrorCode.SUCCESS, userDtos), HttpStatus.OK);
+    ResponseEntity<UserListBaseResponse> getUsersOfCurrentUser() {
+        List<BaseUserDto> userDtos = userBusiness.getUsersOfCurrentUser();
+        return new ResponseEntity<>(new UserListBaseResponse(UserErrorCode.SUCCESS, userDtos), HttpStatus.OK);
     }
 
     @GetMapping("/current/roles")
