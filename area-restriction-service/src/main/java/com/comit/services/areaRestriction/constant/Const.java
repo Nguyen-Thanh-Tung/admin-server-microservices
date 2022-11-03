@@ -68,4 +68,30 @@ public interface Const {
 
     String DEFAULT_SIZE_PAGE = Integer.MAX_VALUE + "";
     String DEFAULT_PAGE = "0";
+
+    // method
+    String POST = "POST";
+    String GET = "GET";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
+
+    // action
+    String ADD_AREA = "Thêm khu vực hạn chế";
+    String UPDATE_AREA = "Cập nhật thông tin khu vực hạn chế";
+    String DELETE_AREA = "Xóa khu vực hạn chế";
+    String UPDATE_AREA_NOTIFICATION = "Cập nhật thông tin cài đặt khu vực hạn chế";
+    String DELETE_AREA_MANAGER = "Xóa quản lý khỏi tất cả các khu vực đang quản lý";
+    String DELETE_AREA_MANAGER_NOTIFICATION = "Xóa quản lý khỏi tất cả các khu vực đang được thêm để nhận cảnh báo";
+    String ADD_AREA_EMPLOYEE_TIME = "Thêm danh sách khu vực hạn chế và thời gian cho phép vào khu vực của nhân viên";
+
+    // app route
+    String AREA_AR = "/area-restrictions";
+    String AREA_ID_AR = "/area-restrictions/[0-9]+";
+    String AREA_ID_NOTIFICATION_AR = "/area-restrictions/[0-9]+/notification";
+    String AREA_MANAGER_AR = "/area-restrictions/manager/[0-9]+";
+    String AREA_MANAGER_NOTIFICATION_AR = "/area-restrictions/manager/[0-9]+/notification-manager";
+    String AREA_EMPLOYEE_TIME_AR = "/area-restrictions/area-employee-times";
+
+    // scope api
+    String INTERNAL = "internal";
 }

@@ -56,7 +56,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     public List<EmployeeDto> getAllEmployee(List<Employee> employees) {
         List<EmployeeDto> employeeDtos = new ArrayList<>();
         employees.forEach(employee -> {
-            employeeDtos.add(convertEmployeeToEmployeeDto(employee));
+            employeeDtos.add(convertEmployeeToEmployeeDto(employee, 0));
         });
         return employeeDtos;
     }
@@ -107,6 +107,13 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             if (addFaceResponse != null) {
                 try {
                     JsonObject obj = new JsonParser().parse(addFaceResponse).getAsJsonObject();
+                    if (obj.has("code")) {
+                        int responseBodyCode = obj.get("code").getAsInt();
+                        if (responseBodyCode != 200) {
+                            throw new RestApiException(0, obj.get("message").getAsString());
+                        }
+                    }
+
                     if (obj.has("data")) {
                         JsonObject dataObj = obj.getAsJsonObject("data");
                         employee.setName(name);
@@ -130,7 +137,8 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                                     }
 
                                     // Add image
-                                    MetadataDtoClient metadataDtoClient = employeeServices.saveMetadata(dataObj.get("image_path").getAsString());
+                                    MetadataDtoClient metadataDtoClient = employeeServices.saveMetadata(
+                                            dataObj.get("image_path").getAsString(), embeddingId, locationDtoClient.getId());
                                     employee.setImageId(metadataDtoClient.getId());
 
                                     if (Objects.equals(locationDtoClient.getType(), Const.TIME_KEEPING_TYPE)) {
@@ -145,7 +153,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                                         }
                                     }
 
-                                    return convertEmployeeToEmployeeDto(newEmployee);
+                                    return convertEmployeeToEmployeeDto(newEmployee, 0);
                                 } catch (Exception e) {
                                     if (e instanceof RestApiException) {
                                         throw e;
@@ -192,8 +200,10 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             MultipartFile file = multipartHttpServletRequest.getFile("image");
             String name = request.getParameter("name");
             String code = request.getParameter("code");
-            String email = request.getParameter("email");
-            String phone = request.getParameter("phone");
+            String email = (request.getParameter("email") == null || request.getParameter("email").trim().equals("")) ?
+                    employee.getEmail() : request.getParameter("email");
+            String phone = (request.getParameter("phone") == null || request.getParameter("phone").trim().equals("")) ?
+                    employee.getPhone() : request.getParameter("phone");
             String managerId = request.getParameter("manager_id");
             String shiftIds = request.getParameter("shift_ids");
 
@@ -261,7 +271,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
             Employee newEmployee = employeeServices.saveEmployee(employee);
 
-            return convertEmployeeToEmployeeDto(newEmployee);
+            return convertEmployeeToEmployeeDto(newEmployee, 0);
         }
         return null;
     }
@@ -275,7 +285,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
-        return convertEmployeeToEmployeeDto(employee);
+        return convertEmployeeToEmployeeDto(employee, 0);
     }
 
     @Override
@@ -290,12 +300,27 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public BaseEmployeeDto getEmployeeBase(String code) {
-        Employee employee = employeeServices.getEmployee(code);
+        // Get employee in location
+        LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
+        Employee employee = employeeServices.getEmployee(code, locationDtoClient.getId());
         if (employee == null) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
         return convertEmployeeToBaseEmployeeDto(employee);
+    }
+
+    @Override
+    public List<BaseEmployeeDto> getEmployeesBase(String code) {
+        List<Employee> employees = employeeServices.getEmployees(code);
+        if (employees == null) {
+            throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
+        }
+        List<BaseEmployeeDto> baseEmployeeDtos = new ArrayList<>();
+        for (Employee employee: employees) {
+            baseEmployeeDtos.add(convertEmployeeToBaseEmployeeDto(employee));
+        }
+        return baseEmployeeDtos;
     }
 
     @Override
@@ -307,6 +332,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
 
+        // delete image in core ai
         employeeServices.getDeleteEmployeeImageResponse(employee.getEmbeddingId(), employee.getLocationId());
         // Update employees and manager and status of employee
         employee.setManagerId(null);
@@ -345,6 +371,12 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         List<Employee> oldManagerEmployees = employeeServices.getEmployeeOfManager(oldManagerId);
         List<Employee> newManagerEmployees = employeeServices.getEmployeeOfManager(newManagerId);
 
+        // Check if employees of old manager has manager of new manager
+        for (Employee employee: oldManagerEmployees) {
+            if (newManager.getManagerId() != null && newManager.getManagerId() == employee.getId()) {
+                throw new RestApiException(EmployeeErrorCode.MANAGER_IS_EMPLOYEE);
+            }
+        }
         List<Employee> newManagerEmployeesCopy = new ArrayList<>(newManagerEmployees);
         newManagerEmployeesCopy.removeAll(oldManagerEmployees);
         oldManagerEmployees.addAll(newManagerEmployeesCopy);
@@ -356,7 +388,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             employee.setManagerId(newManager.getId());
             employeeServices.saveEmployee(employee);
         }
-        return convertEmployeeToEmployeeDto(newManager);
+        return convertEmployeeToEmployeeDto(newManager, 0);
     }
 
     @Override
@@ -488,9 +520,10 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         }
     }
 
-    public EmployeeDto convertEmployeeToEmployeeDto(Employee employee) {
+    public EmployeeDto convertEmployeeToEmployeeDto(Employee employee, Integer pos) {
         if (employee == null) return null;
         try {
+            pos++;
             ModelMapper modelMapper = new ModelMapper();
             EmployeeDto employeeDto = modelMapper.map(employee, EmployeeDto.class);
             // Location of employee
@@ -508,9 +541,12 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             // Employees of employee
             List<Employee> employeesOfEmployee = employeeServices.getEmployeeOfManager(employee.getId());
             List<EmployeeDto> employeesOfEmployeeDtos = new ArrayList<>();
-            employeesOfEmployee.forEach(tmp -> {
-                employeesOfEmployeeDtos.add(convertEmployeeToEmployeeDto(tmp));
-            });
+            if (pos == 1) {
+                Integer finalPos = pos;
+                employeesOfEmployee.forEach(tmp -> {
+                    employeesOfEmployeeDtos.add(convertEmployeeToEmployeeDto(tmp, finalPos));
+                });
+            }
             employeeDto.setEmployees(employeesOfEmployeeDtos);
             if (employee.getShiftIds() != null) {
                 // Shift of employee

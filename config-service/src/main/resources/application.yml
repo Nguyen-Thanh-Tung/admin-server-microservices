@@ -1,11 +1,11 @@
 server:
   port: 8088
 spring:
+  profiles:
+    active: native
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/Nguyen-Thanh-Tung/admin-server-microservice-config-service
-          clone-on-start: true
-          default-label: ${branch}
-          skipSslValidation: true
+        native:
+          searchLocations: ${configLocation}
+

@@ -26,4 +26,6 @@ public interface InOutHistoryRepository extends JpaRepository<InOutHistory, Inte
     int countNumberCheckIn(Integer locationId, Date timeStart, Date timeEnd, String type);
 
     int countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
+
+    InOutHistory findById(int id);
 }

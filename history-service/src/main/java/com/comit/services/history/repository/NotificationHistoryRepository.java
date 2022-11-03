@@ -30,7 +30,7 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
 
     Page<NotificationHistory> findByLocationIdAndStatusOrderByTimeDesc(Integer location, String status, Pageable paging);
 
-    Page<NotificationHistory> findByLocationIdAndAreaRestrictionIdInAndStatusOrderByTimeDesc(Integer location, List<Integer> areaRestrictionIds, String status, Pageable paging);
+    Page<NotificationHistory> findByLocationIdAndAreaRestrictionIdInAndTimeAfterAndTimeBeforeAndStatusOrderByTimeDesc(Integer location, List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, String status, Pageable paging);
 
     int countByLocationIdAndTimeAfterAndTimeBefore(Integer location, Date timeStart, Date timeEnd);
 
@@ -54,4 +54,46 @@ public interface NotificationHistoryRepository extends JpaRepository<Notificatio
     int countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(Integer locationId, Integer employeeId, Date time, Date time2);
 
     int countByAreaRestrictionIdAndTimeAfterAndTimeBeforeAndStatus(Integer areaRestrictionId, Date startDay, Date now, String status);
+    
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Integer cameraId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Integer cameraId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Integer cameraId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Integer cameraId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer cameraId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer cameraId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer cameraId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer cameraId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdNotNullAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndEmployeeIdIsNullAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndAreaRestrictionIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Integer cameraId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndAreaRestrictionIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Integer cameraId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndAreaRestrictionIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndAreaRestrictionIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer areaRestrictionId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer cameraId, String status, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, Integer cameraId, Date timeStart, Date timeEnd, Pageable paging);
+
+    Page<NotificationHistory> findByLocationIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(Integer locationId, String status, Date timeStart, Date timeEnd, Pageable paging);
 }

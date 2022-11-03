@@ -41,6 +41,8 @@ public interface UserServices {
 
     int getNumberUserOfOrganization(Integer organizationId);
 
+    int getNumberAllUserOfOrganization(Integer organizationId);
+
     OrganizationDtoClient getOrganizationById(int organizationId);
 
     OrganizationDtoClient getOrganizationByName(String organizationName);

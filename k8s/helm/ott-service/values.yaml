@@ -1,0 +1,22 @@
+app: k8s-ott-service
+image: thanhtungtvg95/ott-service:latest
+replicas: 1
+port: 3002
+MODE: production
+# Kafka
+KAFKA_HOST: localhost
+KAFKA_PORT: 29092
+KAFKA_CLIENT_ID: demo
+KAFKA_GROUP_ID: demo
+KAFKA_TIME_KEEPING_NOTIFICATION_OTT_TOPIC: demo_6
+KAFKA_AREA_RESTRICTION_OTT_TOPIC: demo_7
+# Database
+DB_HOST: localhost
+DB_DBNAME: demo
+DB_USERNAME: ZGVtbw==
+DB_PASSWORD: ZGVtbw==
+# Telegram
+TOKEN_BOT_API: demo
+TELEGRAM_BOT_LINK: demo
+
+BASE_URL: http://localhost:8070

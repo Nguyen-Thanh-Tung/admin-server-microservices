@@ -67,10 +67,15 @@ public class AuthBusinessImpl implements AuthBusiness {
     @Override
     public String getTokenLogin(LoginRequest request) {
         verifyRequestServices.verifyLoginRequest(request);
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return tokenProvider.generateJwtToken(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return tokenProvider.generateJwtToken(authentication);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
     }
 
     @Override

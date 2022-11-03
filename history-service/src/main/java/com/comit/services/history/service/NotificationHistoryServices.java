@@ -24,7 +24,7 @@ public interface NotificationHistoryServices {
 
     Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, String status, Pageable paging);
 
-    Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, List<Integer> areaRestrictionIds, String status, Pageable paging);
+    Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, String status, Pageable paging);
 
     NotificationHistory saveNotificationHistory(NotificationHistory notificationHistory);
 
@@ -47,4 +47,20 @@ public interface NotificationHistoryServices {
     boolean hasHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
 
     int getNumberNotification(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraIdAndStatus(Integer id, Integer areaRestrictionId, Integer cameraId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraId(Integer id, Integer areaRestrictionId, Integer cameraId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndStatus(Integer id, Integer areaRestrictionId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionId(Integer id, Integer areaRestrictionId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPageByCameraIdAndStatus(Integer id, Integer cameraId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPageByCameraId(Integer id, Integer cameraId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPageByStatus(Integer id, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
+
+    Page<NotificationHistory> getNotificationHistoryPage(Integer id, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging);
 }

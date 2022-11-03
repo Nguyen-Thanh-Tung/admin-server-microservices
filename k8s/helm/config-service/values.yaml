@@ -1,0 +1,5 @@
+app: k8s-config-service
+image: thanhtungtvg95/config-service:latest
+replicas: 1
+port: 8088
+configLocation: /

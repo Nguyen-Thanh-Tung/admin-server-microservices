@@ -1,6 +1,7 @@
 package com.comit.services.history.service;
 
 import com.comit.services.history.constant.Const;
+import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.repository.InOutHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,10 @@ public class InOutHistoryServicesImpl implements InOutHistoryServices {
     @Override
     public int getNumberHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd) {
         return inOutHistoryRepository.countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(locationId, employeeId, timeStart, timeEnd);
+    }
+
+    @Override
+    public InOutHistory getInOutHistory(int inOutHistoryId) {
+        return inOutHistoryRepository.findById(inOutHistoryId);
     }
 }

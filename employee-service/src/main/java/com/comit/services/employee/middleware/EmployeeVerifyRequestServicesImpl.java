@@ -5,8 +5,11 @@ import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.exception.RestApiException;
 import com.comit.services.employee.util.ValidateField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class EmployeeVerifyRequestServicesImpl implements EmployeeVerifyRequestServices {
@@ -25,7 +28,11 @@ public class EmployeeVerifyRequestServicesImpl implements EmployeeVerifyRequestS
             throw new RestApiException(EmployeeErrorCode.MISSING_EMPLOYEE_CODE_FIELD);
         }
 
-        if (email != null && !validateField.validEmail(email)) {
+        if (email == null) {
+            throw new RestApiException(EmployeeErrorCode.MISSING_EMAIL_FIELD);
+        }
+
+        if (!validateField.validEmail(email)) {
             throw new RestApiException(EmployeeErrorCode.EMAIL_IS_INVALID);
         }
 

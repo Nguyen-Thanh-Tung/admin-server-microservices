@@ -1,6 +1,7 @@
 package com.comit.services.employee.exception;
 
 import com.comit.services.employee.constant.EmployeeErrorCode;
+import com.comit.services.employee.constant.GuestErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,11 @@ public class RestApiException extends RuntimeException {
 
 
     public RestApiException(EmployeeErrorCode errorCode) {
+        this.code = errorCode.getCode();
+        this.message = errorCode.getMessage();
+    }
+
+    public RestApiException(GuestErrorCode errorCode) {
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
     }

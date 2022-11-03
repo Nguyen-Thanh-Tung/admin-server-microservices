@@ -148,12 +148,13 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         notificationHistory.setImageId(request.getImageId());
         notificationHistory.setAreaRestrictionId(request.getAreaRestrictionId());
         notificationHistory.setLocationId(request.getLocationId());
+        notificationHistory.setStatus(request.getStatus());
         NotificationHistory newNotificationHistory = notificationHistoryServices.saveNotificationHistory(notificationHistory);
         return historyBusiness.convertNotificationHistoryToNotificationHistoryDto(newNotificationHistory);
     }
 
     @Override
-    public Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIdStrs, String status, int page, int size) {
+    public Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIdStrs, String timeStartStr, String timeEndStr, String status, int page, int size) {
         LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
         Pageable paging = PageRequest.of(page, size);
         String[] areaRestrictionIds = areaRestrictionIdStrs.split(",");
@@ -161,7 +162,10 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         for (String areaRestrictionId : areaRestrictionIds) {
             areaRestrictions.add(Integer.parseInt(areaRestrictionId));
         }
-        return notificationHistoryServices.getNotificationHistoryPage(locationDtoClient.getId(), areaRestrictions, status, paging);
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPage(locationDtoClient.getId(), areaRestrictions, timeStart, timeEnd, status, paging);
     }
 
     @Override
@@ -252,5 +256,93 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         Date timeEnd = TimeUtil.stringDateToDate(timeEndStr);
 
         return notificationHistoryServices.getNumberNotification(locationId, employeeId, timeStart, timeEnd);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraIdAndStatus(Integer areaRestrictionId, Integer cameraId, String status, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByAreaRestrictionIdAndCameraIdAndStatus(locationDtoClient.getId(), areaRestrictionId, cameraId, status, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraId(Integer areaRestrictionId, Integer cameraId, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByAreaRestrictionIdAndCameraId(locationDtoClient.getId(), areaRestrictionId, cameraId, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndStatus(Integer areaRestrictionId, String status, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByAreaRestrictionIdAndStatus(locationDtoClient.getId(), areaRestrictionId, status, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionId(Integer areaRestrictionId, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByAreaRestrictionId(locationDtoClient.getId(), areaRestrictionId, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByCameraIdAndStatus(Integer cameraId, String status, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByCameraIdAndStatus(locationDtoClient.getId(), cameraId, status, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByCameraId(Integer cameraId, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByCameraId(locationDtoClient.getId(), cameraId, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPageByStatus(String status, String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPageByStatus(locationDtoClient.getId(), status, timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    @Override
+    public Page<NotificationHistory> getNotificationHistoryPage(String timeStartStr, String timeEndStr, Boolean hasEmployee, int page, int size) {
+        LocationDtoClient locationDtoClient = historyServices.getLocationOfCurrentUser();
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+        return notificationHistoryServices.getNotificationHistoryPage(locationDtoClient.getId(), timeStart, timeEnd, hasEmployee, paging);
     }
 }

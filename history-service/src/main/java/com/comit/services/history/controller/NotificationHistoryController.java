@@ -40,22 +40,74 @@ public class NotificationHistoryController {
             @RequestParam(value = "area_restriction_ids", required = false) String areaRestrictionIds,
             @RequestParam(value = "time_start", required = false) String timeStart,
             @RequestParam(value = "time_end", required = false) String timeEnd,
-            @RequestParam(value = "has_employee", required = false) Boolean hasEmployee,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size
     ) throws ParseException {
         Page<NotificationHistory> historyPage;
         if (areaRestrictionIds != null && status != null) {
-            historyPage = notificationHistoryBusiness.getNotificationHistoryPage(areaRestrictionIds, status, page, size);
+            historyPage = notificationHistoryBusiness.getNotificationHistoryPage(areaRestrictionIds, timeStart, timeEnd, status, page, size);
         } else if (areaRestrictionIds != null) {
             historyPage = notificationHistoryBusiness.getNotificationHistoryPage(typeStrs, timeStart, timeEnd, null, areaRestrictionIds, page, size);
-        } else if (hasEmployee != null) {
-            historyPage = notificationHistoryBusiness.getNotificationHistoryPage(hasEmployee, timeStart, timeEnd, null, page, size);
         } else if (status != null) {
             historyPage = notificationHistoryBusiness.getNotificationHistoryPage(status, page, size);
         } else {
             historyPage = notificationHistoryBusiness.getNotificationHistoryPage(typeStrs, employeeIds, timeStart, timeEnd, null, page, size);
+        }
+
+        List<NotificationHistoryDto> historyDtos = new ArrayList<>();
+        int currentPage = 0;
+        long totalItems = 0;
+        int totalPages = 0;
+        if (historyPage != null) {
+            currentPage = historyPage.getNumber();
+            totalItems = historyPage.getTotalElements();
+            totalPages = historyPage.getTotalPages();
+            historyDtos = notificationHistoryBusiness.getAllNotificationHistory(historyPage.getContent());
+        }
+        return new ResponseEntity<>(new NotificationHistoryListResponse(HistoryErrorCode.SUCCESS, historyDtos, currentPage, totalItems, totalPages), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/filter")
+    public ResponseEntity<BaseResponse> getNotificationHistoryFilter(
+            @RequestParam(value = "area_restriction_id", required = false) Integer areaRestrictionId,
+            @RequestParam(value = "camera_id", required = false) Integer cameraId,
+            @RequestParam(value = "time_start", required = false) String timeStart,
+            @RequestParam(value = "time_end", required = false) String timeEnd,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "has_employee", required = false) Boolean hasEmployee,
+            @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size
+    ) {
+        Page<NotificationHistory> historyPage;
+        if (areaRestrictionId != null) {
+            if (cameraId != null) {
+                if (status != null) {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByAreaRestrictionIdAndCameraIdAndStatus(areaRestrictionId, cameraId, status, timeStart, timeEnd, hasEmployee, page, size);
+                } else {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByAreaRestrictionIdAndCameraId(areaRestrictionId, cameraId, timeStart, timeEnd, hasEmployee, page, size);
+                }
+            } else {
+                if (status != null) {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByAreaRestrictionIdAndStatus(areaRestrictionId, status, timeStart, timeEnd, hasEmployee, page, size);
+                } else {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByAreaRestrictionId(areaRestrictionId, timeStart, timeEnd, hasEmployee, page, size);
+                }
+            }
+        } else {
+            if (cameraId != null) {
+                if (status != null) {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByCameraIdAndStatus(cameraId, status, timeStart, timeEnd, hasEmployee, page, size);
+                } else {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByCameraId(cameraId, timeStart, timeEnd, hasEmployee, page, size);
+                }
+            } else {
+                if (status != null) {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPageByStatus(status, timeStart, timeEnd, hasEmployee, page, size);
+                } else {
+                    historyPage = notificationHistoryBusiness.getNotificationHistoryPage(timeStart, timeEnd, hasEmployee, page, size);
+                }
+            }
         }
 
         List<NotificationHistoryDto> historyDtos = new ArrayList<>();

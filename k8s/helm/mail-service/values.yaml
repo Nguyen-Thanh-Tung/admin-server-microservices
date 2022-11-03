@@ -1,0 +1,11 @@
+app: k8s-mail-service
+image: thanhtungtvg95/mail-service:latest
+replicas: 1
+port: 8085
+databaseServerAddress: localhost:3306
+zipkinServerAddress: http://localhost:9411
+kafkaServerAddress: localhost:29092
+configServiceUrl: http://location:8088
+changePasswordUrl: http://localhost:3005/authentication/change-password
+mailUsername: ZGVtbw==
+mailPassword: ZGVtbw==

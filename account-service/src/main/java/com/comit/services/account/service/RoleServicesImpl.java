@@ -70,12 +70,40 @@ public class RoleServicesImpl implements RoleServices {
         if (requestHelper.hasRole(Const.ROLE_SUPER_ADMIN)
                 || Objects.equals(currentUser.getUsername(), superAdminUsername)) {
             return Objects.equals(roleName, Const.ROLE_TIME_KEEPING_ADMIN)
+                    || Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                    || Objects.equals(roleName, Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
+        }
+
+        if (isSuperAdminOrganization(currentUser)
+                && requestHelper.hasRole(Const.ROLE_TIME_KEEPING_ADMIN)
+                && requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                && requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN)) {
+            return Objects.equals(roleName, Const.ROLE_TIME_KEEPING_ADMIN)
+                    || Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                    || Objects.equals(roleName, Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
+        }
+
+        if (isSuperAdminOrganization(currentUser)
+                && requestHelper.hasRole(Const.ROLE_TIME_KEEPING_ADMIN)
+                && requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)) {
+            return Objects.equals(roleName, Const.ROLE_TIME_KEEPING_ADMIN)
                     || Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
         }
 
-        if (isSuperAdminOrganization(currentUser) && requestHelper.hasRole(Const.ROLE_TIME_KEEPING_ADMIN) && requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)) {
-            return Objects.equals(roleName, Const.ROLE_TIME_KEEPING_ADMIN) || Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
+        if (isSuperAdminOrganization(currentUser)
+                && requestHelper.hasRole(Const.ROLE_TIME_KEEPING_ADMIN)
+                && requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN)) {
+            return Objects.equals(roleName, Const.ROLE_TIME_KEEPING_ADMIN)
+                    || Objects.equals(roleName, Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
         }
+
+        if (isSuperAdminOrganization(currentUser)
+                && requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                && requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN)) {
+            return Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                    || Objects.equals(roleName, Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
+        }
+
         if (isSuperAdminOrganization(currentUser) && requestHelper.hasRole(Const.ROLE_TIME_KEEPING_ADMIN)) {
             return Objects.equals(roleName, Const.ROLE_TIME_KEEPING_ADMIN);
         }
@@ -84,8 +112,13 @@ public class RoleServicesImpl implements RoleServices {
             return Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN);
         }
 
+        if (isSuperAdminOrganization(currentUser) && requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN)) {
+            return Objects.equals(roleName, Const.ROLE_BEHAVIOR_CONTROL_ADMIN);
+        }
+
         return (requestHelper.hasRole(Const.ROLE_TIME_KEEPING_ADMIN) && Objects.equals(roleName, Const.ROLE_TIME_KEEPING_USER))
-                || (requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN) && Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_USER));
+                || (requestHelper.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN) && Objects.equals(roleName, Const.ROLE_AREA_RESTRICTION_CONTROL_USER))
+                || (requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN) && Objects.equals(roleName, Const.ROLE_BEHAVIOR_CONTROL_USER));
     }
 
     public boolean isSuperAdminOrganization(User user) {
@@ -105,7 +138,8 @@ public class RoleServicesImpl implements RoleServices {
 
     @Override
     public void addFeature(String moduleName) {
-        BaseResponseClient baseResponse = featureClient.addFeature(httpServletRequest.getHeader("token"), new FeatureRequestClient(moduleName, moduleName)).getBody();
+        BaseResponseClient baseResponse = featureClient.addFeature(httpServletRequest.getHeader("token"),
+                new FeatureRequestClient(moduleName, moduleName), Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new AccountRestApiException(RoleErrorCode.INTERNAL_ERROR);
         }

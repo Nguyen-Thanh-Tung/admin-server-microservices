@@ -30,6 +30,8 @@ public interface AreaRestrictionBusiness {
 
     AreaRestrictionNotificationDto getAreaRestrictionNotification(Integer id);
 
+    BaseAreaRestrictionNotificationDto getBaseAreaRestrictionNotification(Integer id);
+
     boolean deleteManagerOnAllAreaRestriction(Integer managerId);
 
     EmployeeDto convertEmployeeDtoFromClient(EmployeeDtoClient employeeDtoClient);

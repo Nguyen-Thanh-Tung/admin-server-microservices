@@ -69,4 +69,25 @@ public interface Const {
     String AREA_RESTRICTION_HEADER_MODULE = "area_restriction";
     String BEHAVIOR_HEADER_MODULE = "behavior";
 
+    // method
+    String POST = "POST";
+    String GET = "GET";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
+
+    // action
+    String ADD_LOCATION = "Thêm chi nhánh";
+    String UPDATE_LOCATION = "Cập nhật thông tin chi nhánh";
+    String DELETE_LOCATION = "Xóa chi nhánh";
+
+    // app route
+    String ADD_LOCATION_AR = "/locations";
+    String LOCATION_ID_AR = "/locations/[0-9]+";
+
+    // scope api
+    String INTERNAL = "internal";
+
+    String SERVICE_LOCATION = "serviceLocation";
+    String SERVICE_EMPLOYEE = "serviceEmployee";
+    String SERVICE_CAMERA = "serviceCamera";
 }

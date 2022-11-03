@@ -23,4 +23,5 @@ public class NotificationHistoryRequest {
     private Integer areaRestrictionId;
     @JsonProperty("image_id")
     private Integer imageId;
+    private String status;
 }

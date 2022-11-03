@@ -6,4 +6,5 @@ EXPOSE 8080
 COPY target/$APP_FILE $APP_HOME/
 WORKDIR $APP_HOME
 ENTRYPOINT ["sh", "-c"]
+ENV TZ Asia/Ho_Chi_Minh
 CMD ["exec java -jar $APP_FILE --configServiceUrl=$CONFIG_SERVICE_URL"]

@@ -27,6 +27,8 @@ public interface EmployeeBusiness {
 
     BaseEmployeeDto getEmployeeBase(String code);
 
+    List<BaseEmployeeDto> getEmployeesBase(String code);
+
     boolean deleteEmployee(int id);
 
     EmployeeDto changeManager(int oldManagerId, int newManagerId);

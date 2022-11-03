@@ -19,7 +19,7 @@ public class ValidateField {
     }
 
     public boolean validPhone(String phone) {
-        return validField(phone, "(03|05|07|08|09)+([0-9]{8})");
+        return validField(phone, "^((0|\\(\\+84\\)|\\+84|\\(84\\)))?(\\\\.|\\-|\\ |\\/)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\.|\\-|\\ |\\/)?(\\d{3})(\\.|\\-|\\ |\\/)?(\\d{3})$");
     }
 
     public boolean validEmail(String email) {

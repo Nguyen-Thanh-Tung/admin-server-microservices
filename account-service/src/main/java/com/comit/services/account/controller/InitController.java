@@ -42,7 +42,7 @@ public class InitController {
     private String superAdminOrganization;
 
     @PostMapping(path = "")
-    public ResponseEntity<BaseResponse> init() throws IOException {
+    public ResponseEntity<BaseResponse> init() {
         UserDto userDto = authBusiness.init(superAdminOrganization, superAdminUsername, supperAdminEmail, supperAdminPassword);
         if (userDto != null) {
             return new ResponseEntity<>(new SignUpResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);

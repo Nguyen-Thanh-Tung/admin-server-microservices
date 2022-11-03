@@ -10,8 +10,10 @@ import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.response.BaseResponse;
 import com.comit.services.location.exception.RestApiException;
+import com.comit.services.location.loging.model.CommonLogger;
 import com.comit.services.location.model.entity.Location;
 import com.comit.services.location.repository.LocationRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -132,19 +134,29 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
+    @CircuitBreaker(name = Const.SERVICE_LOCATION, fallbackMethod = "callTimeKeepingFallBack")
     public void addShiftsForLocation(int locationId) {
-        BaseResponse response = timeKeepingClient.addShiftsForLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        BaseResponse response = timeKeepingClient.addShiftsForLocation(httpServletRequest.getHeader("token"),
+                locationId, Const.INTERNAL).getBody();
         if (response == null || response.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
     }
 
     @Override
+    @CircuitBreaker(name = Const.SERVICE_LOCATION, fallbackMethod = "callTimeKeepingFallBack")
     public void addTimeKeepingNotification(int locationId) {
-        BaseResponse tkResponse = timeKeepingClient.addTimeKeepingNotification(httpServletRequest.getHeader("token"), locationId).getBody();
+        BaseResponse tkResponse = timeKeepingClient.addTimeKeepingNotification(httpServletRequest.getHeader("token"),
+                locationId, Const.INTERNAL).getBody();
         if (tkResponse == null || tkResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
+    }
+
+    public void callTimeKeepingFallBack(int locationId, Exception e) {
+        // remove location trust saved because can't connect to TimeKeeping
+        CommonLogger.info("Can't connect to TimeKeepingService => delete locationId: " + locationId);
+        locationRepository.deleteById(locationId);
     }
 
     @Override
@@ -179,7 +191,8 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void deleteShiftsOfLocation(int locationId) {
-        BaseResponse shiftResponse = timeKeepingClient.deleteShiftsOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        BaseResponse shiftResponse = timeKeepingClient.deleteShiftsOfLocation(httpServletRequest.getHeader("token"),
+                locationId, Const.INTERNAL).getBody();
         if (shiftResponse == null || shiftResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -187,7 +200,8 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void deleteTimeKeepingNotification(int locationId) {
-        BaseResponse tkResponse = timeKeepingClient.deleteTimeKeepingNotification(httpServletRequest.getHeader("token"), locationId).getBody();
+        BaseResponse tkResponse = timeKeepingClient.deleteTimeKeepingNotification(httpServletRequest.getHeader("token"),
+                locationId, Const.INTERNAL).getBody();
         if (tkResponse == null || tkResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }

@@ -17,6 +17,8 @@ public interface InOutHistoryBusiness {
 
     InOutHistoryDto saveInOutHistory(InOutHistoryRequest inOutHistoryRequest);
 
+    InOutHistoryDto getInOutHistory(Integer inOutHistoryId);
+
     int getNumberCheckInCurrentDay();
 
     int getNumberHistory(Integer locationId, Integer employeeId, String timeStart, String timeEnd);

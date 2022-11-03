@@ -1,5 +1,6 @@
 package com.comit.services.history.service;
 
+import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,6 @@ public interface InOutHistoryServices {
     int getNumberCheckInCurrentDay(Integer id, Date timeStart, Date timeEnd);
 
     int getNumberHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd);
+
+    InOutHistory getInOutHistory(int inOutHistoryId);
 }

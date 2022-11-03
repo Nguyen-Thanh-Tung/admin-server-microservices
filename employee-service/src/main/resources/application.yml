@@ -3,3 +3,29 @@ spring:
     name: employee-service
   config:
     import: optional:configserver:${configServiceUrl}
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      serviceMetadata:
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED # numbers last request
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 66 # threshold rate fail
+        minimumNumberOfCalls: 3 # total call
+        automaticTransitionFromOpenToHalfOpenEnabled: true # enable wait duration
+        waitDurationInOpenState: 10s # time reset state Open to Half Open
+        permittedNumberOfCallsInHalfOpenState: 3 # amount calls in state Half Open

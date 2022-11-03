@@ -82,6 +82,7 @@ public class UserVerifyRequestServicesImpl implements UserVerifyRequestServices 
         if (!validateField.validStringArray(roleStrs)) {
             throw new AccountRestApiException(UserErrorCode.LIST_ROLE_INVALID);
         }
+
         if (organizationIdStr != null) {
             try {
                 Integer.parseInt(organizationIdStr);

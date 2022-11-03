@@ -3,9 +3,7 @@ kind: ConfigMap
 metadata:
   name: mail-cm
 data:
-  zipkin_server_address: http://10.10.2.202:9411
-  kafka_server_address: 10.10.2.202:29092
-  config_service_url: http://10.10.2.202:8088
+  change_password_url: http://localhost:3005/authentication/change-password
 
 ---
 
@@ -49,35 +47,40 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: config_service_url
-                  name: mail-cm
+                  name: config-map
             - name: ZIPKIN_SERVER_ADDRESS
               valueFrom:
                 configMapKeyRef:
                   key: zipkin_server_address
-                  name: mail-cm
+                  name: config-map
             - name: KAFKA_SERVER_ADDRESS
               valueFrom:
                 configMapKeyRef:
                   key: kafka_server_address
-                  name: mail-cm
+                  name: config-map
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: db-credentials
+                  name: credentials
                   key: username
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-credentials
+                  name: credentials
                   key: password
             - name: MAIL_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: db-credentials
+                  name: credentials
                   key: mail_username
             - name: MAIL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-credentials
+                  name: credentials
                   key: mail_password
+            - name: CHANGE_PASSWORD_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: change_password_url
+                  name: mail-cm
 

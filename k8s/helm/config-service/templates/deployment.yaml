@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "config-service.name" . }}
+  labels:
+    {{- include "config-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "config-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "config-service.labels" . | nindent 8}}
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values:
+                      - "master"
+      containers:
+        - name: {{ include "config-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          volumeMounts:
+            - mountPath: /data/config
+              name: config-files
+          env:
+            - name: configLocation
+              value: /data/config
+      volumes:
+        - name: config-files
+          hostPath:
+            path: {{ .Values.configLocation }}
+
+

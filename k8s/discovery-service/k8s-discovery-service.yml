@@ -4,8 +4,6 @@ metadata:
   name: discovery-cm
 data:
   discovery_service_address: http://k8s-discovery-service.discovery-service:8071/eureka
-  config_service_url: http://10.10.2.202:8088
-  zipkin_server_address: http://10.10.2.202:9411
 
 ---
 
@@ -65,7 +63,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: config_service_url
-                  name: discovery-cm
+                  name: config-map
             - name: DISCOVERY_SERVICE_ADDRESS
               valueFrom:
                 configMapKeyRef:
@@ -75,5 +73,5 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: zipkin_server_address
-                  name: discovery-cm
+                  name: config-map
 

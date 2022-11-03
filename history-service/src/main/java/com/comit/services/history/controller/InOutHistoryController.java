@@ -112,4 +112,13 @@ public class InOutHistoryController {
 
         return new ResponseEntity<>(new InOutHistoryResponse(HistoryErrorCode.SUCCESS, inOutHistoryDto), HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BaseResponse> getInOutHistory(@PathVariable Integer id) {
+        InOutHistoryDto inOutHistoryDto = inOutHistoryBusiness.getInOutHistory(id);
+        if (inOutHistoryDto != null) {
+            return new ResponseEntity<>(new InOutHistoryResponse(HistoryErrorCode.SUCCESS, inOutHistoryDto), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new InOutHistoryResponse(HistoryErrorCode.FAIL, null), HttpStatus.OK);
+    }
 }

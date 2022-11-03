@@ -21,14 +21,26 @@ public interface Const {
     int LATE_TIME_IN_MONTH = 3;
     int LATE_TIME_IN_QUARTER = 3;
 
-    String DELETED = "deleted";
-    String ACTIVE = "active";
+    // method
+    String POST = "POST";
+    String GET = "GET";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
 
-    String WEEK_TYPE = "week";
-    String MONTH_TYPE = "month";
-    String QUARTER_TYPE = "quarter";
+    // action
+    String ADD_SHIFT_LOCATION = "Thêm ca làm việc cho chi nhánh";
+    String UPDATE_SHIFT_LOCATION = "Cập nhật ca làm việc cho chi nhánh";
+    String DELETE_SHIFT_LOCATION = "Xóa ca làm việc cho chi nhánh";
+    String DELETE_NOTIFICATION_LOCATION = "Xóa cài đặt chấm công chi nhánh";
+    String ADD_NOTIFICATION_LOCATION = "Thêm thông tin cài đặt chấm công cho chi nhánh";
+    String UPDATE_NOTIFICATION_ID = "Cập nhật thông tin chấm công";
 
-    String CHECK_IN = "Check in";
-    String CHECK_OUT = "Check out";
+    // app route
+    String SHIFT_LOCATION_ID_AR = "/shifts/location/[0-9]+";
+    String SHIFT_ID_AR = "/shifts/[0-9]+";
+    String NOTIFICATION_LOCATION_ID_AR = "/time-keeping-notifications/location/[0-9]+";
+    String NOTIFICATION_ID_AR = "/time-keeping-notifications/[0-9]+";
 
+    // scope
+    String INTERNAL = "internal";
 }

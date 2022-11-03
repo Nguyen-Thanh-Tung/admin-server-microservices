@@ -1,0 +1,8 @@
+version: '2'
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    environment:
+      JAVA_OPTS: -Xms1g -Xmx1g -XX:+ExitOnOutOfMemoryError
+    ports:
+      - 9411:9411

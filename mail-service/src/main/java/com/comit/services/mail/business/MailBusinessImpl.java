@@ -55,7 +55,7 @@ public class MailBusinessImpl implements MailBusiness {
         model.put("name", fullname);
         model.put("location", Const.MAIL_LOCATION);
         model.put("sign", Const.MAIL_ORGANIZATION_NAME);
-        model.put("link", env.getProperty("frontendServer") + "?user_id=" + id + "&code=" + code);
+        model.put("link", env.getProperty("frontend.server") + "?user_id=" + id + "&code=" + code);
         mail.setProps(model);
 
         mailServices.sendEmail(mail, "forgetPassword-template");
@@ -63,21 +63,73 @@ public class MailBusinessImpl implements MailBusiness {
     }
 
     @Override
-    public boolean sendConfirmCreateUserMail(Integer id, String fullname, String email, String code) {
+    public boolean sendConfirmCreateUserMail(Integer id, String fullname, String username, String email, String code, Boolean isResend) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
         mail.setMailTo(email);
-        mail.setMailSubject("Confirm create user");
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("name", fullname);
+        model.put("username", username);
         model.put("location", Const.MAIL_LOCATION);
         model.put("sign", Const.MAIL_ORGANIZATION_NAME);
-        model.put("link", env.getProperty("frontendServer") + "?user_id=" + id + "&code=" + code);
+        model.put("link", env.getProperty("frontend.server") + "?user_id=" + id + "&code=" + code);
         mail.setProps(model);
 
         try {
-            mailServices.sendEmail(mail, "createUser-template");
+            if (isResend) {
+                mail.setMailSubject("Confirm recreate user");
+                mailServices.sendEmail(mail, "reCreateUser-template");
+            } else {
+                mail.setMailSubject("Confirm create user");
+                mailServices.sendEmail(mail, "createUser-template");
+            }
+            return true;
+        } catch (Exception e) {
+            CommonLogger.error(e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean sendAreaRestrictionMail(String email, String employeeName, String areaRestrictionName, String date) {
+        Mail mail = new Mail();
+        mail.setMailFrom(env.getProperty("spring.mail.username"));
+        mail.setMailTo(email);
+        mail.setMailSubject("Cảnh báo đột nhập khu vực hạn chế");
+
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("name", employeeName);
+        model.put("areaRestrictionName", areaRestrictionName);
+        model.put("date", date);
+        mail.setProps(model);
+
+        try {
+            mailServices.sendEmail(mail, "areaRestrictionNotification-template");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean sendTimeKeepingMail(String email, String employeeName, String shiftName, String date, String locationName, String organizationName, String content) {
+        Mail mail = new Mail();
+        mail.setMailFrom(env.getProperty("spring.mail.username"));
+        mail.setMailTo(email);
+        mail.setMailSubject("Cảnh báo đi muộn");
+
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("name", employeeName);
+        model.put("shift", shiftName);
+        model.put("date", date);
+        model.put("location", locationName);
+        model.put("organization", organizationName);
+        model.put("content", content);
+        mail.setProps(model);
+
+        try {
+            mailServices.sendEmail(mail, "timeKeepingNotification-template");
             return true;
         } catch (Exception e) {
             return false;

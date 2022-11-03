@@ -14,7 +14,7 @@ public interface AccountClient {
     @GetMapping("/roles/organization")
     ResponseEntity<CheckRoleResponseClient> hasPermissionManageOrganization(@RequestHeader String token);
 
-    @GetMapping("/users/organization/{organizationId}/number-user")
+    @GetMapping("/users/organization/{organizationId}/number-all-user")
     ResponseEntity<CountUserResponse> getNumberUserOfOrganization(@RequestHeader String token, @PathVariable(name = "organizationId") int organizationId);
 
     @GetMapping("/users/current")

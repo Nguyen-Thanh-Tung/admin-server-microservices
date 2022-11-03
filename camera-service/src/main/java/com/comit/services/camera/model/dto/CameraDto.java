@@ -12,6 +12,7 @@ public class CameraDto extends BaseModelDto {
     private String name;
     private String type;
     private String status;
+    private String polygons;
     private String taken;
 
     private LocationDto location;

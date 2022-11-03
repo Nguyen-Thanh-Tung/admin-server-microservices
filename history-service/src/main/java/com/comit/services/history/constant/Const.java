@@ -69,4 +69,26 @@ public interface Const {
     String DEFAULT_SIZE_PAGE = Integer.MAX_VALUE + "";
     String DEFAULT_PAGE = "0";
     String CHECK_IN = "Check in";
+
+    // method
+    String POST = "POST";
+    String GET = "GET";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
+
+    // action
+    String IN_OUT_HISTORY = "Thêm lịch sử chấm công";
+    String NOTIFICATION_HISTORY_ID = "Cập nhật trạng thái lịch sử cảnh báo";
+    String NOTIFICATION_HISTORY = "Thêm mới lịch sử cảnh báo chấm công hoặc cảnh báo đột nhập khu vực hạn chế";
+
+    // app route
+    String IN_OUT_HISTORY_AR = "/in-out-histories";
+    String NOTIFICATION_HISTORY_ID_AR = "notification-histories/[0-9]+/update-status";
+    String NOTIFICATION_HISTORY_AR = "/histories/notification-histories";
+
+    // scope
+    String INTERNAL = "internal";
+
+    // date format
+    String DATE_FORMAT_COMMON = "dd/MM/yyyy HH:mm:ss";
 }

@@ -113,6 +113,12 @@ public class AreaRestrictionController {
         return new ResponseEntity<>(new AreaRestrictionNotificationResponse(AreaRestrictionErrorCode.SUCCESS, areaRestrictionNotificationDto), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}/notification/base")
+    ResponseEntity<BaseResponse> getBaseNotificationOfAreaRestriction(@PathVariable Integer id) {
+        BaseAreaRestrictionNotificationDto areaRestrictionNotificationDto = areaRestrictionBusiness.getBaseAreaRestrictionNotification(id);
+        return new ResponseEntity<>(new AreaRestrictionNotificationResponse(AreaRestrictionErrorCode.SUCCESS, areaRestrictionNotificationDto), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}/notification")
     ResponseEntity<BaseResponse> updateNotificationOfAreaRestriction(@PathVariable Integer id, @RequestBody AreaRestrictionNotificationRequest areaRestrictionNotificationRequest) {
         AreaRestrictionDto areaRestrictionDto = areaRestrictionBusiness.updateAreaRestrictionNotification(id, areaRestrictionNotificationRequest);

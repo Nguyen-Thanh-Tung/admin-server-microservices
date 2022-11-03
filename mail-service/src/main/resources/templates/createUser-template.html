@@ -24,7 +24,9 @@
     Tài khoản của bạn đã được chi nhánh/tổ chức tạo thành công vào lúc:
     <span th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy HH:mm')}"></span>
 </p>
-
+<p>
+    Tên tài khoản: <b><span th:text="${username}"></span></b>
+</p>
 <p>
     Bạn cần tạo mật khẩu để có thể truy cập vào hệ thống. Hãy truy cập <a th:href="@{${link}}"> link </a> để tạo mật
     khẩu.

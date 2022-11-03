@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "discovery-service.fullname" . }}
+spec:
+  selector:
+    {{- include "discovery-service.labels" . | nindent 4 }}
+  ports:
+    - port: {{ .Values.port }}
+      name: {{ include "discovery-service.fullname" . }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-lb
+  labels:
+    {{- include "discovery-service.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "discovery-service.labels" . | nindent 4 }}
+  type: NodePort
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}

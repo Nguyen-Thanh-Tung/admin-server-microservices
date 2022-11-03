@@ -3,6 +3,7 @@ package com.comit.services.history.business;
 import com.comit.services.history.client.data.CameraDtoClient;
 import com.comit.services.history.client.data.LocationDtoClient;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
+import com.comit.services.history.middleware.HistoryVerifyRequestServicesImpl;
 import com.comit.services.history.model.dto.InOutHistoryDto;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.service.HistoryServices;
@@ -27,6 +28,8 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     private InOutHistoryServices inOutHistoryServices;
     @Autowired
     private HistoryServices historyServices;
+    @Autowired
+    private HistoryVerifyRequestServicesImpl verifyRequestServices;
 
     @Override
     public Page<InOutHistory> getInOutHistoryPage(String cameraIdStrs, Integer employeeId, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
@@ -108,6 +111,7 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
 
     @Override
     public InOutHistoryDto saveInOutHistory(InOutHistoryRequest request) {
+        verifyRequestServices.verifySaveHistory(request);
         InOutHistory inOutHistory = new InOutHistory();
         CameraDtoClient cameraDtoClient = historyServices.getCamera(request.getCameraId());
         inOutHistory.setCameraId(request.getCameraId());
@@ -119,6 +123,15 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         inOutHistory.setAreaRestrictionId(cameraDtoClient.getAreaRestrictionId());
         InOutHistory newInOutHistory = inOutHistoryServices.saveInOutHistory(inOutHistory);
         return historyBusiness.convertInOutHistoryToInOutHistoryDto(newInOutHistory);
+    }
+
+    @Override
+    public InOutHistoryDto getInOutHistory(Integer inOutHistoryId) {
+        InOutHistory inOutHistory = inOutHistoryServices.getInOutHistory(inOutHistoryId);
+        if (inOutHistory != null) {
+            return historyBusiness.convertInOutHistoryToInOutHistoryDto(inOutHistory);
+        }
+        return null;
     }
 
 

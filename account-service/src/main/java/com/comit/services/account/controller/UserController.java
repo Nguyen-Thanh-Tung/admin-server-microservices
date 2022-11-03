@@ -158,9 +158,18 @@ public class UserController {
         return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUser), HttpStatus.OK);
     }
 
+    @GetMapping("/organization/{organizationId}/number-all-user")
+    public ResponseEntity<BaseResponse> getAllUsersByOrganizationId(@PathVariable(name = "organizationId") int organizationId) {
+        int numberUser = userBusiness.getNumberAllUserOfOrganization(organizationId);
+        return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUser), HttpStatus.OK);
+    }
+
     @GetMapping("/current")
     ResponseEntity<UserResponse> getCurrentUser() {
         BaseUserDto userDto = userBusiness.getCurrentUser();
+        if (userDto == null) {
+            return new ResponseEntity<>(new UserResponse(UserErrorCode.USER_NOT_EXIST, null), HttpStatus.OK);
+        }
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
 
@@ -192,5 +201,11 @@ public class UserController {
     ResponseEntity<CountResponse> getNumberOrganizationOfRoles(@RequestParam("role_ids") String roleIds) {
         int numberUserOfRoles = userBusiness.getNumberOrganizationOfRoles(roleIds);
         return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUserOfRoles), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/resend-code")
+    ResponseEntity<BaseResponse> resendCode(@PathVariable Integer id) {
+        boolean resendCodeSuccess = userBusiness.resendCode(id);
+        return new ResponseEntity<>(new BaseResponse(resendCodeSuccess ? UserErrorCode.SUCCESS : UserErrorCode.FAIL), HttpStatus.OK);
     }
 }

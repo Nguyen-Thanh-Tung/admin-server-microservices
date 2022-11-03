@@ -4,6 +4,7 @@ import com.comit.services.organization.client.AccountClient;
 import com.comit.services.organization.client.UserLogClient;
 import com.comit.services.organization.client.request.UserLogRequestClient;
 import com.comit.services.organization.client.response.UserResponseClient;
+import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.controller.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +46,7 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
             try {
                 HttpServletRequest request = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
                 // If action is success, user log will be created
-                if (((BaseResponse) o).getCode() == 1) {
+                if (((BaseResponse) o).getCode() == 1 && !Objects.equals(request.getHeader(Const.INTERNAL), Const.INTERNAL)) {
                     addUserLog(request);
                 }
             } catch (Exception e) {
@@ -59,12 +62,12 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
         String content = "";
-        if (Objects.equals(method, "POST") && Objects.equals(requestURI, "/organizations")) {
-            content = "Thêm tổ chức";
-        } else if (Objects.equals(method, "PUT") && validField(requestURI, "/organizations/[0-9]+")) {
-            content = "Cập nhật thông tin tổ chức";
-        } else if (Objects.equals(method, "DELETE") && validField(requestURI, "/organizations/[0-9]+")) {
-            content = "Xóa tổ chức";
+
+        for (Map.Entry<String, String> hashMap : MapAPI().entrySet()) {
+            if (validField(requestURI + "_" + method, hashMap.getKey())) {
+                content = hashMap.getValue();
+                break;
+            }
         }
         if (!content.equals("")) {
             UserResponseClient userResponseClient = accountClient.getCurrentUser(request.getHeader("token")).getBody();
@@ -78,5 +81,15 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         Pattern pattern = Pattern.compile("^" + patternString + "$");
         Matcher matcher = pattern.matcher(value);
         return matcher.find();
+    }
+
+    public static LinkedHashMap<String, String> MapAPI() {
+        LinkedHashMap<String, String> lkMapApi = new LinkedHashMap<>(); // map<method + "_" + app route, message>
+        lkMapApi.put(Const.ORG_AR + "_" + Const.POST, Const.ADD_ORG);
+        lkMapApi.put(Const.ORG_ID_AR + "_" + Const.PUT, Const.UPDATE_ORG);
+        lkMapApi.put(Const.ORG_ID_AR + "_" + Const.DELETE, Const.DELETE_ORG);
+        lkMapApi.put(Const.LIST_ORG_AR + "_" + Const.POST, Const.ADD_LIST_ORG);
+        lkMapApi.put(Const.ORG_USER_AR + "_" + Const.POST, Const.ADD_USER_ORG);
+        return lkMapApi;
     }
 }

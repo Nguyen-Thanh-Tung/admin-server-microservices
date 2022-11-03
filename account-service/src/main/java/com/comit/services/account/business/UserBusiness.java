@@ -38,6 +38,8 @@ public interface UserBusiness {
 
     int getNumberUserOfOrganization(int organizationId);
 
+    int getNumberAllUserOfOrganization(int organizationId);
+
     BaseUserDto getCurrentUser();
 
     List<BaseUserDto> getUsersOfCurrentUser();
@@ -51,4 +53,6 @@ public interface UserBusiness {
     int getNumberUserOfRoles(String roleIds);
 
     int getNumberOrganizationOfRoles(String roleIds);
+
+    boolean resendCode(Integer id);
 }

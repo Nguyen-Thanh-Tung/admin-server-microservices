@@ -3,6 +3,7 @@ package com.comit.services.account.adapter;
 import com.comit.services.account.business.CommonBusiness;
 import com.comit.services.account.client.UserLogClient;
 import com.comit.services.account.client.request.UserLogRequestClient;
+import com.comit.services.account.constant.Const;
 import com.comit.services.account.controller.response.BaseResponse;
 import com.comit.services.account.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,8 +42,9 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         if (o instanceof BaseResponse) {
             try {
                 HttpServletRequest request = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
+
                 // If action is success, user log will be created
-                if (((BaseResponse) o).getCode() == 1) {
+                if (((BaseResponse) o).getCode() == 1 && !Objects.equals(request.getHeader(Const.INTERNAL), Const.INTERNAL)) {
                     addUserLog(request);
                 }
             } catch (Exception e) {
@@ -59,12 +60,12 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
         String content = "";
-        if (Objects.equals(method, "POST") && Objects.equals(requestURI, "/users")) {
-            content = "Thêm người dùng";
-        } else if (Objects.equals(method, "PUT") && validField(requestURI, "/users/[0-9]+")) {
-            content = "Cập nhật thông tin người dùng";
-        } else if (Objects.equals(method, "DELETE") && validField(requestURI, "/users/[0-9]+")) {
-            content = "Xóa người dùng";
+
+        for (Map.Entry<String, String> hashMap : MapAPI().entrySet()) {
+            if (validField(requestURI + "_" + method, hashMap.getKey())) {
+                content = hashMap.getValue();
+                break;
+            }
         }
         if (!content.equals("")) {
             User currentUser = commonBusiness.getCurrentUser();
@@ -78,5 +79,18 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         Pattern pattern = Pattern.compile("^" + patternString + "$");
         Matcher matcher = pattern.matcher(value);
         return matcher.find();
+    }
+
+    public static LinkedHashMap<String, String> MapAPI() {
+        LinkedHashMap<String, String> lkMapApi = new LinkedHashMap<>(); // map<method + "_" + app route, message>
+        lkMapApi.put(Const.USER_AR + "_" + Const.POST, Const.ADD_USER);
+        lkMapApi.put(Const.USER_ID_AR + "_" + Const.PUT, Const.UPDATE_USER);
+        lkMapApi.put(Const.USER_ID_AR + "_" + Const.DELETE, Const.DELETE_USER);
+        lkMapApi.put(Const.UPDATE_ROLES_AR + "_" + Const.PUT, Const.UPDATE_ROLES);
+        lkMapApi.put(Const.LOCK_ACCOUNT_AR + "_" + Const.PUT, Const.LOCK_ACCOUNT);
+        lkMapApi.put(Const.UPDATE_AVATAR_AR + "_" + Const.PUT, Const.UPDATE_AVATAR);
+        lkMapApi.put(Const.RESEND_CODE_AR + "_" + Const.POST, Const.RESEND_CODE);
+
+        return lkMapApi;
     }
 }

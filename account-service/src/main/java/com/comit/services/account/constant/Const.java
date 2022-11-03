@@ -36,4 +36,49 @@ public interface Const {
     // Type of file
     String IMAGE_TYPE = "image";
     String EXCEL_TYPE = "excel";
+
+    // Length username
+    int MIN_LENGTH_USERNAME = 5;
+
+    // method
+    String POST = "POST";
+    String GET = "GET";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
+
+    // action
+    String ADD_USER = "Thêm người dùng";
+    String UPDATE_USER = "Cập nhật thông tin người dùng";
+    String DELETE_USER = "Xóa người dùng";
+    String GET_USER = "Lấy thông tin người dùng";
+    String GET_ALL_USER = "Lấy thông tin toàn bộ người dùng";
+    String GET_ACCOUNT_NUMBER = "Lấy số lượng người dùng";
+    String UPDATE_ROLES = "Cập nhật danh sách quyền cho người dùng";
+    String LOCK_ACCOUNT = "Khóa hoặc mở khóa tài khoản";
+    String UPDATE_AVATAR = "Thay đổi avatar người dùng";
+    String NUMBER_USER_ORG = "Lấy số lượng người dùng của tổ chức";
+    String USER_CURRENT = "Lấy thông tin người dùng hiện tại";
+    String NUMBER_USER_CURRENT = "Lấy danh sách người dùng được tạo bởi người dùng hiện tại";
+    String ROLES_USER_CURRENT = "Lấy danh sách quyền của người dùng hiện tại";
+    String NUMBER_USER_OF_LOCATION = "Lấy số lượng người dùng của chi nhánh";
+    String NUMBER_USER_OF_LIST_ROLE = "Lấy số lượng người dùng có một trong các quyền trong danh sách";
+    String RESEND_CODE = "Gửi lại code tạo tài khoản vào mail người dùng";
+
+    // app route
+    String USER_AR = "/users";
+    String USER_ID_AR = "/users/[0-9]+";
+    String ACCOUNT_NUMBER_AR = "/users/account-number";
+    String UPDATE_ROLES_AR = "/users/[0-9]+/roles";
+    String LOCK_ACCOUNT_AR = "/users/[0-9]+/lock";
+    String UPDATE_AVATAR_AR = "/users/[0-9]+/avatar";
+    String NUMBER_USER_ORG_AR = "/users/organization/[0-9]+/number-user";
+    String USER_CURRENT_AR = "/users/current";
+    String NUMBER_USER_CURRENT_AR = "/users/current/users";
+    String ROLES_USER_CURRENT_AR = "/users/current/roles";
+    String NUMBER_USER_OF_LOCATION_AR = "/users/location/[0-9]+/number-user";
+    String NUMBER_USER_OF_LIST_ROLE_AR = "/users/number-user-of-roles";
+    String RESEND_CODE_AR = "/users/[0-9]+/resend-code";
+
+    // scope api
+    String INTERNAL = "internal";
 }

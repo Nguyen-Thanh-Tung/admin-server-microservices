@@ -4,6 +4,7 @@ import com.comit.services.employee.client.AccountClient;
 import com.comit.services.employee.client.UserLogClient;
 import com.comit.services.employee.client.request.UserLogRequestClient;
 import com.comit.services.employee.client.response.UserResponseClient;
+import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.controller.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +46,7 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
             try {
                 HttpServletRequest request = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
                 // If action is success, user log will be created
-                if (((BaseResponse) o).getCode() == 1) {
+                if (((BaseResponse) o).getCode() == 1 && !Objects.equals(request.getHeader(Const.INTERNAL), Const.INTERNAL)) {
                     addUserLog(request);
                 }
             } catch (Exception e) {
@@ -59,12 +62,12 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
         String content = "";
-        if (Objects.equals(method, "POST") && Objects.equals(requestURI, "/employees")) {
-            content = "Thêm nhân sự";
-        } else if (Objects.equals(method, "PUT") && validField(requestURI, "/employees/[0-9]+")) {
-            content = "Cập nhật thông tin nhân sự";
-        } else if (Objects.equals(method, "DELETE") && validField(requestURI, "/employees/[0-9]+")) {
-            content = "Xóa nhân sự";
+
+        for (Map.Entry<String, String> hashMap : MapAPI().entrySet()) {
+            if (validField(requestURI + "_" + method, hashMap.getKey())) {
+                content = hashMap.getValue();
+                break;
+            }
         }
         if (!content.equals("")) {
             UserResponseClient userResponseClient = accountClient.getCurrentUser(request.getHeader("token")).getBody();
@@ -78,5 +81,16 @@ public class ResponseAdapter implements ResponseBodyAdvice<Object> {
         Pattern pattern = Pattern.compile("^" + patternString + "$");
         Matcher matcher = pattern.matcher(value);
         return matcher.find();
+    }
+
+    public static LinkedHashMap<String, String> MapAPI() {
+        LinkedHashMap<String, String> lkMapApi = new LinkedHashMap<>(); // map<method + "_" + app route, message>
+        lkMapApi.put(Const.EMPLOYEE_AR + "_" + Const.POST, Const.ADD_EMPLOYEE);
+        lkMapApi.put(Const.EMPLOYEE_ID_AR + "_" + Const.PUT, Const.UPDATE_EMPLOYEE);
+        lkMapApi.put(Const.EMPLOYEE_ID_AR + "_" + Const.DELETE, Const.DELETE_EMPLOYEE);
+        lkMapApi.put(Const.EMPLOYEE_MANAGER_ID_AR + "_" + Const.PUT, Const.CHANGE_EMPLOYEE_MANAGER);
+        lkMapApi.put(Const.EMPLOYEE_IMPORT_AR + "_" + Const.POST, Const.EMPLOYEE_IMPORT);
+        lkMapApi.put(Const.EMPLOYEE_QRCODE_AR + "_" + Const.POST, Const.EMPLOYEE_QRCODE);
+        return lkMapApi;
     }
 }

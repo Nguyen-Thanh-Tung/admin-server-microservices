@@ -73,4 +73,28 @@ public interface Const {
     String TIME_KEEPING_HEADER_MODULE = "time_keeping";
     String AREA_RESTRICTION_HEADER_MODULE = "area_restriction";
     String BEHAVIOR_HEADER_MODULE = "behavior";
+
+    // method
+    String POST = "POST";
+    String GET = "GET";
+    String PUT = "PUT";
+    String DELETE = "DELETE";
+
+    // action
+    String ADD_EMPLOYEE = "Thêm nhân sự";
+    String UPDATE_EMPLOYEE = "Cập nhật thông tin nhân sự";
+    String DELETE_EMPLOYEE = "Xóa nhân sự";
+    String CHANGE_EMPLOYEE_MANAGER = "Thay đổi quản lý cho danh sách nhân viên";
+    String EMPLOYEE_IMPORT = "Thêm danh sách nhân viên từ file";
+    String EMPLOYEE_QRCODE = "Gửi mã qr code cho ott tới mail nhân viên";
+
+    // app route
+    String EMPLOYEE_AR = "/employees";
+    String EMPLOYEE_ID_AR = "/employees/[0-9]+";
+    String EMPLOYEE_MANAGER_ID_AR = "/employees/[0-9]+/change/[0-9]+";
+    String EMPLOYEE_IMPORT_AR = "/employees/import";
+    String EMPLOYEE_QRCODE_AR = "/employees/send-qrcode";
+
+    // scope api
+    String INTERNAL = "internal";
 }

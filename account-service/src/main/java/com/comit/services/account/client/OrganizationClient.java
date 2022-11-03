@@ -16,5 +16,6 @@ public interface OrganizationClient {
     ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("organizationName") String organizationName);
 
     @PostMapping("/organizations")
-    ResponseEntity<OrganizationResponseClient> addOrganization(@RequestHeader String token, @RequestBody OrganizationRequestClient organization);
+    ResponseEntity<OrganizationResponseClient> addOrganization(@RequestHeader String token,
+                                @RequestBody OrganizationRequestClient organization, @RequestHeader String internal);
 }

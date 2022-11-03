@@ -12,5 +12,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface FeatureClient {
 
     @PostMapping("/features")
-    ResponseEntity<BaseResponseClient> addFeature(@RequestHeader String token, @RequestBody FeatureRequestClient featureRequestClient);
+    ResponseEntity<BaseResponseClient> addFeature(@RequestHeader String token, @RequestBody FeatureRequestClient
+            featureRequestClient, @RequestHeader String internal);
 }

@@ -80,7 +80,7 @@ public class UserBusinessImpl implements UserBusiness {
     @Override
     public BaseUserDto getUserBase(int id) {
         User user = userServices.getUser(id);
-
+        if (user == null) return null;
         // Remove information parent user if parent user is super admin
         if (user.getParent() != null && Objects.equals(user.getParent().getUsername(), superAdminUsername)) {
             user.setParent(null);
@@ -146,7 +146,7 @@ public class UserBusinessImpl implements UserBusiness {
         User newUser = userServices.saveUser(currentUser, user);
         // Send mail
         try {
-            kafkaServices.sendMessage("createUser", "{\"id\": " + newUser.getId() + ", \"fullname\": \"" + newUser.getFullName() + "\", \"email\": \"" + newUser.getEmail() + "\", \"code\": \"" + newUser.getCode() + "\"}");
+            kafkaServices.sendMessage("createUser", "{\"id\":" + newUser.getId() + ",\"fullname\":\"" + newUser.getFullName() + "\",\"username\":\"" + newUser.getUsername() + "\", \"email\": \"" + newUser.getEmail() + "\", \"code\": \"" + newUser.getCode() + "\"}");
         } catch (Exception e) {
             CommonLogger.error("Error kafka");
         }
@@ -339,6 +339,11 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
+    public int getNumberAllUserOfOrganization(int organizationId) {
+        return userServices.getNumberAllUserOfOrganization(organizationId);
+    }
+
+    @Override
     public BaseUserDto getCurrentUser() {
         User currentUser = commonBusiness.getCurrentUser();
         return convertUserToBaseUserDto(currentUser);
@@ -434,5 +439,21 @@ public class UserBusinessImpl implements UserBusiness {
             return userServices.getNumberOrganizationOfRoles(roleIds);
         }
         return 0;
+    }
+
+    @Override
+    public boolean resendCode(Integer userId) {
+        User user = userServices.getUser(userId);
+        if (user != null && user.getCode() != null) {
+            // Send mail
+            try {
+                kafkaServices.sendMessage("createUser", "{\"id\": " + user.getId() + ", \"fullname\": \"" + user.getFullName() + "\",\"username\":\"" + user.getUsername() + "\", \"email\": \"" + user.getEmail() + "\", \"code\": \"" + user.getCode() + "\"}");
+                return true;
+            } catch (Exception e) {
+                CommonLogger.error("Error kafka: " + e.getMessage());
+                return false;
+            }
+        }
+        return false;
     }
 }

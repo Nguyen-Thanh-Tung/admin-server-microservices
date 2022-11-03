@@ -3,7 +3,6 @@ package com.comit.services.employee.service;
 import com.comit.services.employee.client.*;
 import com.comit.services.employee.client.data.*;
 import com.comit.services.employee.client.request.AreaEmployeeTimeListRequestClient;
-import com.comit.services.employee.client.request.MailRequestClient;
 import com.comit.services.employee.client.request.MetadataRequestClient;
 import com.comit.services.employee.client.response.*;
 import com.comit.services.employee.constant.Const;
@@ -13,6 +12,7 @@ import com.comit.services.employee.exception.RestApiException;
 import com.comit.services.employee.model.entity.Employee;
 import com.comit.services.employee.repository.EmployeeRepository;
 import com.comit.services.employee.util.ConvertFileUtil;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +60,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
     public Page<Employee> getEmployeePage(Integer locationId, String status, String search, Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
             if (status != null) {
-                return employeeRepository.findByLocationIdAndStatusAndNameContainingOrLocationIdAndCodeContainingOrderByIdDescIdDesc(locationId, status, search, locationId, search, pageable);
+                return employeeRepository.findByLocationIdAndStatusAndNameContainingOrLocationIdAndStatusAndCodeContainingOrderByIdDescIdDesc(locationId, status, search, locationId, status, search, pageable);
             }
             return employeeRepository.findByLocationIdAndNameContainingOrLocationIdAndCodeContainingOrderByStatusAscIdDescIdDesc(locationId, search, locationId, search, pageable);
         } else {
@@ -77,12 +77,17 @@ public class EmployeeServicesImpl implements EmployeeServices {
     }
 
     @Override
+    public Employee getEmployee(String employeeCode, Integer locationId) {
+        return employeeRepository.findByCodeAndLocationId(employeeCode, locationId);
+    }
+
+    @Override
     public Employee getEmployee(int employeeId) {
         return employeeRepository.findById(employeeId);
     }
 
     @Override
-    public Employee getEmployee(String employeeCode) {
+    public List<Employee> getEmployees(String employeeCode) {
         return employeeRepository.findByCode(employeeCode);
     }
 
@@ -125,12 +130,12 @@ public class EmployeeServicesImpl implements EmployeeServices {
                 .build();
 
         try {
-//            Response response = client.newCall(request).execute();
-//            if (response.body() != null) {
-//                return response.body().string();
-//            }
-            return "{\"code\": 200, \"data\": {\"embedding_id\":1, \"location_id\": 2, \"image_path\": \"https://picsum.photos/200\"}}";
-//            return null;
+            Response response = client.newCall(request).execute();
+            if (response.body() != null) {
+                return response.body().string();
+            }
+//            return "{\"code\": 200, \"data\": {\"embedding_id\":1, \"location_id\": 2, \"image_path\": \"https://picsum.photos/200\"}}";
+            return null;
         } catch (Exception e) {
             throw new RestApiException(EmployeeErrorCode.CAN_NOT_ADD_EMPLOYEE);
         }
@@ -236,11 +241,29 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public MetadataDtoClient saveMetadata(String imagePath) {
-        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), new MetadataRequestClient(imagePath)).getBody();
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest
+                .getHeader("token"), new MetadataRequestClient(imagePath), Const.INTERNAL).getBody();
         if (metadataResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
         return metadataResponseClient.getMetadata();
+    }
+
+    @Override
+    @CircuitBreaker(name = "serviceMetadata", fallbackMethod = "callSaveMetadataFallback")
+    public MetadataDtoClient saveMetadata(String imagePath, int embeddingId, int locationId) {
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest
+                .getHeader("token"), new MetadataRequestClient(imagePath), Const.INTERNAL).getBody();
+        if (metadataResponseClient == null) {
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        return metadataResponseClient.getMetadata();
+    }
+
+    public MetadataDtoClient callSaveMetadataFallback(String imagePath, int embeddingId, int locationId, Exception e) {
+        // delete image in core ai trust save
+        getDeleteEmployeeImageResponse(embeddingId, locationId);
+        throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
     }
 
     @Override
@@ -263,7 +286,9 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public List<AreaEmployeeTimeDtoClient> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
-        AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient.saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"), new AreaEmployeeTimeListRequestClient(areaEmployees, newEmployeeId)).getBody();
+        AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient
+                .saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"),
+                new AreaEmployeeTimeListRequestClient(areaEmployees, newEmployeeId), Const.INTERNAL).getBody();
 
         if (areaEmployeeTimeListResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
@@ -273,7 +298,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteEmployeeAreaRestrictionList(Integer employeeId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteAreaEmployeeTimeList(httpServletRequest.getHeader("token"), employeeId).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteAreaEmployeeTimeList(httpServletRequest
+                .getHeader("token"), employeeId, Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -286,7 +312,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteManagerOnAllAreaRestriction(int managerId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteManagerOnAllAreaRestriction(httpServletRequest.getHeader("token"), managerId).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteManagerOnAllAreaRestriction(httpServletRequest.
+                getHeader("token"), managerId, Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -294,7 +321,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteAreaRestrictionManagerNotificationList(Integer employeeId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteAreaRestrictionManagerNotificationList(httpServletRequest.getHeader("token"), employeeId).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteAreaRestrictionManagerNotificationList(
+                httpServletRequest.getHeader("token"), employeeId, Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -345,7 +373,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public List<AreaEmployeeTimeDtoClient> getAreaEmployeeTimesOfEmployee(int employeeId) {
-        AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient.getAreaEmployeeTimesOfEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
+        AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient
+                .getAreaEmployeeTimesOfEmployee(httpServletRequest.getHeader("token"), employeeId, Const.INTERNAL).getBody();
         if (areaEmployeeTimeListResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }

@@ -24,13 +24,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     void deleteByUsername(String username);
 
-    List<User> findAllByStatusNotIn(List<String> deleted);
+    List<User> findAllByStatusNotIn(List<String> statusReject);
 
     List<User> findAllByParentId(int parentId);
 
-    int countByLocationIdAndStatus(Integer locationId, String active);
+    int countByLocationIdAndStatus(Integer locationId, String status);
 
-    int countByOrganizationIdAndStatus(Integer organizationId, String active);
+    int countByOrganizationIdAndStatus(Integer organizationId, String status);
+
+    int countByOrganizationIdAndStatusNotIn(Integer organizationId, List<String> statusReject);
 
     @Query("select count(u.id) from User u join u.roles r where r.id in :roleIds and u.organizationId = :organizationId")
     int getNumberUserOfRoles(

@@ -143,6 +143,7 @@ public class UserServicesImpl implements UserServices {
         // Can manage admin if I am super admin and user is super admin organization OR I am super admin organization and user not super admin organization
         if (hasRole(user, Const.ROLE_TIME_KEEPING_ADMIN)
                 || hasRole(user, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                || hasRole(user, Const.ROLE_BEHAVIOR_CONTROL_ADMIN)
         ) {
             return (requestHelper.hasRole(Const.ROLE_SUPER_ADMIN)
                     && isSuperAdminOrganization(user))
@@ -162,18 +163,27 @@ public class UserServicesImpl implements UserServices {
                     && !isSuperAdminOrganization(currentUser)
                     && userAndCurrentUserBelongOrganization;
         }
+        if (hasRole(user, Const.ROLE_BEHAVIOR_CONTROL_USER)) {
+            return requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN)
+                    && !isSuperAdminOrganization(currentUser)
+                    && userAndCurrentUserBelongOrganization;
+        }
         return false;
     }
 
     public String convertFullnameToUsername(String fullname) {
         String nfdNormalizedString = Normalizer.normalize(fullname, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        String fullnameEnglish = pattern.matcher(nfdNormalizedString).replaceAll("");
+        String fullnameEnglish = pattern.matcher(nfdNormalizedString)
+                .replaceAll("").replaceAll("đ", "d");
 
         String[] fullnameArray = fullnameEnglish.toLowerCase().split(" ");
         StringBuilder username = new StringBuilder(fullnameArray[fullnameArray.length - 1]);
         for (int i = 0; i < fullnameArray.length - 1; i++) {
             username.append(fullnameArray[i].charAt(0));
+        }
+        if (username.length() < Const.MIN_LENGTH_USERNAME) {
+            username.append((int) Math.floor(Math.random() * Math.pow(10, Const.MIN_LENGTH_USERNAME - username.length())));
         }
         while (existUserByUsername(username.toString())) {
             int random = (int) Math.floor(Math.random() * 100);
@@ -184,7 +194,13 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public int getNumberUserOfOrganization(Integer organizationId) {
-        return userRepository.countByOrganizationIdAndStatus(organizationId, Const.ACTIVE);    }
+        return userRepository.countByOrganizationIdAndStatus(organizationId, Const.ACTIVE);
+    }
+
+    @Override
+    public int getNumberAllUserOfOrganization(Integer organizationId) {
+        return userRepository.countByOrganizationIdAndStatusNotIn(organizationId, List.of(Const.DELETED));
+    }
 
     @Override
     public OrganizationDtoClient getOrganizationById(int organizationId) {
@@ -206,7 +222,8 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public OrganizationDtoClient addOrganization(Organization organization) {
-        OrganizationResponseClient organizationResponseClient = organizationClient.addOrganization(httpServletRequest.getHeader("token"), new OrganizationRequestClient(organization)).getBody();
+        OrganizationResponseClient organizationResponseClient = organizationClient.addOrganization(httpServletRequest
+                .getHeader("token"), new OrganizationRequestClient(organization), Const.INTERNAL).getBody();
         if (organizationResponseClient == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }
@@ -233,7 +250,8 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public MetadataDtoClient saveMetadata(MultipartFile file) {
-        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest.getHeader("token"), file).getBody();
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest
+                .getHeader("token"), file, Const.INTERNAL).getBody();
         if (metadataResponseClient == null) {
             throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
         }

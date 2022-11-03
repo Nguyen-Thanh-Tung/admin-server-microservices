@@ -13,9 +13,11 @@ public interface EmployeeServices {
 
     Employee getEmployee(int employeeId, Integer locationId);
 
+    Employee getEmployee(String employeeCode, Integer locationId);
+
     Employee getEmployee(int employeeId);
 
-    Employee getEmployee(String employeeCode);
+    List<Employee> getEmployees(String employeeCode);
 
     Employee saveEmployee(Employee employee);
 
@@ -36,6 +38,7 @@ public interface EmployeeServices {
     LocationDtoClient getLocationOfCurrentUser();
 
     MetadataDtoClient saveMetadata(String image_path);
+    MetadataDtoClient saveMetadata(String image_path, int embeddingId, int locationId);
 
     boolean isTimeKeepingModule();
 

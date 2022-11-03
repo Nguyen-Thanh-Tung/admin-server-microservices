@@ -1,5 +1,7 @@
 package com.comit.services.history.util;
 
+import com.comit.services.history.constant.Const;
+import com.comit.services.history.loging.model.CommonLogger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
@@ -17,11 +19,11 @@ public class TimeUtil {
     public static DateTimeZone asiaHoChiMinh = DateTimeZone.forID("Asia/Ho_Chi_Minh");
 
     public static Date stringDateToDate(String date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat(Const.DATE_FORMAT_COMMON);
         try {
             return formatter.parse(date);
         } catch (ParseException e) {
-            e.printStackTrace();
+            CommonLogger.error("date hasn't format dd/MM/yyyy HH:mm:ss, date: " + date);
         }
         return new DateTime(asiaHoChiMinh).toDate();
     }

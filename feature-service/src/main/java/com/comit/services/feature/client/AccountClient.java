@@ -1,9 +1,6 @@
 package com.comit.services.feature.client;
 
-import com.comit.services.feature.client.response.CheckRoleResponseClient;
-import com.comit.services.feature.client.response.CountResponseClient;
-import com.comit.services.feature.client.response.RoleListResponseClient;
-import com.comit.services.feature.client.response.RoleResponseClient;
+import com.comit.services.feature.client.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,4 +24,7 @@ public interface AccountClient {
 
     @GetMapping("/roles/name/{roleName}")
     ResponseEntity<RoleResponseClient> getRoleByName(@RequestHeader String token, @PathVariable String roleName);
+
+    @GetMapping("/users/current")
+    ResponseEntity<UserResponseClient> getCurrentUser(@RequestHeader String token);
 }

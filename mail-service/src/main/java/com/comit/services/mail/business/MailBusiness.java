@@ -5,5 +5,9 @@ public interface MailBusiness {
 
     boolean sendForgetPasswordMail(Integer id, String fullname, String email, String code);
 
-    boolean sendConfirmCreateUserMail(Integer id, String fullname, String email, String code);
+    boolean sendConfirmCreateUserMail(Integer id, String fullname, String username, String email, String code, Boolean isResend);
+
+    boolean sendAreaRestrictionMail(String email, String employeeName, String areaRestrictionName, String date);
+
+    boolean sendTimeKeepingMail(String email, String employeeName, String shiftName, String date, String locationName, String organizationName, String content);
 }

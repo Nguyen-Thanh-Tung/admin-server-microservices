@@ -21,7 +21,7 @@ public interface NotificationHistoryBusiness {
 
     NotificationHistoryDto saveNotificationHistory(NotificationHistoryRequest request);
 
-    Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIds, String status, int page, int size);
+    Page<NotificationHistory> getNotificationHistoryPage(String areaRestrictionIds, String timeStart, String timeEnd, String status, int page, int size);
 
     boolean updateStatusNotificationHistory(Integer id);
 
@@ -42,4 +42,20 @@ public interface NotificationHistoryBusiness {
     boolean hasHistory(Integer locationId, Integer employeeId, String timeStart, String timeEnd);
 
     int getNumberNotification(Integer locationId, Integer employeeId, String timeStart, String timeEnd);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraIdAndStatus(Integer areaRestrictionId, Integer cameraId, String status, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraId(Integer areaRestrictionId, Integer cameraId, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndStatus(Integer areaRestrictionId, String status, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionId(Integer areaRestrictionId, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPageByCameraIdAndStatus(Integer cameraId, String status, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPageByCameraId(Integer cameraId, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPageByStatus(String status, String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
+
+    Page<NotificationHistory> getNotificationHistoryPage(String timeStart, String timeEnd, Boolean hasEmployee, int page, int size);
 }

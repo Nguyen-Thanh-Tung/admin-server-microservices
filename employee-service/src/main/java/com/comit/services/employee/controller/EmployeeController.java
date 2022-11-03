@@ -78,7 +78,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/base")
-    public ResponseEntity<BaseResponse> getEmployeeFullInfo(@PathVariable int id) {
+    public ResponseEntity<BaseResponse> getEmployeeBase(@PathVariable int id) {
         BaseEmployeeDto employeeDto = employeeBusiness.getEmployeeBase(id);
         return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
     }
@@ -87,6 +87,12 @@ public class EmployeeController {
     public ResponseEntity<BaseResponse> getEmployee(@PathVariable String employeeCode) {
         BaseEmployeeDto employeeDto = employeeBusiness.getEmployeeBase(employeeCode);
         return new ResponseEntity<>(new EmployeeResponse(EmployeeErrorCode.SUCCESS, employeeDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/code/{employeeCode}/base")
+    public ResponseEntity<BaseResponse> getEmployees(@PathVariable String employeeCode) {
+        List<BaseEmployeeDto> employeeDtos = employeeBusiness.getEmployeesBase(employeeCode);
+        return new ResponseEntity<>(new EmployeeListBaseResponse(EmployeeErrorCode.SUCCESS, employeeDtos, 0, employeeDtos.size(), 1), HttpStatus.OK);
     }
 
     @GetMapping("/embedding/{embeddingId}")

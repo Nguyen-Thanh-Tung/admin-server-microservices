@@ -8,6 +8,7 @@ public enum EmployeeErrorCode {
     EMPLOYEE_NOT_EXIST(0, "Nhân viên không tồn tại"),
     EMPLOYEE_IMAGE_IS_EXISTED(0, "Hình ảnh nhân viên đã tồn tại"),
     MISSING_EMPLOYEE_CODE_FIELD(0, "Thiếu mã nhân viên"),
+    MISSING_EMAIL_FIELD(0, "Email là bắt buộc"),
     EMAIL_IS_INVALID(0, "Địa chỉ email là không hợp lệ"),
     PHONE_IS_INVALID(0, "Số điện thoại là không hợp lệ"),
     MANAGER_ID_IS_NOT_NUMBER(0, "Manager id is not number"),

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "feature-service.name" . }}
+  labels:
+    {{- include "feature-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "feature-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "feature-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "feature-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: {{ include "feature-service.fullname" . }}-config-map
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: {{ include "feature-service.fullname" . }}-config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: {{ include "feature-service.fullname" . }}-config-map
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "feature-service.fullname" . }}-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "feature-service.fullname" . }}-credentials
+                  key: password
+          volumeMounts:
+            - mountPath: "/app/logs"
+              name: data
+              subPath: "feature-service"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: metadata-storage-pvc
+

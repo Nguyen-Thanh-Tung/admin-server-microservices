@@ -16,7 +16,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     Employee findById(int id);
 
-    Employee findByCode(String code);
+    List<Employee> findByCode(String code);
 
     Employee findByCodeAndLocationId(String code, Integer locationId);
 
@@ -24,7 +24,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     List<Employee> findAllByIdIn(List<Integer> employeeIds);
 
-    Page<Employee> findByLocationIdAndStatusAndNameContainingOrLocationIdAndCodeContainingOrderByIdDescIdDesc(Integer locationId, String status, String search, Integer locationId1, String search1, Pageable pageable);
+    Page<Employee> findByLocationIdAndStatusAndNameContainingOrLocationIdAndStatusAndCodeContainingOrderByIdDescIdDesc(Integer locationId, String status, String search, Integer locationId1, String status1, String search1, Pageable pageable);
 
     Page<Employee> findByLocationIdAndStatusOrderByIdDescIdDesc(Integer locationId, String status, Pageable pageable);
 

@@ -51,7 +51,7 @@ public class MetadataServicesImpl implements MetadataServices {
             String extension = tmp[tmp.length - 1];
             String id = genID();
             String currentDate = TimeUtil.getCurrentDateStr();
-            String direction = env.getProperty("storage.folder") + "/" + currentDate;
+            String direction = env.getProperty("spring.storage.folder") + "/" + currentDate;
             String direction2 = direction + "/" + extension;
             String path = direction2 + "/" + id + "." + extension;
             File director = new File(direction);
@@ -68,7 +68,7 @@ public class MetadataServicesImpl implements MetadataServices {
             }
             File file = new File(path);
             Files.copy(inFile.getInputStream(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            metadata = new Metadata(id, md5, env.getProperty("storage.host") + path, extension);
+            metadata = new Metadata(id, md5, env.getProperty("spring.storage.host") + path, extension);
             metadataRepository.save(metadata);
             return metadata;
         } catch (Exception e) {

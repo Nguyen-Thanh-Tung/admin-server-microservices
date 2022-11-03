@@ -68,4 +68,14 @@ public interface Const {
 
     String DEFAULT_SIZE_PAGE = Integer.MAX_VALUE + "";
     String DEFAULT_PAGE = "0";
+
+    // method
+    String POST = "post";
+
+    // action
+    String ADD_FEATURE = "Thêm mới chức năng";
+    // app rout
+    String FEATURE_AR = "/features";
+    // scope
+    String INTERNAL = "internal";
 }
