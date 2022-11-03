@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stream-server.name" . }}
+  labels:
+    {{- include "stream-server.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "stream-server.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "stream-server.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "stream-server.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: MODE
+              value: {{ .Values.MODE }}
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: HOST
+              value: {{ .Values.HOST }}
+            - name: KAFKA_HOST
+              value: {{ .Values.KAFKA_HOST }}
+            - name: KAFKA_PORT
+              value: "{{ .Values.KAFKA_PORT }}"
+            - name: KAFKA_CLIENT_ID
+              value: {{ .Values.KAFKA_CLIENT_ID }}
+            - name: KAFKA_GROUP_ID
+              value: {{ .Values.KAFKA_GROUP_ID }}
+            - name: KAFKA_STREAM_CAMERA_TOPIC
+              value: {{ .Values.KAFKA_STREAM_CAMERA_TOPIC }}
+            - name: KAFKA_TIME_KEEPING_TOPIC
+              value: {{ .Values.KAFKA_TIME_KEEPING_TOPIC }}
+            - name: KAFKA_AREA_RESTRICTION_TOPIC
+              value: {{ .Values.KAFKA_AREA_RESTRICTION_TOPIC }}
+            - name: KAFKA_TIME_KEEPING_NOTIFICATION_MAIL_TOPIC
+              value: {{ .Values.KAFKA_TIME_KEEPING_NOTIFICATION_MAIL_TOPIC }}
+            - name: KAFKA_AREA_RESTRICTION_MAIL_TOPIC
+              value: {{ .Values.KAFKA_AREA_RESTRICTION_MAIL_TOPIC }}
+            - name: KAFKA_TIME_KEEPING_NOTIFICATION_OTT_TOPIC
+              value: {{ .Values.KAFKA_TIME_KEEPING_NOTIFICATION_OTT_TOPIC }}
+            - name: KAFKA_AREA_RESTRICTION_OTT_TOPIC
+              value: {{ .Values.KAFKA_AREA_RESTRICTION_OTT_TOPIC }}
+            - name: WEB_SOCKET_IN_OUT_PORT
+              value: "{{ .Values.WEB_SOCKET_IN_OUT_PORT }}"
+            - name: REDIS_PORT
+              value: "{{ .Values.REDIS_PORT }}"
+            - name: REDIS_HOST
+              value: {{ .Values.REDIS_HOST }}
+            - name: REDIS_USERNAME
+              value: {{ .Values.REDIS_USERNAME }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.REDIS_PASSWORD }}
+            - name: REDIS_EXPIRE_TIME
+              value: "{{ .Values.REDIS_EXPIRE_TIME }}"
+            - name: BASE_URL
+              value: {{ .Values.BASE_URL }}
+          securityContext:
+            privileged: true

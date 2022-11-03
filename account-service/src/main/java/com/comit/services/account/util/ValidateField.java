@@ -55,7 +55,7 @@ public class ValidateField {
     }
 
     public boolean validUsername(String username) {
-        return validField(username, "[a-zA-Z0-9]{5,}");
+        return validField(username, "[a-zA-Z0-9]{" + Const.MIN_LENGTH_USERNAME + ",}");
     }
 
 }

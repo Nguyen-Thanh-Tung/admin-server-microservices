@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gateway-service.name" . }}
+  labels:
+    {{- include "gateway-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "gateway-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "gateway-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "gateway-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: {{ include "gateway-service.fullname" . }}-config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: {{ include "gateway-service.fullname" . }}-config-map

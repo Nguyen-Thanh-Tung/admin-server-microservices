@@ -1,10 +1,10 @@
 package com.comit.services.account.middleware;
 
 import com.comit.services.account.constant.Const;
+import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
 import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
-import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.util.ValidateField;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +82,7 @@ public class UserVerifyRequestServicesImpl implements UserVerifyRequestServices 
         if (!validateField.validStringArray(roleStrs)) {
             throw new AccountRestApiException(UserErrorCode.LIST_ROLE_INVALID);
         }
+
         if (organizationIdStr != null) {
             try {
                 Integer.parseInt(organizationIdStr);

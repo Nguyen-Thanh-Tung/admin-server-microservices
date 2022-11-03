@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mail-service.name" . }}
+  labels:
+    {{- include "mail-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "mail-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "mail-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "mail-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: {{ include "mail-service.fullname" . }}-config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: {{ include "mail-service.fullname" . }}-config-map
+            - name: KAFKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: kafka_server_address
+                  name: {{ include "mail-service.fullname" . }}-config-map
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mail-service.fullname" . }}-credentials
+                  key: mail_username
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mail-service.fullname" . }}-credentials
+                  key: mail_password
+            - name: CHANGE_PASSWORD_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: change_password_url
+                  name: {{ include "mail-service.fullname" . }}-config-map
+          volumeMounts:
+            - mountPath: "/app/logs"
+              name: data
+              subPath: "mail-service"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: metadata-storage-pvc
+

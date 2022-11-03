@@ -1,7 +1,9 @@
 package com.comit.services.account.constant;
 
 public enum RoleErrorCode {
-    SUCCESS(1, "Success");
+    SUCCESS(1, "Success"),
+    NOT_EXIST_ROLE(0, "Quyền không tồn tại"),
+    INTERNAL_ERROR(0, "Có lỗi xảy ra, hãy thử lại sau");
     private final int code;
     private String message;
 

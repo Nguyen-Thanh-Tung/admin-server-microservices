@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stream-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-stream-server
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-stream-server
+  labels:
+    app: k8s-stream-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-stream-server
+  template:
+    metadata:
+      labels:
+        app: k8s-stream-server
+    spec:
+      containers:
+        - name: stream-server
+          image: thanhtungtvg95/stream-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                 name: stream-server-config-map

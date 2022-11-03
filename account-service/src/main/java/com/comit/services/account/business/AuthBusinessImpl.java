@@ -1,21 +1,23 @@
 package com.comit.services.account.business;
 
-import com.comit.services.account.client.MailClient;
-import com.comit.services.account.client.OrganizationClient;
-import com.comit.services.account.client.request.MailRequest;
-import com.comit.services.account.client.response.OrganizationResponse;
+import com.comit.services.account.client.data.OrganizationDtoClient;
 import com.comit.services.account.constant.AuthErrorCode;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
-import com.comit.services.account.controller.request.*;
+import com.comit.services.account.controller.request.ChangePasswordRequest;
+import com.comit.services.account.controller.request.ForgetPasswordRequest;
+import com.comit.services.account.controller.request.LoginRequest;
+import com.comit.services.account.controller.request.SignUpRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.exeption.AuthException;
+import com.comit.services.account.exeption.CommonLogger;
 import com.comit.services.account.jwt.JwtProvider;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.Organization;
 import com.comit.services.account.model.entity.Role;
 import com.comit.services.account.model.entity.User;
 import com.comit.services.account.model.entity.UserDetailImpl;
+import com.comit.services.account.service.KafkaServices;
 import com.comit.services.account.service.RoleServices;
 import com.comit.services.account.service.UserServices;
 import com.comit.services.account.service.VerifyAdminRequestServices;
@@ -29,16 +31,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class AuthBusinessImpl implements AuthBusiness {
+    @Autowired
+    UserBusiness userBusiness;
+
     @Autowired
     UserServices userServices;
 
     @Autowired
     RoleServices roleServices;
+
+    @Autowired
+    KafkaServices kafkaServices;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -55,23 +64,22 @@ public class AuthBusinessImpl implements AuthBusiness {
     @Autowired
     HttpServletRequest httpServletRequest;
 
-    @Autowired
-    OrganizationClient organizationClient;
-
-    @Autowired
-    MailClient mailClient;
-
     @Override
     public String getTokenLogin(LoginRequest request) {
         verifyRequestServices.verifyLoginRequest(request);
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return tokenProvider.generateJwtToken(authentication);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return tokenProvider.generateJwtToken(authentication);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
     }
 
     @Override
-    public UserDto login(LoginRequest request) throws IOException {
+    public UserDto login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -82,14 +90,14 @@ public class AuthBusinessImpl implements AuthBusiness {
         if (Objects.equals(user.getStatus(), Const.PENDING)) {
             user.setStatus(Const.ACTIVE);
             User newUser = userServices.saveUser(user);
-            return UserDto.convertUserToUserDto(newUser);
+            return userBusiness.convertUserToUserDto(newUser);
         } else {
-            return UserDto.convertUserToUserDto(user);
+            return userBusiness.convertUserToUserDto(user);
         }
     }
 
     @Override
-    public UserDto register(SignUpRequest signUpRequest) throws IOException {
+    public UserDto register(SignUpRequest signUpRequest) {
         verifyRequestServices.verifyRegisterRequest(signUpRequest);
         String currentUsername = tokenProvider.getUserNameFromJwtToken(httpServletRequest.getHeader("token"));
         User currentUser = userServices.getUser(currentUsername);
@@ -105,16 +113,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             throw new AccountRestApiException(UserErrorCode.EMAIL_EXISTED);
         }
 
-        Organization organization = null;
-        OrganizationResponse getOrganizationByIdResponse = organizationClient.getOrganization(signUpRequest.getOrganizationId()).getBody();
-        if (getOrganizationByIdResponse != null && getOrganizationByIdResponse.getCode() == 1) {
-            organization = getOrganizationByIdResponse.getOrganization();
-            if (organization == null) {
-                throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
-            }
-        } else {
-            throw new AccountRestApiException(UserErrorCode.CAN_NOT_GET_ORGANIZATION);
-        }
+        OrganizationDtoClient organization = userServices.getOrganizationById(signUpRequest.getOrganizationId());
 
         // Create new user's account
         Set<Role> roleSet = new HashSet<>();
@@ -142,11 +141,11 @@ public class AuthBusinessImpl implements AuthBusiness {
         }
         User newUser = userServices.saveUser(currentUser, user);
 
-        return UserDto.convertUserToUserDto(newUser);
+        return userBusiness.convertUserToUserDto(newUser);
     }
 
     @Override
-    public UserDto init(String organizationName, String username, String email, String password) throws IOException {
+    public UserDto init(String organizationName, String username, String email, String password) {
         // Add all Role to system
         Const.ROLES.forEach(role -> {
             if (!roleServices.existsByName(role)) {
@@ -154,28 +153,24 @@ public class AuthBusinessImpl implements AuthBusiness {
             }
         });
 
+        // Add feature
+        roleServices.addFeature(Const.TIME_KEEPING_MODULE);
+        roleServices.addFeature(Const.AREA_RESTRICTION_CONTROL_MODULE);
+        roleServices.addFeature(Const.BEHAVIOR_CONTROL_MODULE);
+
         // Add supper admin
         Set<String> roles = new HashSet<>();
         roles.add(Const.ROLE_SUPER_ADMIN);
 
         // Create organization
-        Organization organization = null;
-        OrganizationResponse organizationResponse = organizationClient.getOrganization(organizationName).getBody();
-        if (organizationResponse != null && organizationResponse.getCode() == UserErrorCode.SUCCESS.getCode()) {
-            organization = organizationResponse.getOrganization();
-            if (organization == null) {
-                organization = new Organization();
-                organization.setName(organizationName);
-                OrganizationResponse addOrganizationResponse = organizationClient.addOrganization(organization).getBody();
-                if (addOrganizationResponse != null && addOrganizationResponse.getCode() == UserErrorCode.SUCCESS.getCode()) {
-                    organization = addOrganizationResponse.getOrganization();
-                } else {
-                    throw new AuthException(AuthErrorCode.CANT_ADD_ORGANIZATION);
-                }
-            }
-        } else {
-            throw new AuthException(AuthErrorCode.CANT_GET_ORGANIZATION);
+        OrganizationDtoClient organizationDtoClient = userServices.getOrganizationByName(organizationName);
+
+        if (organizationDtoClient == null) {
+            Organization organization = new Organization();
+            organization.setName(organizationName);
+            organizationDtoClient = userServices.addOrganization(organization);
         }
+
 
         User user = userServices.getUser(username);
         if (user == null) {
@@ -195,13 +190,13 @@ public class AuthBusinessImpl implements AuthBusiness {
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode(password));
             user.setRoles(roleSet);
-            user.setOrganizationId(organization.getId());
+            user.setOrganizationId(organizationDtoClient.getId());
             user.setStatus(Const.PENDING);
 
             User newUser = userServices.saveUser(user);
-            return UserDto.convertUserToUserDto(newUser);
+            return userBusiness.convertUserToUserDto(newUser);
         }
-        return UserDto.convertUserToUserDto(user);
+        return userBusiness.convertUserToUserDto(user);
     }
 
     @Override
@@ -235,9 +230,12 @@ public class AuthBusinessImpl implements AuthBusiness {
 
         String code = IDGeneratorUtil.gen();
         user.setCode(code);
-        userServices.saveUser(user);
-
-        MailRequest mailRequest = new MailRequest(user.getEmail(), user.getFullName(), user.getId(), user.getCode());
-        mailClient.sendMailForgetPassword(mailRequest);
+        User newUser = userServices.saveUser(user);
+        // Send mail
+        try {
+            kafkaServices.sendMessage("forgetPassword", "{\"id\": " + newUser.getId() + ", \"fullname\": \"" + newUser.getFullName() + "\", \"email\": \"" + newUser.getEmail() + "\", \"code\": \"" + newUser.getCode() + "\"}");
+        } catch (Exception e) {
+            CommonLogger.error("Error kafka");
+        }
     }
 }

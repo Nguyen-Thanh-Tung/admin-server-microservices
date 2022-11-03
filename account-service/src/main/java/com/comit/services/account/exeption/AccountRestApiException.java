@@ -1,5 +1,6 @@
 package com.comit.services.account.exeption;
 
+import com.comit.services.account.constant.RoleErrorCode;
 import com.comit.services.account.constant.UserErrorCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +18,18 @@ public class AccountRestApiException extends RuntimeException {
         this.message = errorCode.getMessage();
     }
 
+    public AccountRestApiException(RoleErrorCode errorCode) {
+        this.code = errorCode.getCode();
+        this.message = errorCode.getMessage();
+    }
+
     public AccountRestApiException(int code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public String getResponseMessage() {
+        return this.message;
     }
 
     @Override

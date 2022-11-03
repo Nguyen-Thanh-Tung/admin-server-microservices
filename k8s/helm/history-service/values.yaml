@@ -1,0 +1,9 @@
+app: k8s-history-service
+image: thanhtungtvg95/history-service:latest
+replicas: 1
+port: 8087
+databaseServerAddress: localhost:3306
+zipkinServerAddress: http://localhost:9411
+configServiceUrl: http://location:8088
+username: ZGVtbw==
+password: ZGVtbw==

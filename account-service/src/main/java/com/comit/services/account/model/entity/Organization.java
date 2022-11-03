@@ -1,8 +1,9 @@
 package com.comit.services.account.model.entity;
 
-import lombok.*;
-
-import javax.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

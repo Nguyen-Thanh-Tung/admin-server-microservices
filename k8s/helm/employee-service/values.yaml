@@ -1,0 +1,11 @@
+app: k8s-employee-service
+image: thanhtungtvg95/employee-service:latest
+replicas: 1
+port: 8084
+databaseServerAddress: localhost:3306
+zipkinServerAddress: http://localhost:9411
+configServiceUrl: http://location:8088
+kafkaServerAddress: localhost:29092
+actionEmployeeImageUrl: http://localhost:5678/embedding
+username: ZGVtbw==
+password: ZGVtbw==

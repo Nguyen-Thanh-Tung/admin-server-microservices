@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: camera-service
+  config:
+    import: optional:configserver:${configServiceUrl}
+

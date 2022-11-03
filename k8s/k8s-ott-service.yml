@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ott-service
+spec:
+  selector:
+    app: k8s-ott-service
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-ott-service
+  labels:
+    app: k8s-ott-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-ott-service
+  template:
+    metadata:
+      labels:
+        app: k8s-ott-service
+    spec:
+      containers:
+        - name: ott-service
+          image: thanhtungtvg95/ott-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                 name: ott-service-config-map

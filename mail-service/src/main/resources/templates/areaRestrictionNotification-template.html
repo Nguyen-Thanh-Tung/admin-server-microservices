@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>${organization}</title>
+
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css' />
+
+    <!-- use the font -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+        }
+    </style>
+</head>
+<body>
+<p>Dear <span th:text="${name}"></span></p>
+
+<p>
+    Có người đột nhập tại khu vực hạn chế: <span th:text="${areaRestrictionName}"></span>, thời gian:
+    <span th:text="${date}"></span>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: comit-admin-config-map
+data:
+  PORT: 3005
+  REACT_APP_SERVER_URL: http://localhost:8070
+  REACT_APP_WEB_SOCKET_STREAM_URL: ws://localhost:8443
+  REACT_APP_WEB_SOCKET_IN_OUT_URL: ws://localhost:4005
+  REACT_APP_MAX_NUMBER_CAM_SHOW: 6
+  REACT_APP_QR_CODE_IMAGE_URL: demo
+  REACT_APP_NUMBER_CAMERA_SHOW_DEFAULT: 4
+  DISABLE_ESLINT_PLUGIN: true

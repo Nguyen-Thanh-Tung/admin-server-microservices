@@ -1,0 +1,9 @@
+version: "3"
+services:
+  area-restriction-service:
+    image: admin-server-microservices/area-restriction-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"

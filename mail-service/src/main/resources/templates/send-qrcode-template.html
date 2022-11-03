@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Spring boot email teplate with Thymeleaf</title>
+
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'/>
+
+    <!-- use the font -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 48px;
+        }
+    </style>
+</head>
+<body>
+<p th:text="${'Dear ' + name}"></p>
+
+<p>
+    Bạn đã được chi nhánh/ tổ chức yêu cầu truy cập vào ứng dụng Telegram để nhận thông báo!
+</p>
+<p>
+    Nếu <em th:text="${location}"></em> không phải là chi nhánh của bạn, xin bỏ qua mail này.
+</p>
+
+<p>
+    Bạn vui lòng quét mã hoặc click vào QR code phía dưới để truy cập:<br/>
+    <em>(Hãy ghi nhớ mã sau để tương tác với Telegram (manhanvien_machinhanh): <b><em th:text="${code}"></em></b>)</em>
+</p>
+
+<a th:href="${qrcodeUrl}"><img height="200" th:src="${qrcodeImage}" width="200"></a>
+
+<p>
+    Regards, <br/>
+    <em th:text="${location}"></em>
+<p th:text="${organization}"></p>
+</p>
+</body>
+</html>

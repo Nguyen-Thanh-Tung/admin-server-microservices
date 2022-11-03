@@ -1,0 +1,10 @@
+app: k8s-camera-service
+image: thanhtungtvg95/camera-service:latest
+replicas: 1
+port: 8083
+databaseServerAddress: localhost:3306
+zipkinServerAddress: http://localhost:9411
+configServiceUrl: http://location:8088
+checkCameraUrl: http://10.10.2.116:5678/camera/check_cameras
+username: ZGVtbw==
+password: ZGVtbw==

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "comit-admin.name" . }}
+  labels:
+    {{- include "comit-admin.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "comit-admin.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "comit-admin.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "comit-admin.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: REACT_APP_SERVER_URL
+              value: {{ .Values.REACT_APP_SERVER_URL }}
+            - name: REACT_APP_WEB_SOCKET_STREAM_URL
+              value: {{ .Values.REACT_APP_WEB_SOCKET_STREAM_URL }}
+            - name: REACT_APP_WEB_SOCKET_IN_OUT_URL
+              value: {{ .Values.REACT_APP_WEB_SOCKET_IN_OUT_URL }}
+            - name: REACT_APP_MAX_NUMBER_CAM_SHOW
+              value: "{{ .Values.REACT_APP_MAX_NUMBER_CAM_SHOW }}"
+            - name: REACT_APP_QR_CODE_IMAGE_URL
+              value: {{ .Values.REACT_APP_QR_CODE_IMAGE_URL }}
+            - name: REACT_APP_NUMBER_CAMERA_SHOW_DEFAULT
+              value: "{{ .Values.REACT_APP_NUMBER_CAMERA_SHOW_DEFAULT }}"
+            - name: DISABLE_ESLINT_PLUGIN
+              value: "{{ .Values.DISABLE_ESLINT_PLUGIN }}"
+          securityContext:
+            privileged: true

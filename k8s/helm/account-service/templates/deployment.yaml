@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "account-service.name" . }}
+  labels:
+    {{- include "account-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "account-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "account-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "account-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: {{ include "account-service.fullname" . }}-config-map
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: {{ include "account-service.fullname" . }}-config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: {{ include "account-service.fullname" . }}-config-map
+            - name: KAFKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: kafka_server_address
+                  name: {{ include "account-service.fullname" . }}-config-map
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: password
+            - name: SUPERADMIN_FULLNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: sa_full_name
+            - name: SUPERADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: sa_username
+            - name: SUPERADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: sa_email
+            - name: SUPERADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: sa_password
+            - name: SUPERADMIN_ORGANIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: sa_organization
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "account-service.fullname" . }}-credentials
+                  key: jwt_secret
+          volumeMounts:
+            - mountPath: "/app/logs"
+              name: data
+              subPath: "account-service"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: metadata-storage-pvc
+

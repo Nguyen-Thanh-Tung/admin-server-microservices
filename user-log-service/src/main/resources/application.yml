@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: user-log-service
+  config:
+    import: optional:configserver:${configServiceUrl}

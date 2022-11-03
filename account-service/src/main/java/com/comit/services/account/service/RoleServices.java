@@ -17,4 +17,10 @@ public interface RoleServices {
     void saveRoles(List<Role> roles);
 
     boolean hasPermissionManageRole(User currentUser, String roleName);
+
+    boolean isCurrentUserSuperAdmin();
+
+    Role getRole(int roleId);
+
+    void addFeature(String moduleName);
 }

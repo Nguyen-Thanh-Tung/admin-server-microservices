@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: history-service
+spec:
+  selector:
+    app: k8s-history-service
+  ports:
+    - port: 80
+      targetPort: 8087

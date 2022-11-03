@@ -1,15 +1,29 @@
 package com.comit.services.account.service;
 
-import com.comit.services.account.model.entity.*;
-import com.comit.services.account.repository.UserRepository;
+import com.comit.services.account.client.MetadataClient;
+import com.comit.services.account.client.OrganizationClient;
+import com.comit.services.account.client.data.LocationDtoClient;
+import com.comit.services.account.client.data.MetadataDtoClient;
+import com.comit.services.account.client.data.OrganizationDtoClient;
+import com.comit.services.account.client.request.OrganizationRequestClient;
+import com.comit.services.account.client.response.LocationResponseClient;
+import com.comit.services.account.client.response.MetadataResponseClient;
+import com.comit.services.account.client.response.OrganizationResponseClient;
 import com.comit.services.account.constant.Const;
+import com.comit.services.account.constant.UserErrorCode;
+import com.comit.services.account.exeption.AccountRestApiException;
+import com.comit.services.account.model.entity.Organization;
+import com.comit.services.account.model.entity.Role;
+import com.comit.services.account.model.entity.User;
+import com.comit.services.account.repository.UserRepository;
 import com.comit.services.account.util.RequestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -21,6 +35,14 @@ public class UserServicesImpl implements UserServices {
 
     @Autowired
     RequestHelper requestHelper;
+    @Autowired
+    OrganizationClient organizationClient;
+    @Autowired
+    com.comit.services.account.client.LocationClient locationClient;
+    @Autowired
+    MetadataClient metadataClient;
+    @Autowired
+    HttpServletRequest httpServletRequest;
 
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
@@ -33,11 +55,11 @@ public class UserServicesImpl implements UserServices {
         return userRepository.existsByEmailAndStatusNotIn(email, List.of(Const.DELETED));
     }
 
-    public List<User> getAllUser() {
-        Iterable<User> userIterable = userRepository.findAllByStatusNotIn(List.of(Const.DELETED));
-        List<User> users = new ArrayList<>();
-        userIterable.forEach(users::add);
-        return users;
+    public List<User> getAllUser(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return userRepository.findAll();
+        }
+        return userRepository.findAllByStatusOrderByStatusAscIdDesc(status);
     }
 
     public User getUser(int id) {
@@ -121,6 +143,7 @@ public class UserServicesImpl implements UserServices {
         // Can manage admin if I am super admin and user is super admin organization OR I am super admin organization and user not super admin organization
         if (hasRole(user, Const.ROLE_TIME_KEEPING_ADMIN)
                 || hasRole(user, Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN)
+                || hasRole(user, Const.ROLE_BEHAVIOR_CONTROL_ADMIN)
         ) {
             return (requestHelper.hasRole(Const.ROLE_SUPER_ADMIN)
                     && isSuperAdminOrganization(user))
@@ -140,18 +163,27 @@ public class UserServicesImpl implements UserServices {
                     && !isSuperAdminOrganization(currentUser)
                     && userAndCurrentUserBelongOrganization;
         }
+        if (hasRole(user, Const.ROLE_BEHAVIOR_CONTROL_USER)) {
+            return requestHelper.hasRole(Const.ROLE_BEHAVIOR_CONTROL_ADMIN)
+                    && !isSuperAdminOrganization(currentUser)
+                    && userAndCurrentUserBelongOrganization;
+        }
         return false;
     }
 
     public String convertFullnameToUsername(String fullname) {
         String nfdNormalizedString = Normalizer.normalize(fullname, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        String fullnameEnglish = pattern.matcher(nfdNormalizedString).replaceAll("");
+        String fullnameEnglish = pattern.matcher(nfdNormalizedString)
+                .replaceAll("").replaceAll("đ", "d");
 
         String[] fullnameArray = fullnameEnglish.toLowerCase().split(" ");
         StringBuilder username = new StringBuilder(fullnameArray[fullnameArray.length - 1]);
         for (int i = 0; i < fullnameArray.length - 1; i++) {
             username.append(fullnameArray[i].charAt(0));
+        }
+        if (username.length() < Const.MIN_LENGTH_USERNAME) {
+            username.append((int) Math.floor(Math.random() * Math.pow(10, Const.MIN_LENGTH_USERNAME - username.length())));
         }
         while (existUserByUsername(username.toString())) {
             int random = (int) Math.floor(Math.random() * 100);
@@ -161,8 +193,103 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public List<User> getUsersByOrganization(Integer organizationId) {
-        return userRepository.findAllByOrganizationIdAndStatusNotIn(organizationId, List.of(Const.DELETED));
+    public int getNumberUserOfOrganization(Integer organizationId) {
+        return userRepository.countByOrganizationIdAndStatus(organizationId, Const.ACTIVE);
+    }
+
+    @Override
+    public int getNumberAllUserOfOrganization(Integer organizationId) {
+        return userRepository.countByOrganizationIdAndStatusNotIn(organizationId, List.of(Const.DELETED));
+    }
+
+    @Override
+    public OrganizationDtoClient getOrganizationById(int organizationId) {
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganization(httpServletRequest.getHeader("token"), organizationId).getBody();
+        if (organizationResponseClient == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return organizationResponseClient.getOrganization();
+    }
+
+    @Override
+    public OrganizationDtoClient getOrganizationByName(String organizationName) {
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganization(httpServletRequest.getHeader("token"), organizationName).getBody();
+        if (organizationResponseClient == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return organizationResponseClient.getOrganization();
+    }
+
+    @Override
+    public OrganizationDtoClient addOrganization(Organization organization) {
+        OrganizationResponseClient organizationResponseClient = organizationClient.addOrganization(httpServletRequest
+                .getHeader("token"), new OrganizationRequestClient(organization), Const.INTERNAL).getBody();
+        if (organizationResponseClient == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return organizationResponseClient.getOrganization();
+    }
+
+    @Override
+    public LocationDtoClient getLocation(Integer locationId) {
+        if (locationId == null) {
+            return null;
+        }
+        String token;
+        if (httpServletRequest.getHeader("token") != null) {
+            token = httpServletRequest.getHeader("token");
+        } else {
+            token = httpServletRequest.getAttribute("token").toString();
+        }
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(token, locationId).getBody();
+        if (locationResponseClient == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return locationResponseClient.getLocation();
+    }
+
+    @Override
+    public MetadataDtoClient saveMetadata(MultipartFile file) {
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest
+                .getHeader("token"), file, Const.INTERNAL).getBody();
+        if (metadataResponseClient == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return metadataResponseClient.getMetadata();
+    }
+
+    @Override
+    public List<User> getUsersByParentId(int id) {
+        return userRepository.findAllByParentId(id);
+    }
+
+    @Override
+    public MetadataDtoClient getMetadata(int id) {
+        MetadataResponseClient metadataResponseClient = metadataClient.getMetadata(httpServletRequest.getHeader("token"), id).getBody();
+        if (metadataResponseClient == null) {
+            throw new AccountRestApiException(UserErrorCode.INTERNAL_ERROR);
+        }
+        return metadataResponseClient.getMetadata();
+    }
+
+    @Override
+    public int getNumberUserOfLocation(Integer locationId) {
+        return userRepository.countByLocationIdAndStatus(locationId, Const.ACTIVE);
+    }
+
+    @Override
+    public int getNumberUserOfRoles(Integer organizationId, List<Integer> roleIds) {
+        return userRepository.getNumberUserOfRoles(organizationId, roleIds);
+    }
+
+    @Override
+    public int getNumberUserOfRoles(List<Integer> roleIds) {
+        return userRepository.getNumberUserOfRoles(roleIds);
+    }
+
+    @Override
+    public int getNumberOrganizationOfRoles(List<Integer> roleIds) {
+        return userRepository.getNumberOrganizationOfRoles(roleIds);
     }
 
     public boolean belongOrganization(User user, Integer organizationId) {

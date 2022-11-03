@@ -1,0 +1,17 @@
+app: k8s-account-service
+nameOverride: account-service
+image: thanhtungtvg95/account-service:latest
+replicas: 1
+port: 8080
+databaseServerAddress: localhost:3306
+zipkinServerAddress: http://localhost:9411
+kafkaServerAddress: localhost:29092
+configServiceUrl: http://location:8088
+username: ZGVtbw==
+password: ZGVtbw==
+saFullName: ZGVtbw==
+saUsername: ZGVtbw==
+saEmail: ZGVtbw==
+saPassword: ZGVtbw==
+saOrganization: ZGVtbw==
+jwtSecret: ZGVtbw==

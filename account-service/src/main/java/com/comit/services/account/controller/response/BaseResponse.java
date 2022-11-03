@@ -24,6 +24,11 @@ public class BaseResponse implements Serializable {
     @JsonProperty(value = "response_time")
     protected String responseTime;
 
+    public BaseResponse() {
+        this.code = UserErrorCode.SUCCESS.getCode();
+        this.message = UserErrorCode.SUCCESS.getMessage();
+    }
+
     public BaseResponse(UserErrorCode errorCode) {
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();

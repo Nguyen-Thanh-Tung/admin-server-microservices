@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: area-restriction-service
+spec:
+  selector:
+    app: k8s-area-restriction-service
+  ports:
+    - port: 80
+      targetPort: 8086
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-area-restriction-service
+  labels:
+    app: k8s-area-restriction-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-area-restriction-service
+  template:
+    metadata:
+      labels:
+        app: k8s-area-restriction-service
+    spec:
+      containers:
+        - name: area-restriction-service
+          image: thanhtungtvg95/area-restriction-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8086
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: config-map
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: config-map
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: password
+          

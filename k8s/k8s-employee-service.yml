@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employee-cm
+data:
+  action_employee_image_url: http://10.10.2.112:5678/embedding
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-service
+spec:
+  selector:
+    app: k8s-employee-service
+  ports:
+    - port: 80
+      targetPort: 8084
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-employee-service
+  labels:
+    app: k8s-employee-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-employee-service
+  template:
+    metadata:
+      labels:
+        app: k8s-employee-service
+    spec:
+      containers:
+        - name: employee-service
+          image: thanhtungtvg95/employee-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: config-map
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: config-map
+            - name: KAFKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: kafka_server_address
+                  name: config-map
+            - name: ACTION_EMPLOYEE_IMAGE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: action_employee_image_url
+                  name: employee-cm
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: password

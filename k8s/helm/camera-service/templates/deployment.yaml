@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "camera-service.name" . }}
+  labels:
+    {{- include "camera-service.labels" . | nindent 4}}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "camera-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "camera-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "camera-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: {{ include "camera-service.fullname" . }}-config-map
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: {{ include "camera-service.fullname" . }}-config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: {{ include "camera-service.fullname" . }}-config-map
+            - name: CHECK_CAMERA_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: check_camera_url
+                  name: {{ include "camera-service.fullname" . }}-config-map
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "camera-service.fullname" . }}-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "camera-service.fullname" . }}-credentials
+                  key: password
+          volumeMounts:
+            - mountPath: "/app/logs"
+              name: data
+              subPath: "camera-service"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: metadata-storage-pvc
+

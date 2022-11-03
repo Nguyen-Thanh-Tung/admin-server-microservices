@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ott-service.name" . }}
+  labels:
+    {{- include "ott-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ott-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ott-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "ott-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: MODE
+              value: {{ .Values.MODE }}
+            - name: PORT
+              value: "{{ .Values.port }}"
+            - name: KAFKA_HOST
+              value: {{ .Values.KAFKA_HOST }}
+            - name: KAFKA_PORT
+              value: "{{ .Values.KAFKA_PORT }}"
+            - name: KAFKA_CLIENT_ID
+              value: {{ .Values.KAFKA_CLIENT_ID }}
+            - name: KAFKA_GROUP_ID
+              value: {{ .Values.KAFKA_GROUP_ID }}
+            - name: KAFKA_TIME_KEEPING_NOTIFICATION_OTT_TOPIC
+              value: {{ .Values.KAFKA_TIME_KEEPING_NOTIFICATION_OTT_TOPIC }}
+            - name: KAFKA_AREA_RESTRICTION_OTT_TOPIC
+              value: {{ .Values.KAFKA_AREA_RESTRICTION_OTT_TOPIC }}
+            - name: DB_HOST
+              value: {{ .Values.DB_HOST }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: dbUsername
+                  name: {{ include "ott-service.fullname" . }}-credentials
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: dbPassword
+                  name: {{ include "ott-service.fullname" . }}-credentials
+            - name: DB_DBNAME
+              value: {{ .Values.DB_DBNAME }}
+            - name: TOKEN_BOT_API
+              value: {{ .Values.TOKEN_BOT_API }}
+            - name: TELEGRAM_BOT_LINK
+              value: {{ .Values.TELEGRAM_BOT_LINK }}
+            - name: BASE_URL
+              value: {{ .Values.BASE_URL }}
+          securityContext:
+            privileged: true

@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mail-cm
+data:
+  change_password_url: http://localhost:3005/authentication/change-password
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mail-service
+spec:
+  selector:
+    app: k8s-mail-service
+  ports:
+    - port: 80
+      targetPort: 8085
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-mail-service
+  labels:
+    app: k8s-mail-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-mail-service
+  template:
+    metadata:
+      labels:
+        app: k8s-mail-service
+    spec:
+      containers:
+        - name: mail-service
+          image: thanhtungtvg95/mail-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8085
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: config-map
+            - name: KAFKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: kafka_server_address
+                  name: config-map
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: password
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: mail_username
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: mail_password
+            - name: CHANGE_PASSWORD_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: change_password_url
+                  name: mail-cm
+

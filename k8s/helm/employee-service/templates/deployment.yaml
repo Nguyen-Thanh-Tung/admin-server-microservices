@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "employee-service.name" . }}
+  labels:
+    {{- include "employee-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "employee-service.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "employee-service.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "employee-service.fullname" . }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: CONFIG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: config_service_url
+                  name: {{ include "employee-service.fullname" . }}-config-map
+            - name: DATABASE_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: database_server_address
+                  name: {{ include "employee-service.fullname" . }}-config-map
+            - name: ZIPKIN_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: zipkin_server_address
+                  name: {{ include "employee-service.fullname" . }}-config-map
+            - name: KAFKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  key: kafka_server_address
+                  name: {{ include "employee-service.fullname" . }}-config-map
+            - name: ACTION_EMPLOYEE_IMAGE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: action_employee_image_url
+                  name: {{ include "employee-service.fullname" . }}-config-map
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "employee-service.fullname" . }}-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "employee-service.fullname" . }}-credentials
+                  key: password
+          volumeMounts:
+            - mountPath: "/app/logs"
+              name: data
+              subPath: "employee-service"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: metadata-storage-pvc
+

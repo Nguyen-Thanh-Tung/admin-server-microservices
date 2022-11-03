@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: area-restriction-service
+  config:
+    import: optional:configserver:${configServiceUrl}

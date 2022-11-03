@@ -7,16 +7,14 @@ import com.comit.services.account.controller.request.SignUpRequest;
 import com.comit.services.account.model.dto.UserDto;
 import com.comit.services.account.model.entity.User;
 
-import java.io.IOException;
-
 public interface AuthBusiness {
     String getTokenLogin(LoginRequest request);
 
-    UserDto login(LoginRequest request) throws IOException;
+    UserDto login(LoginRequest request);
 
-    UserDto register(SignUpRequest request) throws IOException;
+    UserDto register(SignUpRequest request);
 
-    UserDto init(String organizationName, String username, String email, String password) throws IOException;
+    UserDto init(String organizationName, String username, String email, String password);
 
     User changePassword(ChangePasswordRequest request);
 

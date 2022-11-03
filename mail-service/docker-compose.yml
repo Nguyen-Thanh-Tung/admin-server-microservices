@@ -1,0 +1,9 @@
+version: "3"
+services:
+  mail-service:
+    image: admin-server-microservices/mail-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"

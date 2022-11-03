@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: comit-admin
+spec:
+  type: LoadBalancer
+  selector:
+    app: k8s-comit-admin
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-comit-admin
+  labels:
+    app: k8s-comit-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-comit-admin
+  template:
+    metadata:
+      labels:
+        app: k8s-comit-admin
+    spec:
+      containers:
+        - name: comit-admin
+          image: thanhtungtvg95/comit-admin:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                 name: comit-admin-config-map

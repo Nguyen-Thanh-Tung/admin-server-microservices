@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-cm
+data:
+  branch: master
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+spec:
+  selector:
+    app: k8s-config-service
+  ports:
+    - port: 8088
+      targetPort: 8088
+      protocol: TCP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-config-service
+  labels:
+    app: k8s-config-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-config-service
+  template:
+    metadata:
+      labels:
+        app: k8s-config-service
+    spec:
+      containers:
+        - name: config-service
+          image: thanhtungtvg95/config-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8088
+          volumeMounts:
+            - mountPath: /data/config
+              name: config-files
+          env:
+            - name: configLocation
+              value: /data/config
+      volumes:
+        - name: config-files
+          hostPath:
+            path: /Users/nguyentung/Desktop/Project/admin-server-microservice-config-service

@@ -1,4 +1,5 @@
 package com.comit.services.account.controller;
+
 import com.comit.services.account.business.AuthBusiness;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.ChangePasswordRequest;
@@ -12,12 +13,9 @@ import com.comit.services.account.service.VerifyAdminRequestServicesImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -29,12 +27,16 @@ public class AuthenController {
     JwtProvider jwtProvider;
 
     @Autowired
+    HttpServletRequest httpServletRequest;
+
+    @Autowired
     VerifyAdminRequestServicesImpl verifyRequestServices;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<BaseResponse> login(@RequestBody LoginRequest request) throws IOException {
-        UserDto userDto = authBusiness.login(request);
+    public ResponseEntity<BaseResponse> login(@RequestBody LoginRequest request) {
         String token = authBusiness.getTokenLogin(request);
+        httpServletRequest.setAttribute("token", token);
+        UserDto userDto = authBusiness.login(request);
         return new ResponseEntity<>(new LoginResponse(UserErrorCode.SUCCESS, userDto, token), HttpStatus.OK);
     }
 
