@@ -19,17 +19,41 @@ public class OrganizationVerifyRequestServicesImpl implements OrganizationVerify
         String name = request.getName();
         String email = request.getEmail();
         String phone = request.getPhone();
+        String description = request.getDescription();
 
         if (name == null || name.trim().isEmpty()) {
             throw new RestApiException(OrganizationErrorCode.MISSING_NAME_FIELD);
+        } else {
+            request.setName(name.trim());
+        }
+        if (email != null) {
+            if (!email.trim().isEmpty() && !validateField.validEmail(email.trim())) {
+                throw new RestApiException(OrganizationErrorCode.EMAIL_INVALID);
+            }
+            if (email.equals("")) {
+                request.setEmail(null);
+            }
+            else {
+                request.setEmail(email.trim());
+            }
+        }
+        if (phone != null) {
+            if (!phone.trim().isEmpty() && !validateField.validPhone(phone.trim())) {
+                throw new RestApiException(OrganizationErrorCode.EMAIL_INVALID);
+            }
+            if (phone.equals("")) {
+                request.setPhone(null);
+            }
+            else {
+                request.setPhone(phone.trim());
+            }
         }
 
-        if (email != null && !email.trim().isEmpty() && !validateField.validEmail(email)) {
-            throw new RestApiException(OrganizationErrorCode.EMAIL_INVALID);
-        }
-
-        if (phone != null && !phone.trim().isEmpty() && !validateField.validPhone(phone)) {
-            throw new RestApiException(OrganizationErrorCode.PHONE_INVALID);
+        if (description != null) {
+            if (description.trim().length() > 500) {
+                throw new RestApiException(OrganizationErrorCode.DESCRIPTION_EXCEEDS_CHARACTER);
+            }
+            request.setDescription(description.trim());
         }
     }
 

@@ -10,11 +10,10 @@ import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.response.BaseResponse;
 import com.comit.services.location.exception.RestApiException;
-import com.comit.services.location.loging.model.CommonLogger;
 import com.comit.services.location.model.entity.Location;
 import com.comit.services.location.repository.LocationRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +38,8 @@ public class LocationServicesImpl implements LocationServices {
     private OrganizationClient organizationClient;
     @Autowired
     private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Location getLocation(Integer organizationId, int locationId) {
@@ -98,7 +99,7 @@ public class LocationServicesImpl implements LocationServices {
         if (userResponseClient.getUser().getOrganizationId() == null) {
             return null;
         }
-        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(internalToken, userResponseClient.getUser().getOrganizationId()).getBody();
         if (organizationResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -134,9 +135,8 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
-    @CircuitBreaker(name = Const.SERVICE_LOCATION, fallbackMethod = "callTimeKeepingFallBack")
     public void addShiftsForLocation(int locationId) {
-        BaseResponse response = timeKeepingClient.addShiftsForLocation(httpServletRequest.getHeader("token"),
+        BaseResponse response = timeKeepingClient.addShiftsForLocation(internalToken,
                 locationId, Const.INTERNAL).getBody();
         if (response == null || response.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
@@ -144,24 +144,17 @@ public class LocationServicesImpl implements LocationServices {
     }
 
     @Override
-    @CircuitBreaker(name = Const.SERVICE_LOCATION, fallbackMethod = "callTimeKeepingFallBack")
     public void addTimeKeepingNotification(int locationId) {
-        BaseResponse tkResponse = timeKeepingClient.addTimeKeepingNotification(httpServletRequest.getHeader("token"),
+        BaseResponse tkResponse = timeKeepingClient.addTimeKeepingNotification(internalToken,
                 locationId, Const.INTERNAL).getBody();
         if (tkResponse == null || tkResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
     }
 
-    public void callTimeKeepingFallBack(int locationId, Exception e) {
-        // remove location trust saved because can't connect to TimeKeeping
-        CommonLogger.info("Can't connect to TimeKeepingService => delete locationId: " + locationId);
-        locationRepository.deleteById(locationId);
-    }
-
     @Override
     public int getNumberEmployeeOfLocation(int locationId) {
-        CountResponseClient countResponseClient = employeeClient.getNumberEmployeeOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        CountResponseClient countResponseClient = employeeClient.getNumberEmployeeOfLocation(internalToken, locationId).getBody();
         if (countResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -171,7 +164,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public int getNumberCameraOfLocation(int locationId) {
-        CountResponseClient countResponseClient = cameraClient.getNumberCameraOfLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        CountResponseClient countResponseClient = cameraClient.getNumberCameraOfLocation(internalToken, locationId).getBody();
         if (countResponseClient == null) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
         }
@@ -191,7 +184,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void deleteShiftsOfLocation(int locationId) {
-        BaseResponse shiftResponse = timeKeepingClient.deleteShiftsOfLocation(httpServletRequest.getHeader("token"),
+        BaseResponse shiftResponse = timeKeepingClient.deleteShiftsOfLocation(internalToken,
                 locationId, Const.INTERNAL).getBody();
         if (shiftResponse == null || shiftResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);
@@ -200,7 +193,7 @@ public class LocationServicesImpl implements LocationServices {
 
     @Override
     public void deleteTimeKeepingNotification(int locationId) {
-        BaseResponse tkResponse = timeKeepingClient.deleteTimeKeepingNotification(httpServletRequest.getHeader("token"),
+        BaseResponse tkResponse = timeKeepingClient.deleteTimeKeepingNotification(internalToken,
                 locationId, Const.INTERNAL).getBody();
         if (tkResponse == null || tkResponse.getCode() != LocationErrorCode.SUCCESS.getCode()) {
             throw new RestApiException(LocationErrorCode.INTERNAL_ERROR);

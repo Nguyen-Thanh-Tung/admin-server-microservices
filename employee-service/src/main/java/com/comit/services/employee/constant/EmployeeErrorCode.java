@@ -27,7 +27,10 @@ public enum EmployeeErrorCode {
     PERMISSION_DENIED(0, "Bạn không có quyền thực hiện chức năng này"),
     MISSING_FILE_FIELD(0, "File là bắt buộc"),
     UN_SUPPORT_FILE_UPLOAD(0, "Không hỗ trợ kiểu file"),
-    MANAGER_IS_EMPLOYEE(0, "Quản lý và nhân viên là quản lý của nhau");
+    MANAGER_IS_EMPLOYEE(0, "Quản lý và nhân viên là quản lý của nhau"),
+    EMAIL_IS_EXISTED(0, "Địa chỉ email đã tồn tại"),
+    EMPLOYEE_IS_MANAGER_AREA_RESTRICTION(0, "Nhân viên là quản lý của khu vực hạn chế"),
+    IS_NOT_MULTIPART(0, "Content-type phải là multipart/formdata");
 
     private final int code;
     private final String message;

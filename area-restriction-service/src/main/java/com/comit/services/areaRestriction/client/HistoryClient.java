@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient("history-service")
 public interface HistoryClient {
-
     @GetMapping("/notification-histories/area-restriction/{areaRestrictionId}/number-notify")
     ResponseEntity<CountCameraResponseClient> getNumberNotificationOfAreaRestriction(@RequestHeader String token, @PathVariable int areaRestrictionId);
 }

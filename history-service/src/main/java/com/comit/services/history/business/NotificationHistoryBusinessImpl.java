@@ -1,22 +1,27 @@
 package com.comit.services.history.business;
 
 import com.comit.services.history.client.data.LocationDtoClient;
+import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.NotificationHistoryRequest;
+import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.dto.NotificationHistoryDto;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.NotificationHistoryServices;
 import com.comit.services.history.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class NotificationHistoryBusinessImpl implements NotificationHistoryBusiness {
@@ -27,6 +32,10 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
     private NotificationHistoryServices notificationHistoryServices;
     @Autowired
     private HistoryServices historyServices;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(String typeStrs, String employeeIdStrs, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
@@ -235,6 +244,7 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
 
     @Override
     public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, String status) {
+        if (!isInternalFeature()) throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
         // If param not have timeStart and timeEnd then set default
         Date timeStart = TimeUtil.getDateTimeFromTimeString("00:00:00");
         Date timeEnd = TimeUtil.getDateTimeFromTimeString("23:59:59");
@@ -344,5 +354,9 @@ public class NotificationHistoryBusinessImpl implements NotificationHistoryBusin
         Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
         Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
         return notificationHistoryServices.getNotificationHistoryPage(locationDtoClient.getId(), timeStart, timeEnd, hasEmployee, paging);
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

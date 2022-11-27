@@ -8,6 +8,7 @@ import com.comit.services.timeKeeping.client.response.UserResponseClient;
 import com.comit.services.timeKeeping.constant.TimeKeepingErrorCode;
 import com.comit.services.timeKeeping.exception.TimeKeepingCommonException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,9 @@ public class TimeKeepingServicesImpl implements TimeKeepingServices {
     @Autowired
     private HttpServletRequest httpServletRequest;
 
+    @Value("${app.internalToken}")
+    private String internalToken;
+
     @Override
     public LocationDtoClient getLocationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
@@ -33,7 +37,7 @@ public class TimeKeepingServicesImpl implements TimeKeepingServices {
         if (userResponseClient.getUser().getLocationId() == null) {
             throw new TimeKeepingCommonException(TimeKeepingErrorCode.PERMISSION_DENIED);
         }
-        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {
             throw new TimeKeepingCommonException(TimeKeepingErrorCode.INTERNAL_ERROR);
         }

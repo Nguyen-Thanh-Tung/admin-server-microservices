@@ -3,12 +3,13 @@ package com.comit.services.account.business;
 import com.comit.services.account.client.data.LocationDtoClient;
 import com.comit.services.account.client.data.MetadataDtoClient;
 import com.comit.services.account.client.data.OrganizationDtoClient;
+import com.comit.services.account.constant.AuthErrorCode;
 import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
-import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.exeption.AccountRestApiException;
+import com.comit.services.account.exeption.AuthException;
 import com.comit.services.account.exeption.CommonLogger;
 import com.comit.services.account.middleware.UserVerifyRequestServices;
 import com.comit.services.account.model.dto.BaseUserDto;
@@ -23,6 +24,9 @@ import com.comit.services.account.util.IDGeneratorUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,14 +52,26 @@ public class UserBusinessImpl implements UserBusiness {
     private String superAdminUsername;
 
     @Override
-    public List<UserDto> getAllUser(String status) {
-        List<User> users = userServices.getAllUser(status);
-        List<UserDto> userDtos = new ArrayList<>();
+    public Page<User> getAllUser(int size, int page, String search, String status) {
+        Pageable paging = PageRequest.of(page, size);
         User currentUser = commonBusiness.getCurrentUser();
+        if (userServices.isCadres(currentUser)) {
+            CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": getAllUser(int size, ...) " +
+                    "- currentUser is cadre, currentUserId: " + currentUser.getId());
+            throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+        }
+        String currentRoleSubUser = commonBusiness.findCadreRoleFromModule();
+        return userServices.getAllUser(status, search, paging, currentUser, currentRoleSubUser);
+    }
+
+    @Override
+    public List<UserDto> getAllUser(List<User> users) {
+        List<UserDto> userDtos = new ArrayList<>();
         // Filter list user
         users.forEach(user -> {
-            if (userServices.hasPermissionManageUser(currentUser, user)) {
-                userDtos.add(convertUserToUserDto(user));
+            UserDto userDto = convertUserToUserDtoWithModule(user, null);
+            if (userDto != null) {
+                userDtos.add(userDto);
             }
         });
         return userDtos;
@@ -65,9 +81,15 @@ public class UserBusinessImpl implements UserBusiness {
     public UserDto getUser(int id) {
         User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
-        // Check permission red info user
-        if (user == null || (currentUser.getId() != id && !userServices.hasPermissionManageUser(currentUser, user))) {
-            return null;
+        if (user == null) {
+            throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
+        }
+
+        // Check permission read info user
+        if (currentUser.getId() != id && !userServices.hasPermissionManageUser(currentUser, user)) {
+            CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": getUser() " +
+                    "- hasPermissionManageUser() return false, currentUserId: " + currentUser.getId() + " and userId: " + id);
+            throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
         }
 
         // Remove information parent user if parent user is super admin
@@ -80,7 +102,7 @@ public class UserBusinessImpl implements UserBusiness {
     @Override
     public BaseUserDto getUserBase(int id) {
         User user = userServices.getUser(id);
-        if (user == null) return null;
+        if (user == null) throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
         // Remove information parent user if parent user is super admin
         if (user.getParent() != null && Objects.equals(user.getParent().getUsername(), superAdminUsername)) {
             user.setParent(null);
@@ -91,57 +113,40 @@ public class UserBusinessImpl implements UserBusiness {
     @Override
     public UserDto addUser(AddUserRequest request) {
         verifyRequestServices.verifyAddUserRequest(request);
+        Integer organizationId = request.getOrganizationId();
+        Integer locationId = request.getLocationId();
         User currentUser = commonBusiness.getCurrentUser();
         String username = userServices.convertFullnameToUsername(request.getFullname());
-
+        /* check email exist */
         if (userServices.existUserByEmail(request.getEmail())) {
             throw new AccountRestApiException(UserErrorCode.EMAIL_EXISTED);
         }
-
-        Integer organizationId = request.getOrganizationId();
-        if (organizationId != null) {
-            OrganizationDtoClient organization = userServices.getOrganizationById(organizationId);
-            if (organization == null) {
-                throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
-            }
-        } else {
-            organizationId = commonBusiness.getCurrentUser().getOrganizationId();
-        }
-
-        // Create new user's account
-        Set<Role> roleSet = new HashSet<>();
-        if (request.getRoles().size() > 0) {
-            for (String role : request.getRoles()) {
-                Role newRole;
-                if (roleServices.existsByName(role)) {
-                    newRole = roleServices.findRoleByName(role);
-                    roleSet.add(newRole);
-                }
-            }
-        }
+        /* check and build roles exist */
+        Set<Role> roleSet = userServices.checkRoleAddUser(request.getRoles(), currentUser);
 
         User user = new User();
+        int newOrganizationId = userServices.checkPermissionAddOrganizationId(currentUser, organizationId);
+        int newLocationId = userServices.checkPermissionAddLocationId(currentUser, locationId);
+        if (newLocationId != 0) {
+            user.setLocationId(newLocationId);
+        }
         user.setUsername(username);
         user.setFullName(request.getFullname());
+        user.setOrganizationId(newOrganizationId);
         user.setEmail(request.getEmail());
         user.setRoles(roleSet);
-        user.setOrganizationId(organizationId);
         user.setStatus(Const.PENDING);
         user.setParent(commonBusiness.getCurrentUser());
-
-        // Admin create user (in permission, ex: Time Keeping Admin create Time Keeping User)
-        if (request.getLocationId() != null) {
-            LocationDtoClient location = userServices.getLocation(request.getLocationId());
-            user.setLocationId(location.getId());
-        }
-
-
-        // Gen code to verify when change password
-        String code = IDGeneratorUtil.gen();
+        String code = IDGeneratorUtil.gen(); // Gen code to verify when change password
         user.setCode(code);
-
-        if (!userServices.hasPermissionManageUser(currentUser, user)) {
-            throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+        /* check match location_type and role */
+        if (userServices.isAdmin(currentUser)) {
+            LocationDtoClient location = userServices.getLocation(locationId);
+            if (!userServices.checkLocationTypeAndRole(user, location.getType())) {
+                CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": addUser() - location_type: "
+                        + location.getType() + " not match role: " + user.toString(user.getRoles()));
+                throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+            }
         }
         User newUser = userServices.saveUser(currentUser, user);
         // Send mail
@@ -154,23 +159,8 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public UserDto updateRoleUser(int id, UpdateRoleForUserRequest request) {
-        verifyRequestServices.verifyUpdateRoleForUserRequest(request);
-        User currentUser = commonBusiness.getCurrentUser();
-        User user = userServices.getUser(id);
-        // Check permission update role
-        if (user == null || !userServices.hasPermissionManageUser(currentUser, user)) {
-            throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
-        }
-
-        // Delete role Supper admin in roles request
-        Set<String> roles = request.getRoles();
-        roles.remove(Const.ROLE_SUPER_ADMIN);
-        return addRoleToUser(id, roles);
-    }
-
-    @Override
     public UserDto updateUser(int id, HttpServletRequest httpServletRequest) {
+        //Get user by id
         User user = userServices.getUser(id);
         if (user == null) {
             throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
@@ -186,54 +176,43 @@ public class UserBusinessImpl implements UserBusiness {
             String fullName = httpServletRequest.getParameter("fullname");
             String email = httpServletRequest.getParameter("email");
             String locationIdStr = httpServletRequest.getParameter("location_id");
-            verifyRequestServices.verifyUpdateUserRequest(file, organizationIdStr, locationIdStr, roleStrs, fullName, email);
-
-            if (!Objects.equals(email, user.getEmail()) && userServices.existUserByEmail(email)) {
+            // validate input
+            verifyRequestServices.verifyUpdateUserRequest(file, roleStrs, fullName, email, user, locationIdStr);
+            if (!Objects.equals(email, user.getEmail()) && userServices.existUserByEmail(email)) { // check mail exist
                 throw new AccountRestApiException(UserErrorCode.EMAIL_EXISTED);
             }
-
-            User currentUser = commonBusiness.getCurrentUser();
-            Integer organizationId;
-            if (organizationIdStr != null) {
-                organizationId = Integer.parseInt(organizationIdStr);
-                OrganizationDtoClient organization = userServices.getOrganizationById(organizationId);
-                if (organization == null) {
-                    throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
-                }
-            } else {
-                organizationId = currentUser.getOrganizationId();
-            }
-
-            // Create new user's account
-            Set<Role> roleSet = new HashSet<>();
-            List<String> roles = List.of(roleStrs.trim().substring(1, roleStrs.length() - 1).split(","));
-
-            for (String role : roles) {
-                Role newRole;
-                role = role.substring(1, role.length() - 1); // ""ABC""
-                if (roleServices.existsByName(role)) {
-                    newRole = roleServices.findRoleByName(role);
-                    roleSet.add(newRole);
-                }
-            }
-
-            user.setFullName(fullName);
             user.setEmail(email);
-            user.setRoles(roleSet);
-            user.setOrganizationId(organizationId);
+            User currentUser = commonBusiness.getCurrentUser();
 
-            if (locationIdStr != null && !locationIdStr.trim().isEmpty()) {
-                LocationDtoClient location = userServices.getLocation(Integer.parseInt(locationIdStr));
-                if (location == null) {
-                    throw new AccountRestApiException(UserErrorCode.LOCATION_NOT_EXIST);
+            if (currentUser.getId() != user.getId()) {
+                if (!userServices.hasPermissionManageUser(currentUser, user)) {// check permission current user
+                    CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": updateUser() " +
+                            "- hasPermissionManageUser() return false, currentUserId: " + currentUser.getId() + " and userId: " + id);
+                    throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
                 }
-                user.setLocationId(location.getId());
-            }
 
-            if (currentUser.getId() != user.getId() && !userServices.hasPermissionManageUser(currentUser, user)) {
-                throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+                /* set roles */
+                Set<Role> roles = convertRoleFromStringToArray(user, roleStrs.trim().replaceAll(", ", ","), locationIdStr);
+                user.setRoles(roles);
+                List<User> subUsers = userServices.getAllUserByParentId(user.getId());
+                for (User subUser : subUsers) {
+                    for (Role role : subUser.getRoles()) {
+                        if (!checkRoleAddAndUpdateUser(user, role.getName())) {
+                            CommonLogger.error(UserErrorCode.CAN_NOT_UPDATE_USER.getMessage() + ": updateUser - new role and role of subUser wrong, userId: " + id);
+                            throw new AccountRestApiException(UserErrorCode.CAN_NOT_UPDATE_USER);
+                        }
+                    }
+                }
+                /* only SuperAdmin has role update organization */
+                if (userServices.isSuperAdmin(currentUser)) {
+                    user.setOrganizationId(userServices.checkPermissionUpdateAndGetOrganizationId(user, organizationIdStr));
+                }
+                /* update locationId for cadres (locationId require non null, currentUser must be admin) */
+                int locationId = userServices.checkPermissionUpdateAndGetLocationId(currentUser, locationIdStr);
+                if (locationId != 0) {
+                    user.setLocationId(locationId);
+                }
             }
-
             if (file != null) {
                 MetadataDtoClient metadata = userServices.saveMetadata(file);
                 if (metadata != null) {
@@ -243,7 +222,7 @@ public class UserBusinessImpl implements UserBusiness {
             User newUser = userServices.saveUser(user);
             return convertUserToUserDto(newUser);
         } else {
-            return null;
+            throw new AccountRestApiException(UserErrorCode.NOT_IS_MULTIPART);
         }
     }
 
@@ -271,10 +250,28 @@ public class UserBusinessImpl implements UserBusiness {
         User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(id);
         // Check permission delete user
-        if (user == null || !userServices.hasPermissionManageUser(currentUser, user)) {
-            return false;
+        if (user == null) {
+            throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
         }
-
+        if (!userServices.hasPermissionManageUser(currentUser, user)) {
+            CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": deleteUser() " +
+                    "- hasPermissionManageUser() return false, currentUserId: " + currentUser.getId() + " and userId: " + id);
+            throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+        }
+        if (userServices.isSuperAdminOrganization(user) || userServices.isAdmin(user)) {
+            // Check sub users exist
+            List<User> subUsers = userServices.getAllUserByParentId(id);
+            if (subUsers.size() > 0) {
+                throw new AccountRestApiException(UserErrorCode.CAN_NOT_DELETE_USER);
+            }
+        }
+        if (userServices.isCadres(user)) {
+            int numberEmployeeOfLocation = userServices.getNumberEmployeeOfLocation(user.getLocationId());
+            int numberUserOfLocation = userServices.getNumberUserOfLocation(user.getLocationId());
+            if (numberUserOfLocation == 1 && numberEmployeeOfLocation > 0) {
+                throw new AccountRestApiException(UserErrorCode.CAN_NOT_DELETE_USER);
+            }
+        }
         user.setStatus(Const.DELETED);
         userServices.saveUser(user);
         return true;
@@ -315,7 +312,7 @@ public class UserBusinessImpl implements UserBusiness {
             User newUser = userServices.saveUser(user);
             return convertUserToUserDto(newUser);
         } else {
-            return null;
+            throw new AccountRestApiException(UserErrorCode.NOT_IS_MULTIPART);
         }
     }
 
@@ -325,11 +322,11 @@ public class UserBusinessImpl implements UserBusiness {
         if (userServices.hasRole(currentUser, Const.ROLE_SUPER_ADMIN)) {
             List<User> users = userServices.getAllUser(Const.ACTIVE);
             return users.size();
-        } else if (currentUser.getParent() != null && Objects.equals(currentUser.getParent().getUsername(), superAdminUsername)) {
+        } else if (userServices.isSuperAdminOrganization(currentUser)) {
             Integer organizationId = commonBusiness.getCurrentUser().getOrganizationId();
             return userServices.getNumberUserOfOrganization(organizationId);
         } else {
-            return getAllUser(Const.ACTIVE).size();
+            return userServices.getAllUserByParentId(Const.ACTIVE, currentUser.getId()).size() + 1;
         }
     }
 
@@ -377,6 +374,7 @@ public class UserBusinessImpl implements UserBusiness {
             ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(user, BaseUserDto.class);
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -404,8 +402,18 @@ public class UserBusinessImpl implements UserBusiness {
             }
             return userDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public UserDto convertUserToUserDtoWithModule(User user, String keyModule) {
+        if (user == null) return null;
+        UserDto userDto = convertUserToUserDto(user);
+        if (keyModule == null || (user.getRoles() != null && userDto.toString(user.getRoles()).contains(keyModule))) {
+            return userDto;
+        }
+        return null;
     }
 
     @Override
@@ -443,11 +451,27 @@ public class UserBusinessImpl implements UserBusiness {
 
     @Override
     public boolean resendCode(Integer userId) {
+        User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUser(userId);
+        if (!userServices.hasPermissionManageUser(currentUser, user)) {
+            throw new AuthException(AuthErrorCode.PERMISSION_DENIED);
+        }
         if (user != null && user.getCode() != null) {
+            if (user.getStatus().equals(Const.ACTIVE)) {
+                throw new AuthException(AuthErrorCode.ACCOUNT_ACTIVE);
+            }
             // Send mail
             try {
-                kafkaServices.sendMessage("createUser", "{\"id\": " + user.getId() + ", \"fullname\": \"" + user.getFullName() + "\",\"username\":\"" + user.getUsername() + "\", \"email\": \"" + user.getEmail() + "\", \"code\": \"" + user.getCode() + "\"}");
+                kafkaServices.sendMessage("createUser", "" +
+                        "{" +
+                        "\"id\": " + user.getId() + ", " +
+                        "\"fullname\": \"" + user.getFullName() + "\", " +
+                        "\"username\": \"" + user.getUsername() + "\", " +
+                        "\"email\": \"" + user.getEmail() + "\", " +
+                        "\"code\": \"" + user.getCode() + "\", " +
+                        "\"is_resend\" : true" +
+                        "}"
+                );
                 return true;
             } catch (Exception e) {
                 CommonLogger.error("Error kafka: " + e.getMessage());
@@ -455,5 +479,62 @@ public class UserBusinessImpl implements UserBusiness {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean checkRole(String roleNeedCheck) {
+        User currentUser = commonBusiness.getCurrentUser();
+        return (userServices.isSuperAdmin(currentUser) && Const.ROLE_SUPER_ADMIN.equals(roleNeedCheck))
+                || (userServices.isSuperAdminOrganization(currentUser) && Const.ROLE_SUPER_ADMIN_ORGANIZATION.equals(roleNeedCheck))
+                || (userServices.isTimeKeepingAdmin(currentUser) && Const.ROLE_TIME_KEEPING_ADMIN.equals(roleNeedCheck))
+                || (userServices.isTimeKeepingUser(currentUser) && Const.ROLE_TIME_KEEPING_USER.equals(roleNeedCheck))
+                || (userServices.isAreaRestrictionAdmin(currentUser) && Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN.equals(roleNeedCheck))
+                || (userServices.isAreaRestrictionUser(currentUser) && Const.ROLE_AREA_RESTRICTION_CONTROL_USER.equals(roleNeedCheck))
+                || (userServices.isBehaviorAdmin(currentUser) && Const.ROLE_BEHAVIOR_CONTROL_ADMIN.equals(roleNeedCheck))
+                || (userServices.isBehaviorUser(currentUser) && Const.ROLE_BEHAVIOR_CONTROL_USER.equals(roleNeedCheck));
+    }
+
+    @Override
+    public boolean checkRoleAddAndUpdateUser(User user, String roleNeedCheck) {
+        User currentUser = commonBusiness.getCurrentUser();
+        if (user == null) {
+            user = currentUser;
+        }
+        return (userServices.isSuperAdmin(user) && (Const.ROLE_TIME_KEEPING_ADMIN.equals(roleNeedCheck)
+                || Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN.equals(roleNeedCheck)
+                || Const.ROLE_BEHAVIOR_CONTROL_ADMIN.equals(roleNeedCheck)))
+                || (userServices.isSuperAdminOrgTimeKeeping(user) && Const.ROLE_TIME_KEEPING_ADMIN.equals(roleNeedCheck))
+                || (userServices.isSuperAdminOrgAreaRestriction(user) && Const.ROLE_AREA_RESTRICTION_CONTROL_ADMIN.equals(roleNeedCheck))
+                || (userServices.isSuperAdminOrgBehavior(user) && Const.ROLE_BEHAVIOR_CONTROL_ADMIN.equals(roleNeedCheck))
+                || (userServices.isBehaviorAdmin(user) && Const.ROLE_BEHAVIOR_CONTROL_USER.equals(roleNeedCheck))
+                || (userServices.isAreaRestrictionAdmin(user) && Const.ROLE_AREA_RESTRICTION_CONTROL_USER.equals(roleNeedCheck))
+                || (userServices.isTimeKeepingAdmin(user) && Const.ROLE_TIME_KEEPING_USER.equals(roleNeedCheck));
+    }
+
+    @Override
+    public Set<Role> convertRoleFromStringToArray(User user, String roleStr, String locationIdStr) {
+        User currentUser = commonBusiness.getCurrentUser();
+        Set<Role> roleSet = new HashSet<>();
+        List<String> roles = List.of(roleStr.substring(1, roleStr.length() - 1).split(","));
+        if (userServices.isAdmin(currentUser) && !userServices.isRoleOfUser(user, roles)) { // unable update role for cadre
+            CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": convertRoleFromStringToArray() - "
+                    + " cant update role for cadre, userId: " + user.getId());
+            throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+        }
+        if (roles.size() > 0) {
+            for (String role : roles) {
+                Role newRole;
+                role = role.trim().substring(1, role.length() - 1); // ""ABC""
+                if (!checkRoleAddAndUpdateUser(null, role)) {
+                    CommonLogger.error(UserErrorCode.PERMISSION_DENIED.getMessage() + ": checkRoleAddAndUpdateUser() - " +
+                            "currentUserId: " + currentUser.getId() + " and role: " + role);
+                    throw new AccountRestApiException(UserErrorCode.PERMISSION_DENIED);
+                }
+                newRole = roleServices.findRoleByName(role);
+                roleSet.add(newRole);
+            }
+        }
+
+        return roleSet;
     }
 }

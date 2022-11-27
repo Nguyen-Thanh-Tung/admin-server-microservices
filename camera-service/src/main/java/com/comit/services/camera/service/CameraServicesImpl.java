@@ -10,7 +10,9 @@ import com.comit.services.camera.client.data.OrganizationDtoClient;
 import com.comit.services.camera.client.response.*;
 import com.comit.services.camera.constant.CameraErrorCode;
 import com.comit.services.camera.constant.Const;
+import com.comit.services.camera.controller.request.CameraPolygonsRequest;
 import com.comit.services.camera.exception.RestApiException;
+import com.comit.services.camera.loging.model.CommonLogger;
 import com.comit.services.camera.model.entity.Camera;
 import com.comit.services.camera.repository.CameraRepository;
 import com.google.gson.JsonObject;
@@ -45,6 +47,8 @@ public class CameraServicesImpl implements CameraServices {
 
     @Value("${core.api.check-camera}")
     private String checkCameraUrl;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<Camera> getAllCamera(List<Integer> locationIds, List<Integer> cameraIds, String status, String search, Pageable pageable) {
@@ -87,11 +91,6 @@ public class CameraServicesImpl implements CameraServices {
             }
             return cameraRepository.findByAreaRestrictionIdOrderByStatusAscIdDesc(areaRestrictionId, paging);
         }
-    }
-
-    @Override
-    public Page<Camera> findByUser(Integer userId, String status, Pageable pageable) {
-        return null;
     }
 
 
@@ -180,7 +179,7 @@ public class CameraServicesImpl implements CameraServices {
                     return code == 200;
                 }
             }
-//            return "{\"code\": 200, \"data\": {\"embedding_id\":5, \"location_id\": 5, \"image_path\": \"test\"}}";
+            //return "{\"code\": 200, \"data\": {\"embedding_id\":5, \"location_id\": 5, \"image_path\": \"test\"}}";
             return false;
         } catch (Exception e) {
             throw new RestApiException(CameraErrorCode.CAN_NOT_CHECK_CAMERA);
@@ -210,6 +209,28 @@ public class CameraServicesImpl implements CameraServices {
         return Objects.equals(moduleName, Const.BEHAVIOR_HEADER_MODULE);
     }
 
+    public boolean isMatchRolesAndModule(RoleListResponseClient rolesClient) {
+        if (Objects.isNull(rolesClient) || Objects.isNull(rolesClient.getRoles())) {
+            return false;
+        }
+        String moduleName = httpServletRequest.getHeader(Const.HEADER_MODULE);
+        String roles = rolesClient.toString(rolesClient.getRoles());
+        return Objects.equals(moduleName, Const.TIME_KEEPING_HEADER_MODULE) && roles.contains(Const.QLCC)
+                || Objects.equals(moduleName, Const.AREA_RESTRICTION_HEADER_MODULE) && roles.contains(Const.KSKVHC)
+                || Objects.equals(moduleName, Const.BEHAVIOR_HEADER_MODULE) && roles.contains(Const.KSHV);
+    }
+
+    @Override
+    public boolean isMatchLocationTypeAndModule(int locationId) {
+        String moduleName = httpServletRequest.getHeader(Const.HEADER_MODULE);
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, locationId).getBody();
+        if (locationResponseClient != null && locationResponseClient.getLocation() != null) {
+            String locationType = locationResponseClient.getLocation().getType();
+            return Objects.equals(locationType, moduleName);
+        }
+        return false;
+    }
+
     @Override
     public OrganizationDtoClient getOrganizationOfCurrentUser() {
         UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
@@ -222,7 +243,7 @@ public class CameraServicesImpl implements CameraServices {
         if (userResponseClient.getUser().getOrganizationId() == null) {
             return null;
         }
-        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(internalToken, userResponseClient.getUser().getOrganizationId()).getBody();
         if (organizationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
@@ -242,7 +263,7 @@ public class CameraServicesImpl implements CameraServices {
         if (userResponseClient.getUser().getLocationId() == null) {
             return null;
         }
-        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
@@ -251,11 +272,11 @@ public class CameraServicesImpl implements CameraServices {
 
     @Override
     public AreaRestrictionDtoClient getAreaRestriction(Integer locationId, Integer areaRestrictionId) {
-        AreaRestrictionResponseClient areaRestrictionResponseClient = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        AreaRestrictionResponseClient areaRestrictionResponseClient = areaRestrictionClient.getAreaRestriction(internalToken, areaRestrictionId).getBody();
         if (areaRestrictionResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
-        if (Objects.equals(areaRestrictionResponseClient.getAreaRestriction().getLocationId(), locationId)) {
+        if (areaRestrictionResponseClient.getAreaRestriction() != null && Objects.equals(areaRestrictionResponseClient.getAreaRestriction().getLocationId(), locationId)) {
             return areaRestrictionResponseClient.getAreaRestriction();
         }
         return null;
@@ -263,7 +284,7 @@ public class CameraServicesImpl implements CameraServices {
 
     @Override
     public List<LocationDtoClient> getLocationListByOrganizationId(Integer organizationId) {
-        LocationListResponseClient locationListResponseClient = locationClient.getLocationsByOrganizationId(httpServletRequest.getHeader("token"), organizationId).getBody();
+        LocationListResponseClient locationListResponseClient = locationClient.getLocationsByOrganizationId(internalToken, organizationId).getBody();
         if (locationListResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
@@ -272,20 +293,20 @@ public class CameraServicesImpl implements CameraServices {
 
     @Override
     public LocationDtoClient getLocation(Integer organizationId, Integer locationId) {
-        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, locationId).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
 
         if (!Objects.equals(locationResponseClient.getLocation().getOrganizationId(), organizationId)) {
-            return null;
+            throw new RestApiException(CameraErrorCode.LOCATION_NOT_IN_ORGANIZATION);
         }
         return locationResponseClient.getLocation();
     }
 
     @Override
     public LocationDtoClient getLocationById(Integer locationId) {
-        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, locationId).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
         }
@@ -300,5 +321,99 @@ public class CameraServicesImpl implements CameraServices {
     @Override
     public int getNumberCameraOfAreaRestriction(int areaRestrictionId) {
         return cameraRepository.countByAreaRestrictionIdAndStatus(areaRestrictionId, Const.ACTIVE);
+    }
+
+    @Override
+    public boolean hasPermissionViewCamera(Camera camera) {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        RoleListResponseClient roleListResponseClient = accountClient.getRolesOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (Objects.isNull(userResponseClient) || Objects.isNull(userResponseClient.getUser()) || Objects.isNull(roleListResponseClient) ||
+                !Objects.equals(camera.getLocationId(), userResponseClient.getUser().getLocationId())) {
+            return false;
+        }
+        if (Objects.nonNull(roleListResponseClient.getRoles())) {
+            String roleStr = roleListResponseClient.toString(roleListResponseClient.getRoles());
+            String cameraType = camera.getType();
+            return switch (cameraType) {
+                case Const.CHECKIN, Const.CHECKOUT -> roleStr.contains(Const.ROLE_TIME_KEEPING_USER);
+                case Const.GSKVHC -> roleStr.contains(Const.ROLE_AREA_RESTRICTION_CONTROL_USER);
+                case Const.KSHV -> roleStr.contains(Const.ROLE_BEHAVIOR_CONTROL_USER);
+                default -> false;
+            };
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasRole(String roleNeedCheck) {
+        CheckRoleResponseClient checkRoleResponseClient = accountClient.hasRole(httpServletRequest.getHeader("token"), roleNeedCheck).getBody();
+        if (checkRoleResponseClient != null) {
+            return checkRoleResponseClient.getHasRole();
+        }
+        return false;
+    }
+
+    @Override
+    public RoleListResponseClient getAllRoleOfCurrent() {
+        RoleListResponseClient roleListResponseClient = accountClient.getRolesOfCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (roleListResponseClient == null || roleListResponseClient.getRoles() == null) {
+            throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
+        }
+        return roleListResponseClient;
+    }
+
+    @Override
+    public boolean hasPermissionDeleteCamera(Camera camera) {
+        UserResponseClient userResponseClient = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
+        if (Objects.isNull(userResponseClient) || Objects.isNull(userResponseClient.getUser())) {
+            CommonLogger.error("Hasnt role delete camera: Get current user error ");
+            return false;
+        }
+
+        if (isBehaviorModule() || isAreaRestrictionModule()) {
+            if (hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER) || hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER)) {
+                return Objects.equals(camera.getLocationId(), userResponseClient.getUser().getLocationId());
+            }
+        }
+
+        if (isTimeKeepingModule()) {
+            if (hasRole(Const.ROLE_TIME_KEEPING_ADMIN)) {
+                LocationDtoClient locationDtoClient = getLocationById(camera.getLocationId());
+                if (!Objects.equals(locationDtoClient.getOrganizationId(), userResponseClient.getUser().getOrganizationId())) {
+                    return false;
+                }
+                return locationDtoClient.getType().equals(Const.TIME_KEEPING_TYPE);
+            }
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean hasPermissionUpdatePolygons(int cameraId, CameraPolygonsRequest request) {
+        LocationDtoClient locationDtoClient = getLocationOfCurrentUser();
+        if (Objects.isNull(locationDtoClient)) {
+            CommonLogger.error("Permission denied for update polygon: Get location of current user error");
+            return false;
+        }
+        String roleStr = getAllRoleOfCurrent().toString(getAllRoleOfCurrent().getRoles());
+        if (!roleStr.contains(Const.ROLE_AREA_RESTRICTION_CONTROL_USER) && !roleStr.contains(Const.ROLE_BEHAVIOR_CONTROL_USER)) {
+            CommonLogger.error("Permission denied for update polygon: Current user is not ARU or BHU");
+            return false;
+        }
+        if (!isBehaviorModule() && !isAreaRestrictionModule()) {
+            CommonLogger.error("Permission denied for update polygon: Is not area_restriction or behavior module");
+            return false;
+        } else {
+            // check location
+            Camera camera = getCamera(cameraId, Const.ACTIVE);
+            if (Objects.isNull(camera)) {
+                throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
+            }
+            if (!Objects.equals(locationDtoClient.getId(), camera.getLocationId())) {
+                CommonLogger.error("Permission denied for update polygon: Location of camera (" + camera.getLocationId() + ") and current user(" + locationDtoClient.getId() + ") not match");
+            }
+            return true;
+        }
     }
 }

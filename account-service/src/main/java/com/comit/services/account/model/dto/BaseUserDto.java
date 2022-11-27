@@ -18,7 +18,6 @@ public class BaseUserDto extends BaseModelDto {
     private String fullname;
     private String email;
     private String status;
-
     @JsonIncludeProperties({"id", "name"})
     private Set<RoleDto> roles;
 

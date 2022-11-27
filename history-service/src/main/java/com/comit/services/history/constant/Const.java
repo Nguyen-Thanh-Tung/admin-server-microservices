@@ -69,6 +69,7 @@ public interface Const {
     String DEFAULT_SIZE_PAGE = Integer.MAX_VALUE + "";
     String DEFAULT_PAGE = "0";
     String CHECK_IN = "Check in";
+    String CHECK_OUT = "Check out";
 
     // method
     String POST = "POST";

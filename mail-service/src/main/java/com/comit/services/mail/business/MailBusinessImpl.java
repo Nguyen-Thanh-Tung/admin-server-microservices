@@ -23,7 +23,7 @@ public class MailBusinessImpl implements MailBusiness {
     public boolean sendQrCodeMail(String email, String fullname, String employeeCode, String organizationName, String locationName, String locationCode, String type) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(email);
+        mail.setMailTo("thi-ngoc.nguyen@comitcorp.com");
         mail.setMailSubject(Objects.equals(type, Const.TIME_KEEPING_MODULE) ? "Nhận thông báo chấm công qua Telegram" : "Nhận thông báo cảnh báo đột nhập qua Telegram");
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -48,7 +48,7 @@ public class MailBusinessImpl implements MailBusiness {
     public boolean sendForgetPasswordMail(Integer id, String fullname, String email, String code) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(email);
+        mail.setMailTo("thi-ngoc.nguyen@comitcorp.com");
         mail.setMailSubject("Change password");
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -66,7 +66,7 @@ public class MailBusinessImpl implements MailBusiness {
     public boolean sendConfirmCreateUserMail(Integer id, String fullname, String username, String email, String code, Boolean isResend) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(email);
+        mail.setMailTo("thi-ngoc.nguyen@comitcorp.com");
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("name", fullname);
@@ -95,7 +95,7 @@ public class MailBusinessImpl implements MailBusiness {
     public boolean sendAreaRestrictionMail(String email, String employeeName, String areaRestrictionName, String date) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(email);
+        mail.setMailTo("thi-ngoc.nguyen@comitcorp.com");
         mail.setMailSubject("Cảnh báo đột nhập khu vực hạn chế");
 
         Map<String, Object> model = new HashMap<String, Object>();
@@ -116,7 +116,7 @@ public class MailBusinessImpl implements MailBusiness {
     public boolean sendTimeKeepingMail(String email, String employeeName, String shiftName, String date, String locationName, String organizationName, String content) {
         Mail mail = new Mail();
         mail.setMailFrom(env.getProperty("spring.mail.username"));
-        mail.setMailTo(email);
+        mail.setMailTo("thi-ngoc.nguyen@comitcorp.com");
         mail.setMailSubject("Cảnh báo đi muộn");
 
         Map<String, Object> model = new HashMap<String, Object>();

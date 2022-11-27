@@ -4,6 +4,7 @@ import com.comit.services.organization.client.data.LocationDtoClient;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.exception.RestApiException;
+import com.comit.services.organization.loging.model.CommonLogger;
 import com.comit.services.organization.middleware.OrganizationVerifyRequestServices;
 import com.comit.services.organization.model.dto.BaseOrganizationDto;
 import com.comit.services.organization.model.dto.OrganizationDto;
@@ -13,6 +14,9 @@ import com.comit.services.organization.util.ExcelUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,74 +35,90 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
     private OrganizationServices organizationServices;
     @Autowired
     private OrganizationVerifyRequestServices verifyRequestServices;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Value("${system.supperAdmin.organization}")
     private String superAdminOrganization;
 
     @Override
-    public List<OrganizationDto> getAllOrganization() {
-        List<Organization> organizations = organizationServices.getAllOrganization();
-        boolean hasRole = organizationServices.hasPermissionManageOrganization();
-        if (!hasRole) {
-//            throw new CommonException(ErrorCode.PERMISSION_DENIED);
-            return null;
-        }
-
+    public List<OrganizationDto> getAllOrganization(List<Organization> content) {
         List<OrganizationDto> organizationDtos = new ArrayList<>();
-        organizations.forEach(organization -> {
-            if (!Objects.equals(organization.getName(), superAdminOrganization)) {
-                organizationDtos.add(convertOrganizationToOrganizationDto(organization));
-            }
+        content.forEach(organization -> {
+            organizationDtos.add(convertOrganizationToOrganizationDto(organization));
         });
         return organizationDtos;
     }
 
     @Override
-    public OrganizationDto getOrganization(int id) {
-        Organization organization = organizationServices.getOrganization(id);
-
+    public Page<Organization> getAllOrganization(int page, int size, String search) {
+        Pageable paging = PageRequest.of(page, size);
+        Page<Organization> organizations = organizationServices.getAllOrganization(search, paging);
         boolean hasRole = organizationServices.hasPermissionManageOrganization();
         if (!hasRole) {
-//            throw new CommonException(ErrorCode.PERMISSION_DENIED);
-            return null;
+            throw new RestApiException(OrganizationErrorCode.PERMISSION_DENIED);
+        }
+        return organizations;
+    }
+
+    @Override
+    public OrganizationDto getOrganization(int id) {
+        Organization organization = organizationServices.getOrganization(id);
+        boolean hasRole = organizationServices.hasPermissionManageOrganization();
+        if (!hasRole) {
+            throw new RestApiException(OrganizationErrorCode.PERMISSION_DENIED);
         }
 
         if (organization != null) {
             return convertOrganizationToOrganizationDto(organization);
         } else {
-            return null;
+            throw new RestApiException(OrganizationErrorCode.ORGANIZATION_NOT_EXIST);
         }
     }
 
     @Override
     public BaseOrganizationDto getOrganizationBase(int id) {
+        // For internal
+        if (!isInternalFeature()) throw new RestApiException(OrganizationErrorCode.PERMISSION_DENIED);
         Organization organization = organizationServices.getOrganization(id);
 
         if (organization != null) {
             return convertOrganizationToBaseOrganizationDto(organization);
         } else {
-            return null;
+            throw new RestApiException(OrganizationErrorCode.ORGANIZATION_NOT_EXIST);
         }
     }
 
     @Override
     public BaseOrganizationDto getOrganizationBase(String name) {
+        // For internal
+        if (!isInternalFeature()) throw new RestApiException(OrganizationErrorCode.PERMISSION_DENIED);
         Organization organization = organizationServices.getOrganization(name);
 
         if (organization != null) {
             return convertOrganizationToBaseOrganizationDto(organization);
         } else {
-            return null;
+            throw new RestApiException(OrganizationErrorCode.ORGANIZATION_NOT_EXIST);
         }
     }
 
     @Override
     public OrganizationDto addOrganization(OrganizationRequest request) {
+        // Verify input
         verifyRequestServices.verifyAddOrUpdateOrganization(request);
+        // Check permission add organization
+        if (!organizationServices.hasPermissionManageOrganization()) {
+            CommonLogger.error(OrganizationErrorCode.PERMISSION_DENIED.getMessage() + ": addOrganization() " +
+                    "- currentUser must be a super admin");
+            throw new RestApiException(OrganizationErrorCode.PERMISSION_DENIED);
+        }
         Organization organization = organizationServices.getOrganization(request.getName());
         if (organization != null) {
             throw new RestApiException(OrganizationErrorCode.ORGANIZATION_EXISTED);
         }
+        // Add organization
         organization = new Organization();
         organization.setName(request.getName());
         organization.setPhone(request.getPhone());
@@ -113,8 +133,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
     public OrganizationDto updateOrganization(int id, OrganizationRequest request) {
         verifyRequestServices.verifyAddOrUpdateOrganization(request);
         Organization organization = organizationServices.getOrganization(id);
+        Organization organizationNew = organizationServices.getOrganization(request.getName());
         if (organization == null) {
             throw new RestApiException(OrganizationErrorCode.ORGANIZATION_NOT_EXIST);
+        }
+        if (organizationNew != null && organizationNew.getId() != id) {
+            throw new RestApiException(OrganizationErrorCode.ORGANIZATION_EXISTED);
         }
         organization.setName(request.getName());
         organization.setEmail(request.getEmail());
@@ -139,7 +163,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         List<LocationDtoClient> locationDtoClients = organizationServices.getLocationsByOrganizationId(organizationId);
 
         if (locationDtoClients.size() > 0) {
-            throw new RestApiException(OrganizationErrorCode.CAN_DELETE_ORGANIZATION_HAS_LOCATION);
+            throw new RestApiException(OrganizationErrorCode.CAN_NOT_DELETE_ORGANIZATION_HAS_LOCATION);
         }
         return organizationServices.deleteOrganization(organizationId);
     }
@@ -177,7 +201,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
                 return organizationDtos;
             }
         }
-        return null;
+        throw new RestApiException(OrganizationErrorCode.IS_NOT_MULTIPART);
     }
 
     public BaseOrganizationDto convertOrganizationToBaseOrganizationDto(Organization organization) {
@@ -186,6 +210,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
         try {
             return modelMapper.map(organization, BaseOrganizationDto.class);
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -199,7 +224,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
             organizationDto.setNumberUser(numberUserOfOrganization);
             return organizationDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

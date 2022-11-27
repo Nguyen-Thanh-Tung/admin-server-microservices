@@ -5,6 +5,7 @@ import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.request.SendQrCodeRequest;
 import com.comit.services.employee.exception.RestApiException;
+import com.comit.services.employee.loging.model.CommonLogger;
 import com.comit.services.employee.middleware.EmployeeVerifyRequestServices;
 import com.comit.services.employee.model.dto.*;
 import com.comit.services.employee.model.entity.Employee;
@@ -15,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,8 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     private KafkaServices kafkaServices;
     @Autowired
     HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<Employee> getEmployeePage(Integer locationId, String status, int page, int size, String search) {
@@ -65,7 +69,9 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
     public List<BaseEmployeeDto> getAllEmployeeBase(List<Employee> employees) {
         List<BaseEmployeeDto> employeeDtos = new ArrayList<>();
         employees.forEach(employee -> {
-            employeeDtos.add(convertEmployeeToBaseEmployeeDto(employee));
+            if (employee.getStatus().equals(Const.ACTIVE)) {
+                employeeDtos.add(convertEmployeeToBaseEmployeeDto(employee));
+            }
         });
         return employeeDtos;
     }
@@ -155,6 +161,10 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
                                     return convertEmployeeToEmployeeDto(newEmployee, 0);
                                 } catch (Exception e) {
+                                    if (employee.getEmbeddingId() != null) {
+                                        // delete image in core ai
+                                        employeeServices.getDeleteEmployeeImageResponse(employee.getEmbeddingId(), employee.getLocationId());
+                                    }
                                     if (e instanceof RestApiException) {
                                         throw e;
                                     } else {
@@ -176,7 +186,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             }
 
         }
-        return null;
+        throw new RestApiException(EmployeeErrorCode.IS_NOT_MULTIPART);
     }
 
     @Override
@@ -222,6 +232,12 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                 if (updateFaceResponse != null) {
                     try {
                         JsonObject obj = new JsonParser().parse(updateFaceResponse).getAsJsonObject();
+                        if (obj.has("code")) {
+                            int responseBodyCode = obj.get("code").getAsInt();
+                            if (responseBodyCode != 200) {
+                                throw new RestApiException(0, obj.get("message").getAsString());
+                            }
+                        }
                         if (obj.has("data")) {
                             JsonObject dataObj = obj.getAsJsonObject("data");
                             MetadataDtoClient metadataDtoClient = employeeServices.saveMetadata(dataObj.get("image_path").getAsString());
@@ -230,7 +246,11 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
                             employee.setEmbeddingId(dataObj.get("embedding_id").getAsInt());
                         }
                     } catch (Exception e) {
-                        throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+                        if (e instanceof RestApiException) {
+                            throw e;
+                        } else {
+                            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+                        }
                     }
                 }
             }
@@ -273,7 +293,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
             return convertEmployeeToEmployeeDto(newEmployee, 0);
         }
-        return null;
+        throw new RestApiException(EmployeeErrorCode.IS_NOT_MULTIPART);
     }
 
     @Override
@@ -290,6 +310,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public BaseEmployeeDto getEmployeeBase(int id) {
+        if (!isInternalFeature()) throw new RestApiException(EmployeeErrorCode.PERMISSION_DENIED);
         Employee employee = employeeServices.getEmployee(id);
         if (employee == null) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
@@ -317,7 +338,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
         List<BaseEmployeeDto> baseEmployeeDtos = new ArrayList<>();
-        for (Employee employee: employees) {
+        for (Employee employee : employees) {
             baseEmployeeDtos.add(convertEmployeeToBaseEmployeeDto(employee));
         }
         return baseEmployeeDtos;
@@ -325,27 +346,68 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
 
     @Override
     public boolean deleteEmployee(int id) {
+        // Check permission delete employee
+        if (!employeeServices.checkPermissionDeleteEmployee()) {
+            CommonLogger.error(EmployeeErrorCode.PERMISSION_DENIED.getMessage() + ": deleteEmployee() " +
+                    "- CurrentUser must be a cadres");
+            throw new RestApiException(EmployeeErrorCode.PERMISSION_DENIED);
+        }
         // Get employee in location
         LocationDtoClient locationDtoClient = employeeServices.getLocationOfCurrentUser();
         Employee employee = employeeServices.getEmployee(id, locationDtoClient.getId());
-        if (employee == null) {
+        if (employee == null || employee.getStatus().equals(Const.DELETED)) {
             throw new RestApiException(EmployeeErrorCode.EMPLOYEE_NOT_EXIST);
         }
-
+        // check employee is manager of area restriction
+        if (employeeServices.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER) || employeeServices.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER)) {
+            List<AreaRestrictionDtoClient> areaRestrictionClients = employeeServices.getAllAreaRestrictionOfManager(employee.getId());
+            if (areaRestrictionClients.size() > 0) {
+                throw new RestApiException(EmployeeErrorCode.EMPLOYEE_IS_MANAGER_AREA_RESTRICTION);
+            }
+        }
         // delete image in core ai
-        employeeServices.getDeleteEmployeeImageResponse(employee.getEmbeddingId(), employee.getLocationId());
-        // Update employees and manager and status of employee
-        employee.setManagerId(null);
-        List<Employee> employees = employeeServices.getEmployeeOfManager(employee.getId());
-        for (Employee item : employees) {
-            item.setManagerId(null);
-            employeeServices.saveEmployee(item);
+        String deleteFaceResponse = employeeServices.getDeleteEmployeeImageResponse(employee.getEmbeddingId(), employee.getLocationId());
+        if (deleteFaceResponse != null) {
+            try {
+                JsonObject obj = new JsonParser().parse(deleteFaceResponse).getAsJsonObject();
+                if (obj.has("code")) {
+                    int responseBodyCode = obj.get("code").getAsInt();
+                    if (responseBodyCode != 200) {
+                        throw new RestApiException(0, obj.get("message").getAsString());
+                    }
+                }
+
+                // Update employees and manager and status of employee
+                employee.setManagerId(null);
+                List<Employee> employees = employeeServices.getEmployeeOfManager(employee.getId());
+                for (Employee item : employees) {
+                    item.setManagerId(null);
+                    employeeServices.saveEmployee(item);
+                }
+                employee.setEmbeddingId(null);
+                employee.setStatus(Const.DELETED);
+
+                // Delete employee from area restriction (remove manager)
+                employeeServices.deleteManagerOnAllAreaRestriction(employee.getId());
+
+                // Delete all area restriction and time which employee are allowed
+                employeeServices.deleteEmployeeAreaRestrictionList(employee.getId());
+
+                // Delete all area restriction manager notification
+                employeeServices.deleteAreaRestrictionManagerNotificationList(employee.getId());
+
+                employeeServices.saveEmployee(employee);
+                return true;
+            } catch (Exception e) {
+                if (e instanceof RestApiException) {
+                    throw e;
+                } else {
+                    throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+                }
+            }
         }
         employee.setEmbeddingId(null);
         employee.setStatus(Const.DELETED);
-
-        // Delete employee from area restriction (remove manager)
-        employeeServices.deleteManagerOnAllAreaRestriction(employee.getId());
 
         // Delete all area restriction and time which employee are allowed
         employeeServices.deleteEmployeeAreaRestrictionList(employee.getId());
@@ -372,7 +434,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         List<Employee> newManagerEmployees = employeeServices.getEmployeeOfManager(newManagerId);
 
         // Check if employees of old manager has manager of new manager
-        for (Employee employee: oldManagerEmployees) {
+        for (Employee employee : oldManagerEmployees) {
             if (newManager.getManagerId() != null && newManager.getManagerId() == employee.getId()) {
                 throw new RestApiException(EmployeeErrorCode.MANAGER_IS_EMPLOYEE);
             }
@@ -409,45 +471,63 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             List<String> employeeCodeErrors = new ArrayList<>();
             employeeData.forEach((integer, strings) -> {
                 if (integer > 0) {
+                    String name = strings.get(0);
+                    String code = strings.get(1);
+                    String email = strings.get(2);
+                    String phone = strings.get(3);
+                    try {
+                        employeeVerifyRequestServices.verifyAddEmployeeRequest(name, code, email, phone);
+                    } catch (Exception e) {
+                        employeeCodeErrors.add(code);
+                        return;
+                    }
+                    if (employeeServices.isExistEmail(email)) {
+                        employeeCodeErrors.add(code);
+                        return;
+                    }
                     Employee employee = new Employee();
-                    employee.setName(strings.get(0));
-                    employee.setCode(strings.get(1));
-                    employee.setEmail(strings.get(2));
-                    employee.setPhone(strings.get(3));
+                    employee.setName(name);
+                    employee.setCode(code);
+                    employee.setEmail(email);
+                    employee.setPhone(phone);
                     employee.setStatus(Const.ACTIVE);
                     employee.setLocationId(locationDtoClient.getId());
                     // Check face exist (call core ai)
                     MultipartFile file = files.stream().filter(multipartFile -> {
-                        String[] names = multipartFile.getOriginalFilename().split("/");
-                        String name = names[names.length - 1];
-                        String employeeCodeFile = name.split("\\.")[0];
+                        String[] names = Objects.requireNonNull(multipartFile.getOriginalFilename()).split("/");
+                        String mName = names[names.length - 1];
+                        String employeeCodeFile = mName.split("\\.")[0];
                         return Objects.equals(employeeCodeFile, employee.getCode());
                     }).findFirst().orElse(null);
                     if (file != null) {
-                        String addFaceResponse = employeeServices.getSaveEmployeeImageResponse(file, locationDtoClient.getId());
-                        if (addFaceResponse != null) {
-                            try {
-                                JsonObject obj = new JsonParser().parse(addFaceResponse).getAsJsonObject();
-                                if (obj.has("data")) {
-                                    JsonObject dataObj = obj.getAsJsonObject("data");
-                                    if (dataObj.has("embedding_id") && !dataObj.get("embedding_id").isJsonNull()) {
-                                        String embeddingIdStr = dataObj.get("embedding_id").getAsString();
-                                        int embeddingId = Integer.parseInt(embeddingIdStr);
-                                        employee.setEmbeddingId(embeddingId);
-                                        // Add image
-                                        MetadataDtoClient metadataDtoClient = employeeServices.saveMetadata(dataObj.get("image_path").getAsString());
-                                        employee.setImageId(metadataDtoClient.getId());
-                                        employeeServices.saveEmployee(employee);
+                        try {
+                            String addFaceResponse = employeeServices.getSaveEmployeeImageResponse(file, locationDtoClient.getId());
+                            if (addFaceResponse != null) {
+                                try {
+                                    JsonObject obj = new JsonParser().parse(addFaceResponse).getAsJsonObject();
+                                    if (obj.has("data")) {
+                                        JsonObject dataObj = obj.getAsJsonObject("data");
+                                        if (dataObj.has("embedding_id") && !dataObj.get("embedding_id").isJsonNull()) {
+                                            String embeddingIdStr = dataObj.get("embedding_id").getAsString();
+                                            int embeddingId = Integer.parseInt(embeddingIdStr);
+                                            employee.setEmbeddingId(embeddingId);
+                                            // Add image
+                                            MetadataDtoClient metadataDtoClient = employeeServices.saveMetadata(dataObj.get("image_path").getAsString());
+                                            employee.setImageId(metadataDtoClient.getId());
+                                            employeeServices.saveEmployee(employee);
+                                        } else {
+                                            employeeCodeErrors.add(employee.getCode());
+                                        }
                                     } else {
-                                        employeeCodeErrors.add(employee.getCode());
+                                        throw new RestApiException(EmployeeErrorCode.EMPLOYEE_IMAGE_IS_EXISTED);
                                     }
-                                } else {
-                                    throw new RestApiException(EmployeeErrorCode.EMPLOYEE_IMAGE_IS_EXISTED);
+                                } catch (Exception e) {
+                                    employeeCodeErrors.add(employee.getCode());
                                 }
-                            } catch (Exception e) {
+                            } else {
                                 employeeCodeErrors.add(employee.getCode());
                             }
-                        } else {
+                        } catch (Exception e) {
                             employeeCodeErrors.add(employee.getCode());
                         }
                     } else {
@@ -457,7 +537,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             });
             return employeeCodeErrors;
         }
-        return null;
+        throw new RestApiException(EmployeeErrorCode.IS_NOT_MULTIPART);
     }
 
     @Override
@@ -516,6 +596,7 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             }
             return employeeDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -573,15 +654,17 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
             }
 
             //  Area Employee Time list of employee
-            List<AreaEmployeeTimeDtoClient> areaEmployeeTimeDtoClients = employeeServices.getAreaEmployeeTimesOfEmployee(employee.getId());
-            List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
-            areaEmployeeTimeDtoClients.forEach(areaEmployeeTimeDtoClient -> {
-                areaEmployeeTimeDtos.add(convertAreaEmployeeTimeFromClient(areaEmployeeTimeDtoClient));
-            });
-            employeeDto.setAreaEmployeeTimes(areaEmployeeTimeDtos);
-
+            if (Objects.equals(employeeDto.getLocation().getType(), Const.AREA_RESTRICTION_TYPE) || Objects.equals(employeeDto.getLocation().getType(), Const.BEHAVIOR_TYPE)) {
+                List<AreaEmployeeTimeDtoClient> areaEmployeeTimeDtoClients = employeeServices.getAreaEmployeeTimesOfEmployee(employee.getId());
+                List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = new ArrayList<>();
+                areaEmployeeTimeDtoClients.forEach(areaEmployeeTimeDtoClient -> {
+                    areaEmployeeTimeDtos.add(convertAreaEmployeeTimeFromClient(areaEmployeeTimeDtoClient));
+                });
+                employeeDto.setAreaEmployeeTimes(areaEmployeeTimeDtos);
+            }
             return employeeDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -631,5 +714,9 @@ public class EmployeeBusinessImpl implements EmployeeBusiness {
         metadataDto.setMd5(metadataDtoClient.getMd5());
         metadataDto.setType(metadataDtoClient.getType());
         return metadataDto;
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

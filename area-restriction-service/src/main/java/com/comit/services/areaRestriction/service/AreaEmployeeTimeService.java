@@ -14,4 +14,6 @@ public interface AreaEmployeeTimeService {
     List<AreaEmployeeTime> getAreaEmployeeTimeListOfEmployee(Integer employeeId);
 
     List<AreaEmployeeTime> getAreaEmployeeTimeListOfAreaRestriction(Integer areaRestrictionId);
+
+    boolean deleteAreaEmployeeTimeList(Integer areRestrictionId);
 }

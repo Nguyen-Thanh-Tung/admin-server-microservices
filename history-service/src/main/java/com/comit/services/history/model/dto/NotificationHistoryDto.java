@@ -15,7 +15,7 @@ public class NotificationHistoryDto extends BaseModelDto {
     private Date time;
     private String status;
 
-    @JsonIncludeProperties({"id", "name", "area_restriction"})
+    @JsonIncludeProperties({"id", "name", "area_restriction", "polygons"})
     private CameraDto camera;
 
     @JsonIncludeProperties({"id", "code", "name", "manager", "image"})

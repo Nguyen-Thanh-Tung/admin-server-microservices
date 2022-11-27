@@ -6,15 +6,15 @@ import com.comit.services.areaRestriction.client.HistoryClient;
 import com.comit.services.areaRestriction.client.LocationClient;
 import com.comit.services.areaRestriction.client.data.EmployeeDtoClient;
 import com.comit.services.areaRestriction.client.data.LocationDtoClient;
-import com.comit.services.areaRestriction.client.response.CountCameraResponseClient;
-import com.comit.services.areaRestriction.client.response.EmployeeResponseClient;
-import com.comit.services.areaRestriction.client.response.LocationResponseClient;
-import com.comit.services.areaRestriction.client.response.UserResponseClient;
+import com.comit.services.areaRestriction.client.response.*;
 import com.comit.services.areaRestriction.constant.AreaRestrictionErrorCode;
+import com.comit.services.areaRestriction.constant.Const;
 import com.comit.services.areaRestriction.exception.AreaRestrictionCommonException;
+import com.comit.services.areaRestriction.loging.model.CommonLogger;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import com.comit.services.areaRestriction.repository.AreaRestrictionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -42,6 +41,8 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     private HistoryClient historyClient;
     @Autowired
     private LocationClient locationClient;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<AreaRestriction> getAreaRestrictionPage(Integer locationId, String search, Pageable paging) {
@@ -62,8 +63,8 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     }
 
     @Override
-    public AreaRestriction getAreaRestriction(Integer locationId, String name) {
-        return areaRestrictionRepository.findByLocationIdAndName(locationId, name);
+    public AreaRestriction getAreaRestriction(Integer locationId, String code) {
+        return areaRestrictionRepository.findByLocationIdAndCode(locationId, code);
     }
 
     @Override
@@ -85,18 +86,27 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     public LocationDtoClient getLocationOfCurrentUser() {
         UserResponseClient userResponse = accountClient.getCurrentUser(httpServletRequest.getHeader("token")).getBody();
         if (userResponse != null && userResponse.getUser() != null) {
-            LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponse.getUser().getLocationId()).getBody();
-            if (locationResponseClient == null) {
-                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
+            if (hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER) || hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER)) {
+                LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, userResponse.getUser().getLocationId()).getBody();
+                if (locationResponseClient == null) {
+                    CommonLogger.error(AreaRestrictionErrorCode.INTERNAL_ERROR.getMessage() + ": getLocationOfCurrentUser() " +
+                            "- Location response client is null");
+                    throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
+                }
+                return locationResponseClient.getLocation();
             }
-            return locationResponseClient.getLocation();
+            CommonLogger.error(AreaRestrictionErrorCode.PERMISSION_DENIED.getMessage() + ": getLocationOfCurrentUser() " +
+                    "- currentUser is cadres area restriction or cadres behavior, currentUserId: " + userResponse.getUser().getId());
+            throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.PERMISSION_DENIED);
         }
-        return null;
+        CommonLogger.error(AreaRestrictionErrorCode.INTERNAL_ERROR.getMessage() + ": getLocationOfCurrentUser() " +
+                "- User response is null");
+        throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
     }
 
     @Override
     public int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate) {
-        CountCameraResponseClient countCameraResponseClient = historyClient.getNumberNotificationOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestriction.getId()).getBody();
+        CountCameraResponseClient countCameraResponseClient = historyClient.getNumberNotificationOfAreaRestriction(internalToken, areaRestriction.getId()).getBody();
         if (countCameraResponseClient == null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
         }
@@ -105,7 +115,7 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
 
     @Override
     public EmployeeDtoClient getEmployee(Integer managerId) {
-        EmployeeResponseClient employeeResponseClient = employeeClient.getEmployee(httpServletRequest.getHeader("token"), managerId).getBody();
+        EmployeeResponseClient employeeResponseClient = employeeClient.getEmployee(internalToken, managerId).getBody();
         if (employeeResponseClient == null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
         }
@@ -114,7 +124,7 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
 
     @Override
     public int getNumberCameraOfAreaRestriction(int areaRestrictionId) {
-        CountCameraResponseClient countCameraResponseClient = cameraClient.getNumberCameraOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        CountCameraResponseClient countCameraResponseClient = cameraClient.getNumberCameraOfAreaRestriction(internalToken, areaRestrictionId).getBody();
         if (countCameraResponseClient == null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
         }
@@ -125,4 +135,28 @@ public class AreaRestrictionServicesImpl implements AreaRestrictionServices {
     public List<AreaRestriction> getAllAreaRestrictionOfManager(Integer managerId) {
         return areaRestrictionRepository.findByManagerIdsOrManagerIdsContaining(managerId.toString(), managerId + ",");
     }
+
+    @Override
+    public boolean isExistAreaRestriction(Integer locationId, Integer areaRestrictionId) {
+        return areaRestrictionRepository.existsAreaRestrictionByLocationIdAndId(locationId, areaRestrictionId);
+    }
+
+    @Override
+    public boolean hasRole(String roleNeedCheck) {
+        CheckRoleResponseClient checkRoleResponseClient = accountClient.hasRole(httpServletRequest.getHeader("token"), roleNeedCheck).getBody();
+        if (checkRoleResponseClient != null) {
+            return checkRoleResponseClient.getHasRole();
+        }
+        return false;
+    }
+
+    @Override
+    public LocationDtoClient getLocationById(Integer locationId) {
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, locationId).getBody();
+        if (locationResponseClient == null) {
+            throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.INTERNAL_ERROR);
+        }
+        return locationResponseClient.getLocation();
+    }
+
 }

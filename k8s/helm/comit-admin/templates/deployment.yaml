@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         {{- include "comit-admin.labels" . | nindent 8 }}
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
     spec:
       containers:
         - name: {{ include "comit-admin.fullname" . }}

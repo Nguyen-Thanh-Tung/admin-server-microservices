@@ -2,11 +2,12 @@ package com.comit.services.account.business;
 
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
-import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
+import com.comit.services.account.model.entity.Role;
 import com.comit.services.account.model.entity.User;
+import org.springframework.data.domain.Page;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -14,7 +15,9 @@ import java.util.Set;
 
 public interface UserBusiness {
     // For user services
-    List<UserDto> getAllUser(String status);
+    Page<User> getAllUser(int size, int page, String search, String status);
+
+    List<UserDto> getAllUser(List<User> users);
 
     UserDto getUser(int id);
 
@@ -25,8 +28,6 @@ public interface UserBusiness {
     boolean deleteUser(int id);
 
     UserDto addRoleToUser(int id, Set<String> roles);
-
-    UserDto updateRoleUser(int id, UpdateRoleForUserRequest updateRoleForUserRequest);
 
     UserDto updateUser(int id, HttpServletRequest servletRequest);
 
@@ -55,4 +56,10 @@ public interface UserBusiness {
     int getNumberOrganizationOfRoles(String roleIds);
 
     boolean resendCode(Integer id);
+
+    boolean checkRole(String roleNeedCheck);
+
+    boolean checkRoleAddAndUpdateUser(User user, String roleNeedCheck);
+
+    Set<Role> convertRoleFromStringToArray(User user, String roleStr, String locationIdStr);
 }

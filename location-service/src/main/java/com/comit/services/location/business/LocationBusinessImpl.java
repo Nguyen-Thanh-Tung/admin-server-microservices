@@ -5,6 +5,7 @@ import com.comit.services.location.constant.Const;
 import com.comit.services.location.constant.LocationErrorCode;
 import com.comit.services.location.controller.request.LocationRequest;
 import com.comit.services.location.exception.RestApiException;
+import com.comit.services.location.loging.model.CommonLogger;
 import com.comit.services.location.middleware.LocationVerifyRequestServices;
 import com.comit.services.location.model.dto.BaseLocationDto;
 import com.comit.services.location.model.dto.LocationDto;
@@ -12,11 +13,13 @@ import com.comit.services.location.model.entity.Location;
 import com.comit.services.location.service.LocationServices;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +30,10 @@ public class LocationBusinessImpl implements LocationBusiness {
     private LocationVerifyRequestServices verifyRequestServices;
     @Autowired
     private LocationServices locationServices;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<Location> getLocationPage(int page, int size, String search) {
@@ -146,6 +153,9 @@ public class LocationBusinessImpl implements LocationBusiness {
 
     @Override
     public BaseLocationDto getLocationBase(int id) {
+        // For internal request
+        if (!isInternalFeature()) throw new RestApiException(LocationErrorCode.PERMISSION_DENIED);
+
         Location location = locationServices.getLocation(id);
         if (location == null) {
             throw new RestApiException(LocationErrorCode.LOCATION_NOT_EXIST);
@@ -156,6 +166,7 @@ public class LocationBusinessImpl implements LocationBusiness {
 
     @Override
     public List<BaseLocationDto> getAllLocationByOrganizationId(int organizationId, String type) {
+        if (!isInternalFeature()) throw new RestApiException(LocationErrorCode.PERMISSION_DENIED);
         List<Location> locations = locationServices.getAllLocationByOrganizationId(organizationId, type);
         List<BaseLocationDto> locationDtos = new ArrayList<>();
         locations.forEach(location -> {
@@ -170,6 +181,7 @@ public class LocationBusinessImpl implements LocationBusiness {
             ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(location, BaseLocationDto.class);
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -184,7 +196,12 @@ public class LocationBusinessImpl implements LocationBusiness {
             locationDto.setNumberEmployees(numberEmployeeOfLocation);
             return locationDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

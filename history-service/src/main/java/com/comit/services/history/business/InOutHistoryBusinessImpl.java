@@ -2,10 +2,14 @@ package com.comit.services.history.business;
 
 import com.comit.services.history.client.data.CameraDtoClient;
 import com.comit.services.history.client.data.LocationDtoClient;
+import com.comit.services.history.constant.Const;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
 import com.comit.services.history.middleware.HistoryVerifyRequestServicesImpl;
+import com.comit.services.history.model.dto.FirstInLastOutHistoryDto;
 import com.comit.services.history.model.dto.InOutHistoryDto;
+import com.comit.services.history.model.entity.FirstInLastOutHistory;
 import com.comit.services.history.model.entity.InOutHistory;
+import com.comit.services.history.service.FirstInLastOutHistoryServices;
 import com.comit.services.history.service.HistoryServices;
 import com.comit.services.history.service.InOutHistoryServices;
 import com.comit.services.history.util.TimeUtil;
@@ -19,6 +23,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
@@ -28,6 +33,8 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     private InOutHistoryServices inOutHistoryServices;
     @Autowired
     private HistoryServices historyServices;
+    @Autowired
+    private FirstInLastOutHistoryServices firstInLastOutHistoryServices;
     @Autowired
     private HistoryVerifyRequestServicesImpl verifyRequestServices;
 
@@ -65,6 +72,43 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
                 cameraIds.add(Integer.parseInt(cameraId));
             }
             return inOutHistoryServices.getInOutHistoryPage(cameraIds, employeeId, timeStart, timeEnd, paging);
+        }
+    }
+
+    @Override
+    public Page<FirstInLastOutHistory> getFirstInLastOutHistoryPage(String cameraIdStrs, Integer employeeId, String timeStartStr, String timeEndStr, Integer locationId, int page, int size) throws ParseException {
+        // Is user and has role manage employee (Ex: Time keeping user)
+        LocationDtoClient locationDtoClient;
+        if (locationId == null) {
+            locationDtoClient = historyServices.getLocationOfCurrentUser();
+        } else {
+            locationDtoClient = historyServices.getLocation(locationId);
+        }
+
+        Pageable paging = PageRequest.of(page, size);
+
+        // If param not have timeStart and timeEnd then set default
+        Date timeStart = timeStartStr == null ? TimeUtil.stringDateToDate("01/01/1970 00:00:00") : TimeUtil.stringDateToDate(timeStartStr);
+        Date timeEnd = timeEndStr == null ? new Date() : TimeUtil.stringDateToDate(timeEndStr);
+
+        if (cameraIdStrs == null && employeeId == null) {
+            return firstInLastOutHistoryServices.getInOutHistoryPageOfLocation(locationDtoClient.getId(), timeStart, timeEnd, paging);
+        } else if (employeeId == null) {
+            String[] tmp = cameraIdStrs.split(",");
+            List<Integer> cameraIds = new ArrayList<>();
+            for (String cameraId : tmp) {
+                cameraIds.add(Integer.parseInt(cameraId));
+            }
+            return firstInLastOutHistoryServices.getInOutHistoryPage(cameraIds, timeStart, timeEnd, paging);
+        } else if (cameraIdStrs == null) {
+            return firstInLastOutHistoryServices.getInOutHistoryPage(employeeId, timeStart, timeEnd, paging);
+        } else {
+            String[] tmp = cameraIdStrs.split(",");
+            List<Integer> cameraIds = new ArrayList<>();
+            for (String cameraId : tmp) {
+                cameraIds.add(Integer.parseInt(cameraId));
+            }
+            return firstInLastOutHistoryServices.getInOutHistoryPage(cameraIds, employeeId, timeStart, timeEnd, paging);
         }
     }
 
@@ -110,6 +154,15 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
     }
 
     @Override
+    public List<FirstInLastOutHistoryDto> getAllFirstInLastOutHistory(List<FirstInLastOutHistory> inOutHistories) {
+        List<FirstInLastOutHistoryDto> inOutHistoryDtos = new ArrayList<>();
+        inOutHistories.forEach(inOutHistory -> {
+            inOutHistoryDtos.add(historyBusiness.convertInOutHistoryToInOutHistoryDto(inOutHistory));
+        });
+        return inOutHistoryDtos;
+    }
+
+    @Override
     public InOutHistoryDto saveInOutHistory(InOutHistoryRequest request) {
         verifyRequestServices.verifySaveHistory(request);
         InOutHistory inOutHistory = new InOutHistory();
@@ -122,6 +175,35 @@ public class InOutHistoryBusinessImpl implements InOutHistoryBusiness {
         inOutHistory.setLocationId(cameraDtoClient.getLocationId());
         inOutHistory.setAreaRestrictionId(cameraDtoClient.getAreaRestrictionId());
         InOutHistory newInOutHistory = inOutHistoryServices.saveInOutHistory(inOutHistory);
+
+        if (Objects.equals(newInOutHistory.getType(), Const.CHECK_IN)) {
+            // If type is in => check if not exist => update is first in
+            FirstInLastOutHistory history = firstInLastOutHistoryServices.getFistCheckInInDayOfEmployee(newInOutHistory.getEmployeeId());
+            if (history == null) {
+                FirstInLastOutHistory firstInLastOutHistory = new FirstInLastOutHistory();
+                firstInLastOutHistory.setCameraId(newInOutHistory.getCameraId());
+                firstInLastOutHistory.setEmployeeId(newInOutHistory.getEmployeeId());
+                firstInLastOutHistory.setImageId(newInOutHistory.getImageId());
+                firstInLastOutHistory.setTime(newInOutHistory.getTime());
+                firstInLastOutHistory.setType(newInOutHistory.getType());
+                firstInLastOutHistory.setLocationId(newInOutHistory.getLocationId());
+
+                firstInLastOutHistoryServices.saveFirstInLastOutHistory(firstInLastOutHistory);
+            }
+        } else if (Objects.equals(newInOutHistory.getType(), Const.CHECK_OUT)) {
+            // If type is in => check if not exist => add, exist => update
+            FirstInLastOutHistory history = firstInLastOutHistoryServices.getLastCheckOutInDayOfEmployee(newInOutHistory.getEmployeeId());
+            if (history == null) {
+                history = new FirstInLastOutHistory();
+            }
+            history.setCameraId(newInOutHistory.getCameraId());
+            history.setEmployeeId(newInOutHistory.getEmployeeId());
+            history.setImageId(newInOutHistory.getImageId());
+            history.setTime(newInOutHistory.getTime());
+            history.setType(newInOutHistory.getType());
+            history.setLocationId(newInOutHistory.getLocationId());
+            firstInLastOutHistoryServices.saveFirstInLastOutHistory(history);
+        }
         return historyBusiness.convertInOutHistoryToInOutHistoryDto(newInOutHistory);
     }
 

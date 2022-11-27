@@ -1,5 +1,6 @@
 package com.comit.services.metadata.model.dto;
 
+import com.comit.services.metadata.loging.model.CommonLogger;
 import com.comit.services.metadata.model.entity.Metadata;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class MetadataDto extends BaseModelDto {
             ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(metadata, MetadataDto.class);
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }

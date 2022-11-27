@@ -6,6 +6,7 @@ import com.comit.services.history.client.response.*;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.exception.RestApiException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,13 +27,15 @@ public class HistoryServicesImpl implements HistoryServices {
     private HttpServletRequest httpServletRequest;
     @Autowired
     private MetadataClient metadataClient;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public LocationDtoClient getLocation(Integer locationId) {
         if (locationId == null) {
             return null;
         }
-        LocationResponseClient locationResponseClient = locationClient.getLocation(httpServletRequest.getHeader("token"), locationId).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocation(internalToken, locationId).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
@@ -51,7 +54,7 @@ public class HistoryServicesImpl implements HistoryServices {
         if (userResponseClient.getUser().getLocationId() == null) {
             throw new RestApiException(HistoryErrorCode.PERMISSION_DENIED);
         }
-        LocationResponseClient locationResponseClient = locationClient.getLocation(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocation(internalToken, userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
@@ -64,7 +67,7 @@ public class HistoryServicesImpl implements HistoryServices {
         if (locationId == null) {
             return null;
         }
-        AreaRestrictionResponseClient areaRestrictionResponseClient = areaRestrictionClient.getAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        AreaRestrictionResponseClient areaRestrictionResponseClient = areaRestrictionClient.getAreaRestriction(internalToken, areaRestrictionId).getBody();
         if (areaRestrictionResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
@@ -76,7 +79,7 @@ public class HistoryServicesImpl implements HistoryServices {
         if (cameraId == null) {
             return null;
         }
-        CameraResponseClient cameraResponseClient = cameraClient.getCamera(httpServletRequest.getHeader("token"), cameraId).getBody();
+        CameraResponseClient cameraResponseClient = cameraClient.getCamera(internalToken, cameraId).getBody();
         if (cameraResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
@@ -88,7 +91,7 @@ public class HistoryServicesImpl implements HistoryServices {
         if (employeeId == null) {
             return null;
         }
-        EmployeeResponseClient employeeResponseClient = employeeClient.getEmployee(httpServletRequest.getHeader("token"), employeeId).getBody();
+        EmployeeResponseClient employeeResponseClient = employeeClient.getEmployee(internalToken, employeeId).getBody();
         if (employeeResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }
@@ -100,7 +103,7 @@ public class HistoryServicesImpl implements HistoryServices {
         if (areaRestrictionId == null) {
             return null;
         }
-        NotificationMethodResponseClient notificationMethodResponseClient = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+        NotificationMethodResponseClient notificationMethodResponseClient = areaRestrictionClient.getNotificationMethodOfAreaRestriction(internalToken, areaRestrictionId).getBody();
         if (notificationMethodResponseClient == null) {
             throw new RestApiException(HistoryErrorCode.INTERNAL_ERROR);
         }

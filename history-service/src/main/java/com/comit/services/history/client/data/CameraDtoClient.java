@@ -22,5 +22,7 @@ public class CameraDtoClient {
     // For area restriction module
     @JsonProperty("area_restriction_id")
     private Integer areaRestrictionId;
+
+    private String polygons;
 }
 

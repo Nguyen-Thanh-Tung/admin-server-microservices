@@ -9,6 +9,7 @@ import com.comit.services.employee.constant.Const;
 import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.controller.response.BaseResponse;
 import com.comit.services.employee.exception.RestApiException;
+import com.comit.services.employee.loging.model.CommonLogger;
 import com.comit.services.employee.model.entity.Employee;
 import com.comit.services.employee.repository.EmployeeRepository;
 import com.comit.services.employee.util.ConvertFileUtil;
@@ -56,18 +57,23 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Value("${core.api.delete-employee-image}")
     private String deleteEmployeeUrl;
 
+    @Value("${app.internalToken}")
+    private String internalToken;
+
     @Override
     public Page<Employee> getEmployeePage(Integer locationId, String status, String search, Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
             if (status != null) {
-                return employeeRepository.findByLocationIdAndStatusAndNameContainingOrLocationIdAndStatusAndCodeContainingOrderByIdDescIdDesc(locationId, status, search, locationId, status, search, pageable);
+                return employeeRepository.findByLocationIdAndStatusAndSearchOrderByIdDesc(
+                        locationId, status, search, pageable);
             }
-            return employeeRepository.findByLocationIdAndNameContainingOrLocationIdAndCodeContainingOrderByStatusAscIdDescIdDesc(locationId, search, locationId, search, pageable);
+            return employeeRepository.findByLocationIdAndSearchOrderByIdDesc(
+                    locationId, search, pageable);
         } else {
             if (status != null) {
-                return employeeRepository.findByLocationIdAndStatusOrderByIdDescIdDesc(locationId, status, pageable);
+                return employeeRepository.findByLocationIdAndStatusOrderByIdDesc(locationId, status, pageable);
             }
-            return employeeRepository.findByLocationIdOrderByStatusAscIdDescIdDesc(locationId, pageable);
+            return employeeRepository.findByLocationIdOrderByStatusAscIdDesc(locationId, pageable);
         }
     }
 
@@ -202,6 +208,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 //            return "{\"code\": 200}";
             return null;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -230,9 +237,9 @@ public class EmployeeServicesImpl implements EmployeeServices {
             throw new RestApiException(userResponseClient.getCode(), userResponseClient.getMessage());
         }
         if (userResponseClient.getUser().getLocationId() == null) {
-            throw  new RestApiException(EmployeeErrorCode.PERMISSION_DENIED);
+            throw new RestApiException(EmployeeErrorCode.PERMISSION_DENIED);
         }
-        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getLocationId()).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, userResponseClient.getUser().getLocationId()).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -241,8 +248,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public MetadataDtoClient saveMetadata(String imagePath) {
-        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest
-                .getHeader("token"), new MetadataRequestClient(imagePath), Const.INTERNAL).getBody();
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(internalToken, new MetadataRequestClient(imagePath), Const.INTERNAL).getBody();
         if (metadataResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -252,8 +258,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Override
     @CircuitBreaker(name = "serviceMetadata", fallbackMethod = "callSaveMetadataFallback")
     public MetadataDtoClient saveMetadata(String imagePath, int embeddingId, int locationId) {
-        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(httpServletRequest
-                .getHeader("token"), new MetadataRequestClient(imagePath), Const.INTERNAL).getBody();
+        MetadataResponseClient metadataResponseClient = metadataClient.saveMetadata(internalToken, new MetadataRequestClient(imagePath), Const.INTERNAL).getBody();
         if (metadataResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -287,8 +292,8 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Override
     public List<AreaEmployeeTimeDtoClient> saveEmployeeAreaRestrictionList(String areaEmployees, Integer newEmployeeId) {
         AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient
-                .saveAreaEmployeeTimeList(httpServletRequest.getHeader("token"),
-                new AreaEmployeeTimeListRequestClient(areaEmployees, newEmployeeId), Const.INTERNAL).getBody();
+                .saveAreaEmployeeTimeList(internalToken,
+                        new AreaEmployeeTimeListRequestClient(areaEmployees, newEmployeeId), Const.INTERNAL).getBody();
 
         if (areaEmployeeTimeListResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
@@ -298,8 +303,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteEmployeeAreaRestrictionList(Integer employeeId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteAreaEmployeeTimeList(httpServletRequest
-                .getHeader("token"), employeeId, Const.INTERNAL).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteAreaEmployeeTimeList(internalToken, employeeId, Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -312,8 +316,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteManagerOnAllAreaRestriction(int managerId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteManagerOnAllAreaRestriction(httpServletRequest.
-                getHeader("token"), managerId, Const.INTERNAL).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteManagerOnAllAreaRestriction(internalToken, managerId, Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -321,8 +324,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public void deleteAreaRestrictionManagerNotificationList(Integer employeeId) {
-        BaseResponse baseResponse = areaRestrictionClient.deleteAreaRestrictionManagerNotificationList(
-                httpServletRequest.getHeader("token"), employeeId, Const.INTERNAL).getBody();
+        BaseResponse baseResponse = areaRestrictionClient.deleteAreaRestrictionManagerNotificationList(internalToken, employeeId, Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -340,7 +342,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
         if (userResponseClient.getUser().getOrganizationId() == null) {
             return null;
         }
-        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(httpServletRequest.getHeader("token"), userResponseClient.getUser().getOrganizationId()).getBody();
+        OrganizationResponseClient organizationResponseClient = organizationClient.getOrganizationById(internalToken, userResponseClient.getUser().getOrganizationId()).getBody();
         if (organizationResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -355,7 +357,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public ShiftDtoClient getShift(int shiftId) {
-        ShiftResponseClient shiftResponseClient = timeKeepingClient.getShift(httpServletRequest.getHeader("token"), shiftId).getBody();
+        ShiftResponseClient shiftResponseClient = timeKeepingClient.getShift(internalToken, shiftId).getBody();
         if (shiftResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -364,7 +366,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public MetadataDtoClient getMetadata(Integer imageId) {
-        MetadataResponseClient metadataResponseClient = metadataClient.getMetadata(httpServletRequest.getHeader("token"), imageId).getBody();
+        MetadataResponseClient metadataResponseClient = metadataClient.getMetadata(internalToken, imageId).getBody();
         if (metadataResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -374,7 +376,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Override
     public List<AreaEmployeeTimeDtoClient> getAreaEmployeeTimesOfEmployee(int employeeId) {
         AreaEmployeeTimeListResponseClient areaEmployeeTimeListResponseClient = areaRestrictionClient
-                .getAreaEmployeeTimesOfEmployee(httpServletRequest.getHeader("token"), employeeId, Const.INTERNAL).getBody();
+                .getAreaEmployeeTimesOfEmployee(internalToken, employeeId, Const.INTERNAL).getBody();
         if (areaEmployeeTimeListResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -383,7 +385,7 @@ public class EmployeeServicesImpl implements EmployeeServices {
 
     @Override
     public LocationDtoClient getLocationById(Integer locationId) {
-        LocationResponseClient locationResponseClient = locationClient.getLocationById(httpServletRequest.getHeader("token"), locationId).getBody();
+        LocationResponseClient locationResponseClient = locationClient.getLocationById(internalToken, locationId).getBody();
         if (locationResponseClient == null) {
             throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
         }
@@ -393,5 +395,36 @@ public class EmployeeServicesImpl implements EmployeeServices {
     @Override
     public Employee getEmployeeByEmbeddingId(int embeddingId) {
         return employeeRepository.findByEmbeddingId(embeddingId);
+    }
+
+    @Override
+    public boolean isExistEmail(String email) {
+        return employeeRepository.existsByEmail(email);
+    }
+
+    @Override
+    public List<AreaRestrictionDtoClient> getAllAreaRestrictionOfManager(int managerId) {
+        AreaRestrictionListResponseClient areaRestrictionListResponseClient = areaRestrictionClient.getAreaRestrictionByManagerId(internalToken, managerId).getBody();
+        if (areaRestrictionListResponseClient == null) {
+            CommonLogger.error(EmployeeErrorCode.INTERNAL_ERROR.getMessage() + ": getAllAreaRestrictionOfManager() " +
+                    "- List area restriction null");
+            throw new RestApiException(EmployeeErrorCode.INTERNAL_ERROR);
+        }
+        return areaRestrictionListResponseClient.getAreaRestrictions();
+    }
+
+    @Override
+    public boolean hasRole(String roleNeedCheck) {
+        CheckRoleResponseClient checkRoleResponseClient = accountClient.hasRole(httpServletRequest.getHeader("token"), roleNeedCheck).getBody();
+        if (checkRoleResponseClient != null) {
+            return checkRoleResponseClient.getHasRole();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkPermissionDeleteEmployee() {
+        return hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER) || hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER) ||
+                hasRole(Const.ROLE_TIME_KEEPING_USER);
     }
 }

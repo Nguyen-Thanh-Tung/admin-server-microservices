@@ -1,7 +1,9 @@
 package com.comit.services.history.business;
 
 import com.comit.services.history.client.data.*;
+import com.comit.services.history.loging.model.CommonLogger;
 import com.comit.services.history.model.dto.*;
+import com.comit.services.history.model.entity.FirstInLastOutHistory;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.service.HistoryServices;
@@ -19,6 +21,27 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         if (inOutHistory == null) return null;
         ModelMapper modelMapper = new ModelMapper();
         InOutHistoryDto inOutHistoryDto = modelMapper.map(inOutHistory, InOutHistoryDto.class);
+        AreaRestrictionDtoClient areaRestrictionDtoClient = historyServices.getAreaRestriction(inOutHistory.getLocationId(), inOutHistory.getAreaRestrictionId());
+        inOutHistoryDto.setAreaRestrictionName(areaRestrictionDtoClient.getName());
+        if (inOutHistory.getCameraId() != null) {
+            inOutHistoryDto.setCamera(convertCameraDtoFromClient(inOutHistory.getCameraId()));
+        }
+
+        if (inOutHistory.getEmployeeId() != null) {
+            inOutHistoryDto.setEmployee(convertEmployeeDtoFromClient(inOutHistory.getEmployeeId()));
+        }
+
+        if (inOutHistory.getImageId() != null) {
+            inOutHistoryDto.setImage(convertMetadataDtoFromClient(inOutHistory.getImageId()));
+        }
+        return inOutHistoryDto;
+    }
+
+    @Override
+    public FirstInLastOutHistoryDto convertInOutHistoryToInOutHistoryDto(FirstInLastOutHistory inOutHistory) {
+        if (inOutHistory == null) return null;
+        ModelMapper modelMapper = new ModelMapper();
+        FirstInLastOutHistoryDto inOutHistoryDto = modelMapper.map(inOutHistory, FirstInLastOutHistoryDto.class);
         if (inOutHistory.getCameraId() != null) {
             inOutHistoryDto.setCamera(convertCameraDtoFromClient(inOutHistory.getCameraId()));
         }
@@ -45,6 +68,7 @@ public class HistoryBusinessImpl implements HistoryBusiness {
         cameraDto.setStatus(cameraDtoClient.getStatus());
         cameraDto.setLocation(convertLocationDtoFromClient(cameraDtoClient.getLocationId()));
         cameraDto.setAreaRestriction(convertAreaRestrictionDtoFromClient(cameraDtoClient.getLocationId(), cameraDtoClient.getAreaRestrictionId()));
+        cameraDto.setPolygons(cameraDtoClient.getPolygons());
         return cameraDto;
     }
 
@@ -138,6 +162,7 @@ public class HistoryBusinessImpl implements HistoryBusiness {
 
             return notificationHistoryDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }

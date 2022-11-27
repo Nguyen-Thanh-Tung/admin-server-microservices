@@ -8,6 +8,7 @@ public interface Const {
     String ROLE_AREA_RESTRICTION_CONTROL_ADMIN = "Admin Kiểm soát khu vực hạn chế";
     String ROLE_TIME_KEEPING_USER = "Cán bộ Quản lý chấm công";
     String ROLE_AREA_RESTRICTION_CONTROL_USER = "Cán bộ Kiểm soát khu vực hạn chế";
+    String ROLE_BEHAVIOR_CONTROL_USER = "Cán bộ Kiểm soát hành vi";
 
     String TIME_KEEPING_MODULE = "Quản lý chấm công";
     String AREA_RESTRICTION_CONTROL_MODULE = "Kiểm soát khu vực hạn chế";
@@ -95,4 +96,15 @@ public interface Const {
 
     // scope api
     String INTERNAL = "internal";
+
+    String CHECKIN = "Check in";
+    String CHECKOUT = "Check out";
+    String GSKVHC = "Giám sát KVHC";
+    String KSHV = "Kiểm soát hành vi";
+    String KSKVHC = "Kiểm soát khu vực hạn chế";
+    String QLCC = "Quản lý chấm công";
+
+    List<String> TK_CAMERA_TYPE = List.of(
+            CHECKIN, CHECKOUT
+    );
 }

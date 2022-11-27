@@ -28,4 +28,10 @@ public class AreaRestrictionListResponse extends BasePagingResponse {
         this.totalItems = totalItems;
         this.totalPages = totalPages;
     }
+
+    public AreaRestrictionListResponse(AreaRestrictionErrorCode errorCode, List<AreaRestrictionDto> areaRestrictionDtos) {
+        this.code = errorCode.getCode();
+        this.message = errorCode.getMessage();
+        this.areaRestrictionDtos = areaRestrictionDtos;
+    }
 }

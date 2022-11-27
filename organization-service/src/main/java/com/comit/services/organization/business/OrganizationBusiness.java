@@ -3,13 +3,16 @@ package com.comit.services.organization.business;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.model.dto.BaseOrganizationDto;
 import com.comit.services.organization.model.dto.OrganizationDto;
+import com.comit.services.organization.model.entity.Organization;
+import org.springframework.data.domain.Page;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
 public interface OrganizationBusiness {
-    List<OrganizationDto> getAllOrganization();
+    List<OrganizationDto> getAllOrganization(List<Organization> content);
+    Page<Organization> getAllOrganization(int page, int size, String search);
 
     OrganizationDto getOrganization(int id);
 

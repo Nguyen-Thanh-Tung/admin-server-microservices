@@ -19,11 +19,11 @@ public class ValidateField {
     }
 
     public boolean validPhone(String phone) {
-        return validField(phone, "^((0|\\(\\+84\\)|\\+84|\\(84\\)))?(\\\\.|\\-|\\ |\\/)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\.|\\-|\\ |\\/)?(\\d{3})(\\.|\\-|\\ |\\/)?(\\d{3})$");
+        return validField(phone, "\\d{10,15}");
     }
 
     public boolean validEmail(String email) {
-        return validField(email, "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}");
+        return validField(email, "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*");
     }
 
     public boolean validFile(MultipartFile file, String type) {

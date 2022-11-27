@@ -1,6 +1,7 @@
 package com.comit.services.organization.controller;
 
 import com.comit.services.organization.business.OrganizationBusiness;
+import com.comit.services.organization.constant.Const;
 import com.comit.services.organization.constant.OrganizationErrorCode;
 import com.comit.services.organization.controller.request.OrganizationRequest;
 import com.comit.services.organization.controller.response.BaseResponse;
@@ -8,7 +9,9 @@ import com.comit.services.organization.controller.response.OrganizationListRespo
 import com.comit.services.organization.controller.response.OrganizationResponse;
 import com.comit.services.organization.model.dto.BaseOrganizationDto;
 import com.comit.services.organization.model.dto.OrganizationDto;
+import com.comit.services.organization.model.entity.Organization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -31,9 +35,24 @@ public class OrganizationController {
      * @return OrganizationListResponse
      */
     @GetMapping(value = "")
-    public ResponseEntity<BaseResponse> getAllOrganization() {
-        List<OrganizationDto> organizationDtos = organizationBusiness.getAllOrganization();
-        return new ResponseEntity<>(new OrganizationListResponse(OrganizationErrorCode.SUCCESS, organizationDtos), HttpStatus.OK);
+    public ResponseEntity<BaseResponse> getAllOrganization(
+            @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size,
+            @RequestParam(required = false) String search
+    ) {
+        Page<Organization> organizations = organizationBusiness.getAllOrganization(page, size, search);
+        List<OrganizationDto> organizationDtos = new ArrayList<>();
+        int currentPage = 0;
+        long totalItems = 0;
+        int totalPages = 0;
+        if (organizations != null) {
+            currentPage = organizations.getNumber();
+            totalItems = organizations.getTotalElements();
+            totalPages = organizations.getTotalPages();
+            organizationDtos = organizationBusiness.getAllOrganization(organizations.getContent());
+        }
+        return new ResponseEntity<>(new OrganizationListResponse(OrganizationErrorCode.SUCCESS, organizationDtos,
+                currentPage, totalItems, totalPages), HttpStatus.OK);
     }
 
     /**
@@ -49,7 +68,7 @@ public class OrganizationController {
         if (organizationDto != null) {
             return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.SUCCESS, organizationDto), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.SUCCESS, null), HttpStatus.OK);
+            return new ResponseEntity<>(new OrganizationResponse(OrganizationErrorCode.FAIL, null), HttpStatus.OK);
         }
     }
 

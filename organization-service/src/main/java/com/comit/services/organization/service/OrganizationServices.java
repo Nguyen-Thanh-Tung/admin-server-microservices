@@ -2,11 +2,13 @@ package com.comit.services.organization.service;
 
 import com.comit.services.organization.client.data.LocationDtoClient;
 import com.comit.services.organization.model.entity.Organization;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface OrganizationServices {
-    List<Organization> getAllOrganization();
+    Page<Organization> getAllOrganization(String search, Pageable pageable);
 
     Organization addOrganization(Organization organization);
 
@@ -25,4 +27,5 @@ public interface OrganizationServices {
     int getNumberUserOfOrganization(int organizationId);
 
     List<LocationDtoClient> getLocationsByOrganizationId(int organizationId);
+    boolean hasRole(String roleNeedCheck);
 }

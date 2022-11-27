@@ -32,4 +32,5 @@ public interface CameraBusiness {
     int getNumberCameraOfLocation(int locationId);
 
     int getNumberCameraOfAreRestriction(int areaRestrictionId);
+
 }

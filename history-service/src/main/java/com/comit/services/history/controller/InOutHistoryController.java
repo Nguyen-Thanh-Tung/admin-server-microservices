@@ -5,7 +5,9 @@ import com.comit.services.history.constant.Const;
 import com.comit.services.history.constant.HistoryErrorCode;
 import com.comit.services.history.controller.request.InOutHistoryRequest;
 import com.comit.services.history.controller.response.*;
+import com.comit.services.history.model.dto.FirstInLastOutHistoryDto;
 import com.comit.services.history.model.dto.InOutHistoryDto;
+import com.comit.services.history.model.entity.FirstInLastOutHistory;
 import com.comit.services.history.model.entity.InOutHistory;
 import com.comit.services.history.model.excel.AreaRestrictionExcelExporter;
 import com.comit.services.history.model.excel.TimeKeepingExcelExporter;
@@ -63,14 +65,14 @@ public class InOutHistoryController {
             @RequestParam(value = "location_id") Integer locationId,
             HttpServletResponse response
     ) throws IOException, ParseException {
-        Page<InOutHistory> historyPage = inOutHistoryBusiness.getInOutHistoryPage(cameraIds, employeeId, timeStart, timeEnd, locationId, 0, Integer.parseInt(Const.DEFAULT_SIZE_PAGE));
+        Page<FirstInLastOutHistory> historyPage = inOutHistoryBusiness.getFirstInLastOutHistoryPage(cameraIds, employeeId, timeStart, timeEnd, locationId, 0, Integer.parseInt(Const.DEFAULT_SIZE_PAGE));
         response.setContentType("application/octet-stream");
         String currentDateTime = TimeUtil.getCurrentDateTimeStr();
 
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=time_keeping_report_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
-        List<InOutHistoryDto> historyDtos = inOutHistoryBusiness.getAllInOutHistory(historyPage.getContent());
+        List<FirstInLastOutHistoryDto> historyDtos = inOutHistoryBusiness.getAllFirstInLastOutHistory(historyPage.getContent());
         TimeKeepingExcelExporter excelExporter = new TimeKeepingExcelExporter(historyDtos);
         excelExporter.export(response);
     }

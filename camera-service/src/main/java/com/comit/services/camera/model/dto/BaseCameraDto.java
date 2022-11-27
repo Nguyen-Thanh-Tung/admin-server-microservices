@@ -19,4 +19,6 @@ public class BaseCameraDto extends BaseModelDto {
 
     @JsonProperty(value = "area_restriction_id")
     private Integer areaRestrictionId;
+
+    private String polygons;
 }

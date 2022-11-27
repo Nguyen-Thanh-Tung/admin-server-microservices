@@ -6,9 +6,12 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "area_restrictions")
+@Table(name = "area_restrictions", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"code", "location_id"})
+})
 @Getter
 @Setter
 public class AreaRestriction extends BaseModel {

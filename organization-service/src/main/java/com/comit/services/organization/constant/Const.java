@@ -33,4 +33,8 @@ public interface Const {
 
     // scope
     String INTERNAL = "internal";
+
+    String DEFAULT_SIZE_PAGE = Integer.MAX_VALUE + "";
+    String DEFAULT_PAGE = "0";
+    String SUPER_ADMIN = "Super Admin";
 }

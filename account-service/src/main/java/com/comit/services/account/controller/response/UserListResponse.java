@@ -14,12 +14,20 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserListResponse extends BaseResponse {
+public class UserListResponse extends BasePagingResponse {
     @JsonProperty(value = "users")
     private List<UserDto> userDtos;
 
     public UserListResponse(UserErrorCode errorCode, List<UserDto> userDtos) {
         super(errorCode);
         this.userDtos = userDtos;
+    }
+
+    public UserListResponse(UserErrorCode errorCode, List<UserDto> userDtos, int currentPage, long totalItems, int totalPages) {
+        super(errorCode);
+        this.userDtos = userDtos;
+        this.currentPage = currentPage;
+        this.totalItems = totalItems;
+        this.totalPages = totalPages;
     }
 }

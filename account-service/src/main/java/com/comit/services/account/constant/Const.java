@@ -1,20 +1,20 @@
 package com.comit.services.account.constant;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Const {
     String ROLE_SUPER_ADMIN = "Super Admin";
+    String ROLE_SUPER_ADMIN_ORGANIZATION = "Super Admin Organization";
     String ROLE_TIME_KEEPING_ADMIN = "Admin Quản lý chấm công";
     String ROLE_AREA_RESTRICTION_CONTROL_ADMIN = "Admin Kiểm soát khu vực hạn chế";
     String ROLE_TIME_KEEPING_USER = "Cán bộ Quản lý chấm công";
     String ROLE_AREA_RESTRICTION_CONTROL_USER = "Cán bộ Kiểm soát khu vực hạn chế";
     String ROLE_BEHAVIOR_CONTROL_ADMIN = "Admin Kiểm soát hành vi";
     String ROLE_BEHAVIOR_CONTROL_USER = "Cán bộ Kiểm soát hành vi";
-
     String TIME_KEEPING_MODULE = "Quản lý chấm công";
     String AREA_RESTRICTION_CONTROL_MODULE = "Kiểm soát khu vực hạn chế";
     String BEHAVIOR_CONTROL_MODULE = "Kiểm soát hành vi";
-
 
     // Status of user
     String PENDING = "pending";
@@ -81,4 +81,21 @@ public interface Const {
 
     // scope api
     String INTERNAL = "internal";
+    String ADMIN = "Admin";
+    String CADRES = "Cán bộ";
+
+    // location type
+    String TIME_KEEPING = "time_keeping";
+    String BEHAVIOR = "behavior";
+    String AREA_RESTRICTION = "area_restriction";
+
+    // key role
+    String KEY_TIME_KEEPING = "chấm công";
+    String KEY_BEHAVIOR = "hành vi";
+    String KEY_AREA_RESTRICTION = "hạn chế";
+
+    Map<String, String> MAP_ROLE_LOCATION_TYPE = Map.of(KEY_TIME_KEEPING, TIME_KEEPING, KEY_BEHAVIOR, BEHAVIOR, KEY_AREA_RESTRICTION, AREA_RESTRICTION);
+
+    String DEFAULT_SIZE_PAGE = Integer.MAX_VALUE + "";
+    String DEFAULT_PAGE = "0";
 }

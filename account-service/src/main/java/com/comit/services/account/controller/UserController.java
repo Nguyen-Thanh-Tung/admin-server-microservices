@@ -1,16 +1,21 @@
 package com.comit.services.account.controller;
 
 import com.comit.services.account.business.UserBusiness;
+import com.comit.services.account.client.data.OrganizationDtoClient;
+import com.comit.services.account.constant.Const;
 import com.comit.services.account.constant.RoleErrorCode;
 import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.controller.request.AddUserRequest;
 import com.comit.services.account.controller.request.LockOrUnlockRequest;
-import com.comit.services.account.controller.request.UpdateRoleForUserRequest;
 import com.comit.services.account.controller.response.*;
+import com.comit.services.account.exeption.AccountRestApiException;
 import com.comit.services.account.model.dto.BaseUserDto;
 import com.comit.services.account.model.dto.RoleDto;
 import com.comit.services.account.model.dto.UserDto;
+import com.comit.services.account.model.entity.User;
+import com.comit.services.account.service.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -27,6 +34,9 @@ public class UserController {
     @Autowired
     private UserBusiness userBusiness;
 
+    @Autowired
+    private UserServices userServices;
+
     /**
      * Get all user with permission
      * Super admin get all admin
@@ -34,11 +44,28 @@ public class UserController {
      *
      * @return BaseResponse
      */
+
     @GetMapping(value = "")
-    public ResponseEntity<BaseResponse> getAllUser(@RequestParam(required = false) String status) {
-        List<UserDto> userDtos = userBusiness.getAllUser(status);
-        return new ResponseEntity<>(new UserListResponse(UserErrorCode.SUCCESS, userDtos), HttpStatus.OK);
+    public ResponseEntity<BaseResponse> getAllUser(
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size,
+            @RequestParam(required = false) String search
+    ) {
+        Page<User> users = userBusiness.getAllUser(size, page, search, status);
+        List<UserDto> userDtos = new ArrayList<>();
+        int currentPage = 0;
+        long totalItems = 0;
+        int totalPages = 0;
+        if (users != null) {
+            currentPage = users.getNumber();
+            totalItems = users.getTotalElements();
+            totalPages = users.getTotalPages();
+            userDtos = userBusiness.getAllUser(users.getContent());
+        }
+        return new ResponseEntity<>(new UserListResponse(UserErrorCode.SUCCESS, userDtos, currentPage, totalItems, totalPages), HttpStatus.OK);
     }
+
 
     @GetMapping(value = "/account-number")
     public ResponseEntity<BaseResponse> getNumberAccount() {
@@ -57,6 +84,9 @@ public class UserController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable int id) {
         UserDto userDto = userBusiness.getUser(id);
+        if (Objects.isNull(userDto)) {
+            return new ResponseEntity<>(new UserResponse(UserErrorCode.PERMISSION_DENIED, userDto), HttpStatus.OK);
+        }
         return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
 
@@ -84,21 +114,6 @@ public class UserController {
         } else {
             return new ResponseEntity<>(new UserResponse(UserErrorCode.CAN_NOT_ADD_USER, null), HttpStatus.BAD_REQUEST);
         }
-    }
-
-    /**
-     * Update role for user
-     * Super admin update role for admin
-     * Admin update role for user
-     *
-     * @param id                       user id
-     * @param updateRoleForUserRequest user info
-     * @return UserResponse
-     */
-    @PutMapping(value = "/{id}/roles")
-    public ResponseEntity<UserResponse> updateRoleUser(@PathVariable int id, @RequestBody UpdateRoleForUserRequest updateRoleForUserRequest) {
-        UserDto userDto = userBusiness.updateRoleUser(id, updateRoleForUserRequest);
-        return new ResponseEntity<>(new UserResponse(UserErrorCode.SUCCESS, userDto), HttpStatus.OK);
     }
 
     /**
@@ -154,6 +169,11 @@ public class UserController {
 
     @GetMapping("/organization/{organizationId}/number-user")
     public ResponseEntity<BaseResponse> getUsersByOrganizationId(@PathVariable(name = "organizationId") int organizationId) {
+        // check organizationId exist
+        OrganizationDtoClient organization = userServices.getOrganizationById(organizationId);
+        if (organization == null) {
+            throw new AccountRestApiException(UserErrorCode.ORGANIZATION_NOT_EXIST);
+        }
         int numberUser = userBusiness.getNumberUserOfOrganization(organizationId);
         return new ResponseEntity<>(new CountResponse(UserErrorCode.SUCCESS, numberUser), HttpStatus.OK);
     }
@@ -207,5 +227,11 @@ public class UserController {
     ResponseEntity<BaseResponse> resendCode(@PathVariable Integer id) {
         boolean resendCodeSuccess = userBusiness.resendCode(id);
         return new ResponseEntity<>(new BaseResponse(resendCodeSuccess ? UserErrorCode.SUCCESS : UserErrorCode.FAIL), HttpStatus.OK);
+    }
+
+    @GetMapping("/current/check-role")
+    ResponseEntity<BaseResponse> getRealRoleOfCurrentUser(@RequestParam String roleNeedCheck) {
+        boolean hasRole = userBusiness.checkRole(roleNeedCheck);
+        return new ResponseEntity<>(new CheckRoleResponse(UserErrorCode.SUCCESS.getCode(), UserErrorCode.SUCCESS.getMessage(), hasRole), HttpStatus.OK);
     }
 }

@@ -9,4 +9,6 @@ public interface NotificationMethodRepository extends JpaRepository<Notification
     NotificationMethod findById(int id);
 
     NotificationMethod findByAreaRestrictionId(int areaRestrictionId);
+
+    boolean existsByAreaRestrictionId(int areaRestrictionId);
 }

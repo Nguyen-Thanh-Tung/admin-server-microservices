@@ -66,6 +66,10 @@ public class VerifyAdminRequestServicesImpl implements VerifyAdminRequestService
 
         if (email == null) {
             throw new AccountRestApiException(UserErrorCode.MISSING_EMAIL_FIELD);
+        } else {
+            if (!validateField.validEmail(email)) {
+                throw new AccountRestApiException(UserErrorCode.EMAIL_INVALID);
+            }
         }
     }
 

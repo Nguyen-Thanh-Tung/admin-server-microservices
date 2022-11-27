@@ -38,6 +38,7 @@ public interface EmployeeServices {
     LocationDtoClient getLocationOfCurrentUser();
 
     MetadataDtoClient saveMetadata(String image_path);
+
     MetadataDtoClient saveMetadata(String image_path, int embeddingId, int locationId);
 
     boolean isTimeKeepingModule();
@@ -69,4 +70,12 @@ public interface EmployeeServices {
     LocationDtoClient getLocationById(Integer locationId);
 
     Employee getEmployeeByEmbeddingId(int embeddingId);
+
+    boolean isExistEmail(String email);
+
+    List<AreaRestrictionDtoClient> getAllAreaRestrictionOfManager(int managerId);
+
+    boolean hasRole(String roleNeedCheck);
+
+    boolean checkPermissionDeleteEmployee();
 }

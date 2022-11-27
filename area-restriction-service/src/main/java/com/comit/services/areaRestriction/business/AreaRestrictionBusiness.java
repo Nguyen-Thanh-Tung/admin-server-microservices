@@ -35,4 +35,8 @@ public interface AreaRestrictionBusiness {
     boolean deleteManagerOnAllAreaRestriction(Integer managerId);
 
     EmployeeDto convertEmployeeDtoFromClient(EmployeeDtoClient employeeDtoClient);
+
+    List<AreaRestrictionDto> getAllAreaRestriction(Integer managerId);
+
+    AreaRestrictionDto convertAreaRestrictionDtoFromClient(AreaRestriction areaRestriction);
 }

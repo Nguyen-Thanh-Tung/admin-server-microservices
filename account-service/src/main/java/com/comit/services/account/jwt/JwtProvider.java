@@ -1,6 +1,7 @@
 package com.comit.services.account.jwt;
 
 import com.comit.services.account.constant.AuthErrorCode;
+import com.comit.services.account.constant.UserErrorCode;
 import com.comit.services.account.exeption.AuthException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,9 @@ public class JwtProvider {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpiration;
 
+    @Value("${app.internalToken}")
+    private String internalToken;
+
     public String generateJwtToken(Authentication authentication) {
 
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
@@ -36,14 +40,15 @@ public class JwtProvider {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
-        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            throw new RuntimeException("Token không hợp lệ.", e);
+        } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException |
+                 IllegalArgumentException e) {
+            throw new RuntimeException(UserErrorCode.TOKEN_INVALID.getMessage(), e);
         }
     }
 
     public String getUserNameFromJwtToken(String token) {
         try {
-            if (Objects.equals(token, "YWRtaW4vQWRtaW5AMTIz")) return "admin";
+            if (Objects.equals(token, internalToken)) return "admin";
             return Jwts.parser()
                     .setSigningKey(jwtSecret)
                     .parseClaimsJws(token)

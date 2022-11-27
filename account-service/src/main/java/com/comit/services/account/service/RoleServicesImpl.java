@@ -36,6 +36,9 @@ public class RoleServicesImpl implements RoleServices {
     @Value("${system.supperAdmin.username}")
     private String superAdminUsername;
 
+    @Value("${app.internalToken}")
+    private String internalToken;
+
     public boolean existsByName(String role) {
         return roleRepository.existsByName(role);
     }
@@ -138,7 +141,7 @@ public class RoleServicesImpl implements RoleServices {
 
     @Override
     public void addFeature(String moduleName) {
-        BaseResponseClient baseResponse = featureClient.addFeature(httpServletRequest.getHeader("token"),
+        BaseResponseClient baseResponse = featureClient.addFeature(internalToken,
                 new FeatureRequestClient(moduleName, moduleName), Const.INTERNAL).getBody();
         if (baseResponse == null) {
             throw new AccountRestApiException(RoleErrorCode.INTERNAL_ERROR);

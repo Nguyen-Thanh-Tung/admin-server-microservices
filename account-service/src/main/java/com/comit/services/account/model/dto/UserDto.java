@@ -3,6 +3,7 @@ package com.comit.services.account.model.dto;
 import com.comit.services.account.client.data.LocationDtoClient;
 import com.comit.services.account.client.data.MetadataDtoClient;
 import com.comit.services.account.client.data.OrganizationDtoClient;
+import com.comit.services.account.model.entity.Role;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -37,4 +38,12 @@ public class UserDto extends BaseModelDto {
 
     @JsonIncludeProperties({"id", "name"})
     private LocationDtoClient location;
+
+    public String toString(Set<Role> roles) {
+        StringBuilder rolesStr = new StringBuilder();
+        roles.forEach(role -> {
+            rolesStr.append(role.getName()).append(", ");
+        });
+        return String.valueOf(rolesStr);
+    }
 }

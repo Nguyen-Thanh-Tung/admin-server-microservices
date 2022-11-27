@@ -19,7 +19,7 @@ public class ValidateField {
     }
 
     public boolean validEmail(String email) {
-        return validField(email, "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}");
+        return validField(email, "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*");
     }
 
     public boolean validFile(MultipartFile file, String type) {
@@ -56,6 +56,10 @@ public class ValidateField {
 
     public boolean validUsername(String username) {
         return validField(username, "[a-zA-Z0-9]{" + Const.MIN_LENGTH_USERNAME + ",}");
+    }
+
+    public boolean validFullName(String fullName) {
+        return validField(fullName, "[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ \\d]+");
     }
 
 }

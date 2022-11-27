@@ -64,6 +64,9 @@ public class AuthBusinessImpl implements AuthBusiness {
     @Autowired
     HttpServletRequest httpServletRequest;
 
+    @Autowired
+    CommonBusiness commonBusiness;
+
     @Override
     public String getTokenLogin(LoginRequest request) {
         verifyRequestServices.verifyLoginRequest(request);
@@ -73,7 +76,7 @@ public class AuthBusinessImpl implements AuthBusiness {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return tokenProvider.generateJwtToken(authentication);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            CommonLogger.error(e.getMessage());
             throw e;
         }
     }
@@ -166,9 +169,7 @@ public class AuthBusinessImpl implements AuthBusiness {
         OrganizationDtoClient organizationDtoClient = userServices.getOrganizationByName(organizationName);
 
         if (organizationDtoClient == null) {
-            Organization organization = new Organization();
-            organization.setName(organizationName);
-            organizationDtoClient = userServices.addOrganization(organization);
+            throw new AuthException(AuthErrorCode.CANT_GET_ORGANIZATION);
         }
 
 
@@ -217,13 +218,18 @@ public class AuthBusinessImpl implements AuthBusiness {
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setCode(null);
+        user.setStatus(Const.ACTIVE);
         return userServices.saveUser(user);
     }
 
     @Override
     public void forgetPassword(ForgetPasswordRequest request) {
         verifyRequestServices.verifyForgetPasswordRequest(request);
+        User currentUser = commonBusiness.getCurrentUser();
         User user = userServices.getUserByEmail(request.getEmail());
+        if (!userServices.hasPermissionManageUser(currentUser, user)) {
+            throw new AuthException(AuthErrorCode.PERMISSION_DENIED);
+        }
         if (user == null) {
             throw new AccountRestApiException(UserErrorCode.USER_NOT_EXIST);
         }

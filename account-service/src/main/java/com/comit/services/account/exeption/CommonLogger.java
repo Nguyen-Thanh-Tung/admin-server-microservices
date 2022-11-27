@@ -10,7 +10,7 @@ public class CommonLogger {
     private static final String ERROR_LOGGER = "ERROR_LOGGER";
     private static final Logger errorLogger = LogManager.getLogger(ERROR_LOGGER);
 
-    protected static void info(String message) {
+    public static void info(String message) {
         customLogger.info(message);
     }
 

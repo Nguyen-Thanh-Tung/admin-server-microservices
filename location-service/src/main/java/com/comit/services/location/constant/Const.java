@@ -86,8 +86,4 @@ public interface Const {
 
     // scope api
     String INTERNAL = "internal";
-
-    String SERVICE_LOCATION = "serviceLocation";
-    String SERVICE_EMPLOYEE = "serviceEmployee";
-    String SERVICE_CAMERA = "serviceCamera";
 }

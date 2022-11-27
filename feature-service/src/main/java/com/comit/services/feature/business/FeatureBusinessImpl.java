@@ -5,14 +5,17 @@ import com.comit.services.feature.constant.Const;
 import com.comit.services.feature.constant.FeatureErrorCode;
 import com.comit.services.feature.controller.request.FeatureRequest;
 import com.comit.services.feature.exception.RestApiException;
+import com.comit.services.feature.loging.model.CommonLogger;
 import com.comit.services.feature.middleware.FeatureVerifyRequestServices;
 import com.comit.services.feature.model.dto.FeatureDto;
 import com.comit.services.feature.model.entity.Feature;
 import com.comit.services.feature.service.FeatureServices;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -21,6 +24,10 @@ public class FeatureBusinessImpl implements FeatureBusiness {
     private FeatureVerifyRequestServices verifyRequestServices;
     @Autowired
     private FeatureServices featureServices;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public List<FeatureDto> getAllFeature() {
@@ -41,6 +48,7 @@ public class FeatureBusinessImpl implements FeatureBusiness {
 
     @Override
     public FeatureDto addFeature(FeatureRequest request) {
+        if (!isInternalFeature()) throw new RestApiException(FeatureErrorCode.PERMISSION_DENIED);
         if (Objects.equals(request.getName(), Const.TIME_KEEPING_MODULE)) {
             String featureRoleStrs = "";
             RoleDtoClient roleDtoClientTimeKeepingAdmin = featureServices.findRoleByName(Const.ROLE_TIME_KEEPING_ADMIN);
@@ -142,7 +150,12 @@ public class FeatureBusinessImpl implements FeatureBusiness {
             }
             return featureDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

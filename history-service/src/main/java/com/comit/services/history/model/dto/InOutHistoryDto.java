@@ -1,6 +1,7 @@
 package com.comit.services.history.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,4 +22,7 @@ public class InOutHistoryDto extends BaseModelDto {
 
     @JsonIncludeProperties({"id", "path", "type"})
     private MetadataDto image;
+
+    @JsonProperty("area_restriction_name")
+    private String areaRestrictionName;
 }

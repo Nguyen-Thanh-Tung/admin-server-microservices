@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         {{- include "employee-service.labels" . | nindent 8 }}
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
     spec:
       containers:
         - name: {{ include "employee-service.fullname" . }}

@@ -24,4 +24,5 @@ public class TimeUtil {
         calendar.set(Calendar.SECOND, Integer.parseInt(timeArray.get(2)));
         return calendar.getTime();
     }
+
 }

@@ -58,4 +58,12 @@ public class User extends BaseModel {
     @OneToOne
     @JoinColumn(name = "parent_user_id")
     private User parent;
+
+    public String toString(Set<Role> roles) {
+        StringBuilder rolesStr = new StringBuilder();
+        roles.forEach(role -> {
+            rolesStr.append(role.getName()).append(", ");
+        });
+        return String.valueOf(rolesStr);
+    }
 }

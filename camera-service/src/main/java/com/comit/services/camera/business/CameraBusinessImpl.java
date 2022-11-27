@@ -8,6 +8,7 @@ import com.comit.services.camera.constant.Const;
 import com.comit.services.camera.controller.request.CameraPolygonsRequest;
 import com.comit.services.camera.controller.request.CameraRequest;
 import com.comit.services.camera.exception.RestApiException;
+import com.comit.services.camera.loging.model.CommonLogger;
 import com.comit.services.camera.middleware.CameraVerifyRequestServices;
 import com.comit.services.camera.model.dto.AreaRestrictionDto;
 import com.comit.services.camera.model.dto.BaseCameraDto;
@@ -17,11 +18,13 @@ import com.comit.services.camera.model.entity.Camera;
 import com.comit.services.camera.service.CameraServices;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +35,10 @@ public class CameraBusinessImpl implements CameraBusiness {
     private CameraVerifyRequestServices verifyRequestServices;
     @Autowired
     private CameraServices cameraServices;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<Camera> getCameraPage(Integer locationId, Integer areaRestrictionId, String status, int page, int size, String search) {
@@ -122,37 +129,49 @@ public class CameraBusinessImpl implements CameraBusiness {
 
     @Override
     public CameraDto addCamera(CameraRequest request) {
+        // Verify input
         verifyRequestServices.verifyAddOrUpdateCameraRequest(request);
-        // Check camera active or not
-        boolean isLiveCam = cameraServices.isLiveCame(request.getIpAddress());
-        if (!isLiveCam) {
-            throw new RestApiException(CameraErrorCode.CAMERA_NOT_WORKING);
-        }
+
+        // Check role add camera, is existed camera?
         OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
+        if (organizationDtoClient == null) {
+            CommonLogger.error(CameraErrorCode.INTERNAL_ERROR.getMessage() + ": Get organization of current user error");
+            throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+        }
         LocationDtoClient locationDtoClient;
         Camera camera = new Camera();
         if (cameraServices.isTimeKeepingModule()) {
+            if (!cameraServices.hasRole(Const.ROLE_TIME_KEEPING_ADMIN)) {
+                CommonLogger.error(CameraErrorCode.PERMISSION_DENIED.getMessage() + ": module-time_keeping, hasRoleTKA-false");
+                throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
+            }
             locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), request.getLocationId());
             if (locationDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
             }
             camera.setType(request.getType());
-        } else if (cameraServices.isAreaRestrictionModule()) {
+        } else if (cameraServices.isAreaRestrictionModule() || cameraServices.isBehaviorModule()) {
+            if ((cameraServices.isAreaRestrictionModule() && !cameraServices.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER))
+                    || (cameraServices.isBehaviorModule() && !cameraServices.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER))) {
+                CommonLogger.error(CameraErrorCode.PERMISSION_DENIED.getMessage() + ": hasRoleARU-" + cameraServices.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER) + ", hasRoleBHU-" + cameraServices.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER) + ", module-" + httpServletRequest.getHeader("module"));
+                throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
+            }
             locationDtoClient = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
+            if (locationDtoClient == null) {
+                CommonLogger.error(CameraErrorCode.INTERNAL_ERROR.getMessage() + ": Get location of current user error");
+                throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+            } else {
+                if (request.getLocationId() != null && !Objects.equals(locationDtoClient.getId(), request.getLocationId())) {
+                    throw new RestApiException(CameraErrorCode.INVALID_LOCATION_ID_FIELD);
+                }
+            }
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(),
+                    request.getAreaRestrictionId());
             if (areaRestrictionDtoClient == null) {
                 throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
             }
             camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
-            camera.setType("Giám sát KVHC");
-        } else if (cameraServices.isBehaviorModule()) {
-            locationDtoClient = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDtoClient == null) {
-                throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
-            }
-            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
-            camera.setType("Kiểm soát hành vi");
+            camera.setType(cameraServices.isAreaRestrictionModule() ? Const.GSKVHC : Const.KSHV);
         } else {
             throw new RestApiException(CameraErrorCode.MODULE_NOT_FOUND);
         }
@@ -160,6 +179,13 @@ public class CameraBusinessImpl implements CameraBusiness {
         if (cameraServices.getCameraByNameAndLocation(request.getName(), locationDtoClient.getId()) != null) {
             throw new RestApiException(CameraErrorCode.EXISTED_CAMERA_BY_NAME);
         }
+
+        // Check camera active or not
+        boolean isLiveCam = cameraServices.isLiveCame(request.getIpAddress());
+        if (!isLiveCam) {
+            throw new RestApiException(CameraErrorCode.CAMERA_NOT_WORKING);
+        }
+
         camera.setIpAddress(request.getIpAddress());
         camera.setLocationId(locationDtoClient.getId());
         camera.setName(request.getName());
@@ -171,10 +197,55 @@ public class CameraBusinessImpl implements CameraBusiness {
 
     @Override
     public CameraDto updateCamera(int id, CameraRequest request) {
+        // Verify input
         verifyRequestServices.verifyAddOrUpdateCameraRequest(request);
+
+        // is existed camera, check role update camera
         Camera camera = cameraServices.getCamera(id, Const.ACTIVE);
         if (camera == null) {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
+        }
+
+        OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
+        if (organizationDtoClient == null) {
+            CommonLogger.error(CameraErrorCode.INTERNAL_ERROR.getMessage() + ": Get organization of current user error");
+            throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+        }
+        LocationDtoClient locationDtoClient;
+        if (cameraServices.isTimeKeepingModule()) {
+            if (!cameraServices.hasRole(Const.ROLE_TIME_KEEPING_ADMIN)) {
+                CommonLogger.error(CameraErrorCode.PERMISSION_DENIED.getMessage() + ": module-time_keeping, hasRoleTKA-false");
+                throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
+            }
+            locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), request.getLocationId());
+            if (locationDtoClient == null) {
+                throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
+            }
+            camera.setType(request.getType());
+        } else if (cameraServices.isAreaRestrictionModule() || cameraServices.isBehaviorModule()) {
+            if ((cameraServices.isAreaRestrictionModule() && !cameraServices.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER))
+                    || (cameraServices.isBehaviorModule() && !cameraServices.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER))) {
+                CommonLogger.error(CameraErrorCode.PERMISSION_DENIED.getMessage() + ": hasRoleARU-" + cameraServices.hasRole(Const.ROLE_AREA_RESTRICTION_CONTROL_USER) + ", hasRoleBHU-" + cameraServices.hasRole(Const.ROLE_BEHAVIOR_CONTROL_USER) + ", module-" + httpServletRequest.getHeader("module"));
+                throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
+            }
+            locationDtoClient = cameraServices.getLocationOfCurrentUser();
+            if (locationDtoClient == null) {
+                CommonLogger.error(CameraErrorCode.INTERNAL_ERROR.getMessage() + ": Get location of current user error");
+                throw new RestApiException(CameraErrorCode.INTERNAL_ERROR);
+            }
+            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
+            if (areaRestrictionDtoClient == null) {
+                throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
+            }
+            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
+            camera.setType(cameraServices.isAreaRestrictionModule() ? Const.GSKVHC : Const.KSHV);
+        } else {
+            throw new RestApiException(CameraErrorCode.MODULE_NOT_FOUND);
+        }
+
+        // Camera name is used
+        if (!Objects.equals(camera.getName(), request.getName()) && cameraServices.getCameraByNameAndLocation(request.getName(), locationDtoClient.getId()) != null) {
+            throw new RestApiException(CameraErrorCode.EXISTED_CAMERA_BY_NAME);
         }
 
         // Check camera active or not
@@ -183,38 +254,6 @@ public class CameraBusinessImpl implements CameraBusiness {
             if (!isLiveCam) {
                 throw new RestApiException(CameraErrorCode.CAMERA_NOT_WORKING);
             }
-        }
-        OrganizationDtoClient organizationDtoClient = cameraServices.getOrganizationOfCurrentUser();
-        LocationDtoClient locationDtoClient;
-        if (cameraServices.isTimeKeepingModule()) {
-            locationDtoClient = cameraServices.getLocation(organizationDtoClient.getId(), request.getLocationId());
-            if (locationDtoClient == null) {
-                throw new RestApiException(CameraErrorCode.LOCATION_NOT_EXIST);
-            }
-            camera.setType(request.getType());
-        } else if (cameraServices.isAreaRestrictionModule()) {
-            locationDtoClient = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDtoClient == null) {
-                throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
-            }
-            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
-            camera.setType("Giám sát KVHC");
-        } else if (cameraServices.isBehaviorModule()) {
-            locationDtoClient = cameraServices.getLocationOfCurrentUser();
-            AreaRestrictionDtoClient areaRestrictionDtoClient = cameraServices.getAreaRestriction(locationDtoClient.getId(), request.getAreaRestrictionId());
-            if (areaRestrictionDtoClient == null) {
-                throw new RestApiException(CameraErrorCode.AREA_RESTRICTION_NOT_EXIST);
-            }
-            camera.setAreaRestrictionId(areaRestrictionDtoClient.getId());
-            camera.setType("Kiểm soát hành vi");
-        } else {
-            throw new RestApiException(CameraErrorCode.MODULE_NOT_FOUND);
-        }
-
-        // Camera name is used
-        if (!Objects.equals(camera.getName(), request.getName()) && cameraServices.getCameraByNameAndLocation(request.getName(), locationDtoClient.getId()) != null) {
-            throw new RestApiException(CameraErrorCode.EXISTED_CAMERA_BY_NAME);
         }
 
         camera.setIpAddress(request.getIpAddress());
@@ -227,9 +266,16 @@ public class CameraBusinessImpl implements CameraBusiness {
 
     @Override
     public boolean deleteCamera(int id) {
+        // existed camera
         Camera camera = cameraServices.getCamera(id, Const.ACTIVE);
         if (camera == null) {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
+        }
+
+        // Check role delete camera
+        boolean hasPermissionDeleteCamera = cameraServices.hasPermissionDeleteCamera(camera);
+        if (!hasPermissionDeleteCamera) {
+            throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
         }
         camera.setStreamState("off");
         camera.setStatus("deleted");
@@ -240,6 +286,10 @@ public class CameraBusinessImpl implements CameraBusiness {
     @Override
     public CameraDto getCamera(int id, String status) {
         Camera camera = cameraServices.getCamera(id, status);
+
+        if (!cameraServices.hasPermissionViewCamera(camera)) {
+            throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
+        }
         if (camera == null) {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
         }
@@ -249,6 +299,7 @@ public class CameraBusinessImpl implements CameraBusiness {
 
     @Override
     public BaseCameraDto getCameraBase(int id, String status) {
+        if (!isInternalFeature()) throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
         Camera camera = cameraServices.getCamera(id, status);
         if (camera == null) {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
@@ -259,6 +310,11 @@ public class CameraBusinessImpl implements CameraBusiness {
 
     @Override
     public boolean updatePolygonCamera(int id, CameraPolygonsRequest cameraRequest) {
+        verifyRequestServices.verifyUpdateCameraPolygons(cameraRequest);
+        // check permission
+        if (!cameraServices.hasPermissionUpdatePolygons(id, cameraRequest)) {
+            return false;
+        }
         Camera camera = cameraServices.getCamera(id, Const.ACTIVE);
         if (camera == null) {
             throw new RestApiException(CameraErrorCode.CAMERA_NOT_EXIST);
@@ -269,17 +325,20 @@ public class CameraBusinessImpl implements CameraBusiness {
             cameraServices.saveCamera(camera);
             return true;
         } catch (Exception e) {
+            CommonLogger.error("Cant update polygon camera: " + e.getMessage());
             return false;
         }
     }
 
     @Override
     public int getNumberCameraOfLocation(int locationId) {
+        if (!isInternalFeature()) throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
         return cameraServices.getNumberCameraOfLocation(locationId);
     }
 
     @Override
     public int getNumberCameraOfAreRestriction(int areaRestrictionId) {
+        if (!isInternalFeature()) throw new RestApiException(CameraErrorCode.PERMISSION_DENIED);
         return cameraServices.getNumberCameraOfAreaRestriction(areaRestrictionId);
     }
 
@@ -289,9 +348,11 @@ public class CameraBusinessImpl implements CameraBusiness {
             ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(camera, BaseCameraDto.class);
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
+
     public CameraDto convertCameraToCameraDto(Camera camera) {
         if (camera == null) return null;
         try {
@@ -311,6 +372,7 @@ public class CameraBusinessImpl implements CameraBusiness {
             }
             return cameraDto;
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -332,5 +394,9 @@ public class CameraBusinessImpl implements CameraBusiness {
         areaRestrictionDto.setTimeStart(areaRestrictionDtoClient.getTimeStart());
         areaRestrictionDto.setTimeEnd(areaRestrictionDtoClient.getTimeEnd());
         return areaRestrictionDto;
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

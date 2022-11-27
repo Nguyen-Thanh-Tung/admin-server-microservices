@@ -3,9 +3,11 @@ package com.comit.services.areaRestriction.business;
 import com.comit.services.areaRestriction.client.data.EmployeeDtoClient;
 import com.comit.services.areaRestriction.client.data.LocationDtoClient;
 import com.comit.services.areaRestriction.constant.AreaRestrictionErrorCode;
+import com.comit.services.areaRestriction.constant.Const;
 import com.comit.services.areaRestriction.controller.request.AreaRestrictionNotificationRequest;
 import com.comit.services.areaRestriction.controller.request.AreaRestrictionRequest;
 import com.comit.services.areaRestriction.exception.AreaRestrictionCommonException;
+import com.comit.services.areaRestriction.loging.model.CommonLogger;
 import com.comit.services.areaRestriction.model.dto.*;
 import com.comit.services.areaRestriction.model.entity.AreaRestriction;
 import com.comit.services.areaRestriction.model.entity.AreaRestrictionManagerNotification;
@@ -13,16 +15,18 @@ import com.comit.services.areaRestriction.model.entity.NotificationMethod;
 import com.comit.services.areaRestriction.service.AreaEmployeeTimeService;
 import com.comit.services.areaRestriction.service.AreaRestrictionServices;
 import com.comit.services.areaRestriction.service.NotificationMethodServices;
-import com.comit.services.areaRestriction.service.VerifyAreaRestrictionRequestServices;
+import com.comit.services.areaRestriction.middleware.VerifyAreaRestrictionRequestServices;
 import com.comit.services.areaRestriction.util.TimeUtil;
 import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +47,10 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
     private AreaRestrictionManagerNotificationBusiness areaRestrictionManagerNotificationBusiness;
     @Autowired
     private AreaEmployeeTimeService areaEmployeeTimeService;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Page<AreaRestriction> getAreaRestrictionPage(int page, int size, String search) {
@@ -63,21 +71,31 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public AreaRestrictionDto addAreaRestriction(AreaRestrictionRequest request) {
+        // Verify input
         verifyAreaRestrictionRequestServices.verifyAddOrUpdateAreaRestrictionRequest(request);
+        // Get location of current user and check permission
         LocationDtoClient locationDtoClient = areaRestrictionService.getLocationOfCurrentUser();
-        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDtoClient.getId(), request.getName());
-
+        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDtoClient.getId(), request.getCode().trim());
         if (areaRestriction != null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_IS_EXISTED);
         }
-
         areaRestriction = new AreaRestriction();
         areaRestriction.setName(request.getName());
         areaRestriction.setCode(request.getCode());
-
         List<Integer> managerIds = request.getManagerIds();
-
-        areaRestriction.setManagerIds(managerIds.stream().map(String::valueOf)
+        List<Integer> listManager = new ArrayList<>();
+        for (int managerId : managerIds) {
+            EmployeeDtoClient employee = areaRestrictionService.getEmployee(managerId);
+            if (employee == null || !employee.getStatus().equals(Const.ACTIVE)) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.MANAGERS_NOT_FOUND);
+            }
+            // Compare location of employee with location of current user
+            if (!Objects.equals(employee.getLocationId(), locationDtoClient.getId())) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.MANAGERS_IN_VALID);
+            }
+            listManager.add(managerId);
+        }
+        areaRestriction.setManagerIds(listManager.stream().map(String::valueOf)
                 .collect(Collectors.joining(",")));
         areaRestriction.setLocationId(locationDtoClient.getId());
         areaRestriction.setTimeStart(request.getTimeStart());
@@ -90,7 +108,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         notificationMethod.setUseScreen(true);
         notificationMethod.setUseRing(true);
         notificationMethod.setAreaRestrictionId(areaRestriction.getId());
-        NotificationMethod newNotificationMethod = notificationMethodServices.saveNotificationMethod(notificationMethod);
+        notificationMethodServices.saveNotificationMethod(notificationMethod);
 
         return convertAreaRestrictionToAreaRestrictionDto(newAreaRestriction);
     }
@@ -103,13 +121,27 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         if (areaRestriction == null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_NOT_EXIST);
         }
-
+        if (!areaRestriction.getCode().equals(request.getCode())) {
+            AreaRestriction temp = areaRestrictionService.getAreaRestriction(locationDtoClient.getId(), request.getCode());
+            if (temp != null) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_IS_EXISTED);
+            }
+        }
         areaRestriction.setName(request.getName());
         areaRestriction.setCode(request.getCode());
-
         List<Integer> managerIds = request.getManagerIds();
-
-        areaRestriction.setManagerIds(managerIds.stream().map(String::valueOf)
+        List<Integer> listManager = new ArrayList<>();
+        for (int managerId : managerIds) {
+            EmployeeDtoClient employee = areaRestrictionService.getEmployee(managerId);
+            if (employee == null || !employee.getStatus().equals(Const.ACTIVE)) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.MANAGERS_NOT_FOUND);
+            }
+            if (!Objects.equals(employee.getLocationId(), locationDtoClient.getId())) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.MANAGERS_IN_VALID);
+            }
+            listManager.add(managerId);
+        }
+        areaRestriction.setManagerIds(listManager.stream().map(String::valueOf)
                 .collect(Collectors.joining(",")));
         areaRestriction.setLocationId(locationDtoClient.getId());
         areaRestriction.setTimeStart(request.getTimeStart());
@@ -125,7 +157,15 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         if (areaRestriction == null) {
             throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_NOT_EXIST);
         }
-        return areaRestrictionService.deleteAreaRestriction(areaRestriction);
+        boolean deleteSuccess = areaEmployeeTimeService.deleteAreaEmployeeTimeList(areaRestriction.getId());
+        if (deleteSuccess) {
+            int numberCameraOfAreaRestriction = areaRestrictionService.getNumberCameraOfAreaRestriction(areaRestriction.getId());
+            if (numberCameraOfAreaRestriction > 0) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.CAN_NOT_DELETE_AREA_RESTRICTION);
+            }
+            return areaRestrictionService.deleteAreaRestriction(areaRestriction);
+        }
+        return false;
     }
 
     @Override
@@ -155,6 +195,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public NotificationMethodDto getNotificationMethodOfAreaRestriction(Integer id) {
+        if (!isInternalFeature()) throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.PERMISSION_DENIED);
         NotificationMethod notificationMethod = notificationMethodServices.getNotificationMethodOfAreaRestriction(id);
         return NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod);
     }
@@ -166,32 +207,45 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         if (areaRestriction != null) {
             return convertAreaRestrictionToAreaRestrictionDto(areaRestriction);
         }
-        return null;
+        throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_NOT_EXIST);
     }
 
     @Override
     public BaseAreaRestrictionDto getAreaRestrictionBase(Integer id) {
+        if (!isInternalFeature()) throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.PERMISSION_DENIED);
         AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(id);
         if (areaRestriction != null) {
             return convertAreaRestrictionToBaseAreaRestrictionDto(areaRestriction);
         }
-        return null;
+        throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_NOT_EXIST);
     }
 
     @Override
     public AreaRestrictionNotificationDto getAreaRestrictionNotification(Integer areaRestrictionId) {
+        LocationDtoClient locationDtoClient = areaRestrictionService.getLocationOfCurrentUser();
+        //Get area restriction
+        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(locationDtoClient.getId(), areaRestrictionId);
+        if (areaRestriction == null) {
+            throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.AREA_RESTRICTION_NOT_EXIST);
+        }
+        //Get notification method
         NotificationMethod notificationMethod = notificationMethodServices.getNotificationMethodOfAreaRestriction(areaRestrictionId);
-        List<AreaRestrictionManagerNotification> areaRestrictionManagerNotifications = areaRestrictionManagerNotificationBusiness.getAreaManagerTimeList(areaRestrictionId);
+        //Get list manager and time after to receive notification
+        List<AreaRestrictionManagerNotification> areaRestrictionManagerNotifications =
+                areaRestrictionManagerNotificationBusiness.getAreaManagerTimeList(areaRestrictionId);
         AreaRestrictionNotificationDto areaRestrictionNotificationDto = new AreaRestrictionNotificationDto();
         List<AreaRestrictionManagerNotificationDto> areaRestrictionManagerNotificationDtos = new ArrayList<>();
+        //Convert list manager and time after to response (dto)
         for (AreaRestrictionManagerNotification areaRestrictionManagerNotification : areaRestrictionManagerNotifications) {
             EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(areaRestrictionManagerNotification.getManagerId());
-            AreaRestrictionManagerNotificationDto areaRestrictionManagerNotificationDto = new AreaRestrictionManagerNotificationDto();
-            areaRestrictionManagerNotificationDto.setManager(convertEmployeeDtoFromClient(employeeDtoClient));
-            areaRestrictionManagerNotificationDto.setTimeSkip(areaRestrictionManagerNotification.getTimeSkip());
-            areaRestrictionManagerNotificationDtos.add(areaRestrictionManagerNotificationDto);
+            if (employeeDtoClient != null && employeeDtoClient.getStatus().equals(Const.ACTIVE)) {
+                AreaRestrictionManagerNotificationDto areaRestrictionManagerNotificationDto = new AreaRestrictionManagerNotificationDto();
+                areaRestrictionManagerNotificationDto.setManager(convertEmployeeDtoFromClient(employeeDtoClient));
+                areaRestrictionManagerNotificationDto.setTimeSkip(areaRestrictionManagerNotification.getTimeSkip());
+                areaRestrictionManagerNotificationDtos.add(areaRestrictionManagerNotificationDto);
+            }
         }
-        AreaRestriction areaRestriction = areaRestrictionService.getAreaRestriction(areaRestrictionId);
+        // Set attribute for object
         areaRestrictionNotificationDto.setAreaRestrictionDto(convertAreaRestrictionToAreaRestrictionDto(areaRestriction));
         areaRestrictionNotificationDto.setAreaRestrictionManagerNotifications(areaRestrictionManagerNotificationDtos);
         areaRestrictionNotificationDto.setNotificationMethod(NotificationMethodDto.convertNotificationMethodToNotificationMethodDto(notificationMethod));
@@ -220,9 +274,13 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
 
     @Override
     public boolean deleteManagerOnAllAreaRestriction(Integer managerId) {
+        if (!isInternalFeature()) throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.PERMISSION_DENIED);
         List<AreaRestriction> areaRestrictions = areaRestrictionService.getAllAreaRestrictionOfManager(managerId);
         areaRestrictions.forEach(areaRestriction -> {
             String[] tmp = areaRestriction.getManagerIds().split(",");
+            if (tmp.length == 1) {
+                throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.FAIL);
+            }
             StringBuilder result = new StringBuilder();
             for (String s : tmp) {
                 if (!Objects.equals(s, managerId.toString())) {
@@ -236,7 +294,6 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
             }
             areaRestrictionService.updateAreaRestriction(areaRestriction);
         });
-
         return true;
     }
 
@@ -246,6 +303,7 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
             ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(areaRestriction, BaseAreaRestrictionDto.class);
         } catch (Exception e) {
+            CommonLogger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -269,8 +327,8 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
             List<EmployeeDto> employeeDtos = new ArrayList<>();
             String[] tmp = areaRestriction.getManagerIds().split(",");
             for (String managerIdStr : tmp) {
-                EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(Integer.parseInt(managerIdStr));
-                if (employeeDtoClient != null) {
+                EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(Integer.parseInt(managerIdStr.trim()));
+                if (employeeDtoClient != null && employeeDtoClient.getStatus().equals(Const.ACTIVE)) {
                     employeeDtos.add(convertEmployeeDtoFromClient(employeeDtoClient));
                 }
             }
@@ -294,6 +352,50 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         return employeeDto;
     }
 
+    @Override
+    public List<AreaRestrictionDto> getAllAreaRestriction(Integer managerId) {
+        if (!isInternalFeature()) throw new AreaRestrictionCommonException(AreaRestrictionErrorCode.PERMISSION_DENIED);
+        List<AreaRestriction> areaRestrictions = areaRestrictionService.getAllAreaRestrictionOfManager(managerId);
+        List<AreaRestrictionDto> areaRestrictionDtos = new ArrayList<>();
+        for (AreaRestriction areaRestriction : areaRestrictions) {
+            String[] managerStr = areaRestriction.getManagerIds().split(",");
+            if (managerStr.length == 1) {
+                areaRestrictionDtos.add(convertAreaRestrictionDtoFromClient(areaRestriction));
+            }
+        }
+        return areaRestrictionDtos;
+    }
+
+    @Override
+    public AreaRestrictionDto convertAreaRestrictionDtoFromClient(AreaRestriction areaRestriction) {
+        if (areaRestriction == null) return null;
+        Date startDay = TimeUtil.getDateTimeFromTimeString("00:00:00");
+        DateTime now = new DateTime(TimeUtil.asiaHoChiMinh);
+        ModelMapper modelMapper = new ModelMapper();
+        AreaRestrictionDto areaRestrictionDto = modelMapper.map(areaRestriction, AreaRestrictionDto.class);
+        int numberCamera = areaRestrictionService.getNumberCameraOfAreaRestriction(areaRestriction.getId());
+        areaRestrictionDto.setNumberCamera(numberCamera);
+        int numberAreaEmployeeTime = areaEmployeeTimeService.getNumberAreaEmployeeTimeOfAreaRestriction(areaRestriction.getId());
+        areaRestrictionDto.setNumberEmployeeAllow(numberAreaEmployeeTime);
+        int numberHistories = areaRestrictionService.getNumberNotificationOfAreaRestriction(areaRestriction, startDay, now.toDate());
+        areaRestrictionDto.setNumberNotification(numberHistories);
+        LocationDtoClient locationDtoClient = areaRestrictionService.getLocationById(areaRestriction.getLocationId());
+        areaRestrictionDto.setLocation(convertLocationDtoFromClient(locationDtoClient));
+        // Set manager for area restriction
+        if (areaRestriction.getManagerIds() != null && !areaRestriction.getManagerIds().trim().equals("")) {
+            List<EmployeeDto> employeeDtos = new ArrayList<>();
+            String[] tmp = areaRestriction.getManagerIds().split(",");
+            for (String managerIdStr : tmp) {
+                EmployeeDtoClient employeeDtoClient = areaRestrictionService.getEmployee(Integer.parseInt(managerIdStr));
+                if (employeeDtoClient != null && employeeDtoClient.getStatus().equals(Const.ACTIVE)) {
+                    employeeDtos.add(convertEmployeeDtoFromClient(employeeDtoClient));
+                }
+            }
+            areaRestrictionDto.setManagers(employeeDtos);
+        }
+        return areaRestrictionDto;
+    }
+
     public LocationDto convertLocationDtoFromClient(LocationDtoClient locationDtoClient) {
         if (locationDtoClient == null) return null;
         LocationDto locationDto = new LocationDto();
@@ -303,5 +405,9 @@ public class AreaRestrictionBusinessImpl implements AreaRestrictionBusiness {
         locationDto.setType(locationDtoClient.getType());
         locationDto.setOrganizationId(locationDtoClient.getOrganizationId());
         return locationDto;
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

@@ -1,7 +1,9 @@
 package com.comit.services.account.jwt;
 
+import com.comit.services.account.exeption.CommonLogger;
 import com.comit.services.account.service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,8 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
     private JwtProvider tokenProvider;
     @Autowired
     private UserDetailServiceImpl userDetailService;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -35,7 +39,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwt(request);
 
-            if (Objects.equals(jwt, "YWRtaW4vQWRtaW5AMTIz") || (jwt != null && tokenProvider.validateJwtToken(jwt))) {
+            if (Objects.equals(jwt, internalToken) || (jwt != null && tokenProvider.validateJwtToken(jwt))) {
                 username = tokenProvider.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailService.loadUserByUsername(username);
@@ -46,7 +50,7 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            System.out.printf("Can NOT set user authentication -> Message: %s%n", e);
+            CommonLogger.error("Can NOT set user authentication -> Message: %s%n", e);
         }
         filterChain.doFilter(request, response);
     }

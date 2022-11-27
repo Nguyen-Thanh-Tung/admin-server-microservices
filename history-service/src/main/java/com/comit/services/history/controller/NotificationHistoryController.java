@@ -78,7 +78,7 @@ public class NotificationHistoryController {
             @RequestParam(value = "has_employee", required = false) Boolean hasEmployee,
             @RequestParam(defaultValue = Const.DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = Const.DEFAULT_SIZE_PAGE) int size
-    ) {
+    ) throws ParseException {
         Page<NotificationHistory> historyPage;
         if (areaRestrictionId != null) {
             if (cameraId != null) {

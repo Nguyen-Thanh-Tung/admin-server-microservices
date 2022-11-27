@@ -28,6 +28,6 @@ public class Organization extends BaseModel {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 500)
     private String description;
 }

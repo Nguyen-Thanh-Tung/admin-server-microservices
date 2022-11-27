@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*;
 public interface OrganizationClient {
 
     @GetMapping("/organizations/{id}/base")
-    ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("id") Integer organizationId);
+    ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("id") Integer organizationId, @RequestHeader String internal);
 
     @GetMapping("/organizations/name/{organizationName}")
-    ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("organizationName") String organizationName);
+    ResponseEntity<OrganizationResponseClient> getOrganization(@RequestHeader String token, @PathVariable("organizationName") String organizationName, @RequestHeader String internal);
 
     @PostMapping("/organizations")
     ResponseEntity<OrganizationResponseClient> addOrganization(@RequestHeader String token,
-                                @RequestBody OrganizationRequestClient organization, @RequestHeader String internal);
+                                                               @RequestBody OrganizationRequestClient organization, @RequestHeader String internal);
 }

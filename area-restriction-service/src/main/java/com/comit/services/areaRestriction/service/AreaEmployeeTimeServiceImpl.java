@@ -44,4 +44,14 @@ public class AreaEmployeeTimeServiceImpl implements AreaEmployeeTimeService {
     public List<AreaEmployeeTime> getAreaEmployeeTimeListOfAreaRestriction(Integer areaRestrictionId) {
         return areaEmployeeTimeRepository.findByAreaRestrictionId(areaRestrictionId);
     }
+
+    @Override
+    public boolean deleteAreaEmployeeTimeList(Integer areRestrictionId) {
+        try {
+            areaEmployeeTimeRepository.deleteAreaEmployeeTimeByAreaRestrictionId(areRestrictionId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

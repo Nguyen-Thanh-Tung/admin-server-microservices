@@ -19,7 +19,8 @@ public enum AuthErrorCode {
     INTERNAL_ERROR(0, "Có lỗi xảy ra, hãy thử lại sau!"),
     CANT_ADD_ORGANIZATION(0, "Không thể thêm tổ chức"),
     CANT_GET_ORGANIZATION(0, "Không thể lấy thông tin tổ chức"),
-    JWT_EXPIRED(0, "Token đã hết hạn, hãy đăng nhập lại");
+    JWT_EXPIRED(0, "Token đã hết hạn, hãy đăng nhập lại"),
+    ACCOUNT_ACTIVE(0, "Tài khoản này đang được hoạt động");
     private final int code;
     private String message;
 

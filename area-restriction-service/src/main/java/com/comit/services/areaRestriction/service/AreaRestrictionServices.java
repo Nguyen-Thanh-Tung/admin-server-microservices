@@ -16,7 +16,7 @@ public interface AreaRestrictionServices {
 
     AreaRestriction getAreaRestriction(int id);
 
-    AreaRestriction getAreaRestriction(Integer locationId, String name);
+    AreaRestriction getAreaRestriction(Integer locationId, String code);
 
     AreaRestriction updateAreaRestriction(AreaRestriction areaRestriction);
 
@@ -26,11 +26,16 @@ public interface AreaRestrictionServices {
 
     int getNumberNotificationOfAreaRestriction(AreaRestriction areaRestriction, Date startDay, Date toDate);
 
-//    EmployeeDtoClient getEmployee(Integer employeeId, Integer locationId);
-
     EmployeeDtoClient getEmployee(Integer employeeId);
 
     int getNumberCameraOfAreaRestriction(int areaRestrictionId);
 
     List<AreaRestriction> getAllAreaRestrictionOfManager(Integer managerId);
+
+    boolean isExistAreaRestriction(Integer locationId, Integer areaRestrictionId);
+
+    boolean hasRole(String roleNeedCheck);
+
+    LocationDtoClient getLocationById(Integer locationId);
+
 }

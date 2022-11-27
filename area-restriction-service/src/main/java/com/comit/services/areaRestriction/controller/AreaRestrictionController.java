@@ -160,4 +160,10 @@ public class AreaRestrictionController {
         List<AreaEmployeeTimeDto> areaEmployeeTimeDtos = areaEmployeeTimeBusiness.getAreaEmployeeTimeListOfAreaRestriction(areaRestrictionId);
         return new ResponseEntity<>(new AreaEmployeeTimeListResponse(AreaRestrictionErrorCode.SUCCESS, areaEmployeeTimeDtos), HttpStatus.OK);
     }
+
+    @GetMapping("/manager/{managerId}")
+    ResponseEntity<BaseResponse> getAllAreaRestriction(@PathVariable Integer managerId) {
+        List<AreaRestrictionDto> areaRestrictionDtos = areaRestrictionBusiness.getAllAreaRestriction(managerId);
+        return new ResponseEntity<>(new AreaRestrictionListResponse(AreaRestrictionErrorCode.SUCCESS, areaRestrictionDtos), HttpStatus.OK);
+    }
 }

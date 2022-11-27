@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         {{- include "history-service.labels" . | nindent 8 }}
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
     spec:
       containers:
         - name: {{ include "history-service.fullname" . }}

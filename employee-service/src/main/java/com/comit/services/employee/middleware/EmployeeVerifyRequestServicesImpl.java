@@ -5,11 +5,8 @@ import com.comit.services.employee.constant.EmployeeErrorCode;
 import com.comit.services.employee.exception.RestApiException;
 import com.comit.services.employee.util.ValidateField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class EmployeeVerifyRequestServicesImpl implements EmployeeVerifyRequestServices {
@@ -54,6 +51,29 @@ public class EmployeeVerifyRequestServicesImpl implements EmployeeVerifyRequestS
 
         if (checkShifts && !validateField.validIntArray(shiftIds)) {
             throw new RestApiException(EmployeeErrorCode.SHIFT_IDS_IS_INVALID);
+        }
+    }
+
+    @Override
+    public void verifyAddEmployeeRequest(String name, String code, String email, String phone) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new RestApiException(EmployeeErrorCode.MISSING_NAME_FIELD);
+        }
+
+        if (code == null || code.trim().isEmpty()) {
+            throw new RestApiException(EmployeeErrorCode.MISSING_EMPLOYEE_CODE_FIELD);
+        }
+
+        if (email == null) {
+            throw new RestApiException(EmployeeErrorCode.MISSING_EMAIL_FIELD);
+        }
+
+        if (!validateField.validEmail(email)) {
+            throw new RestApiException(EmployeeErrorCode.EMAIL_IS_INVALID);
+        }
+
+        if (phone != null && !validateField.validPhone(phone)) {
+            throw new RestApiException(EmployeeErrorCode.PHONE_IS_INVALID);
         }
     }
 

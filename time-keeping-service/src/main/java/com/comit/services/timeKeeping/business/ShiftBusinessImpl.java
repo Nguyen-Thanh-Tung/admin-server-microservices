@@ -3,6 +3,7 @@ package com.comit.services.timeKeeping.business;
 import com.comit.services.timeKeeping.client.data.LocationDtoClient;
 import com.comit.services.timeKeeping.constant.Const;
 import com.comit.services.timeKeeping.constant.ShiftErrorCode;
+import com.comit.services.timeKeeping.constant.TimeKeepingErrorCode;
 import com.comit.services.timeKeeping.controller.request.ShiftRequest;
 import com.comit.services.timeKeeping.exception.TimeKeepingCommonException;
 import com.comit.services.timeKeeping.middleware.ShiftVerifyRequestServices;
@@ -11,10 +12,13 @@ import com.comit.services.timeKeeping.model.entity.Shift;
 import com.comit.services.timeKeeping.service.ShiftServices;
 import com.comit.services.timeKeeping.service.TimeKeepingServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ShiftBusinessImpl implements ShiftBusiness {
@@ -24,6 +28,10 @@ public class ShiftBusinessImpl implements ShiftBusiness {
     private ShiftServices shiftServices;
     @Autowired
     private TimeKeepingServices timeKeepingServices;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public List<ShiftDto> getAllShift() {
@@ -77,7 +85,12 @@ public class ShiftBusinessImpl implements ShiftBusiness {
 
     @Override
     public ShiftDto getShift(Integer id) {
+        if (!isInternalFeature()) throw new TimeKeepingCommonException(TimeKeepingErrorCode.PERMISSION_DENIED);
         Shift shift = shiftServices.getShift(id);
         return ShiftDto.convertShiftToShiftDto(shift);
+    }
+
+    public boolean isInternalFeature() {
+        return Objects.equals(httpServletRequest.getHeader("token"), internalToken);
     }
 }

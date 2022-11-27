@@ -8,6 +8,7 @@ import com.comit.services.history.exception.RestApiException;
 import com.comit.services.history.model.entity.NotificationHistory;
 import com.comit.services.history.repository.NotificationHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,43 +29,46 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
     @Autowired
     private HttpServletRequest httpServletRequest;
 
+    @Value("${app.internalToken}")
+    private String internalToken;
+
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, Date timeStart, Date timeEnd, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndTimeBetweenOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageType(Integer locationId, List<String> types, Date timeStart, Date timeEnd, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndTypeInAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, types, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndTypeInAndTimeBetweenOrderByTimeDesc(locationId, types, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, List<Integer> employeeIds, Date timeStart, Date timeEnd, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdInAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, employeeIds, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdInAndTimeBetweenOrderByTimeDesc(locationId, employeeIds, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, boolean hasEmployee, Date timeStart, Date timeEnd, Pageable paging) {
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndTimeBetweenOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
         } else {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndTimeBetweenOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
         }
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageType(Integer locationId, List<String> types, List<Integer> employeeIds, Date timeStart, Date timeEnd, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndTypeInAndEmployeeIdInAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, types, employeeIds, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndTypeInAndEmployeeIdInAndTimeBetweenOrderByTimeDesc(locationId, types, employeeIds, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageAreaRestriction(Integer locationId, List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdInAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionIds, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdInAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionIds, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageTypeAreaRestriction(Integer locationId, List<String> types, List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndTypeInAndAreaRestrictionIdInAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, types, areaRestrictionIds, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndTypeInAndAreaRestrictionIdInAndTimeBetweenOrderByTimeDesc(locationId, types, areaRestrictionIds, timeStart, timeEnd, paging);
     }
 
     @Override
@@ -74,7 +78,7 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, List<Integer> areaRestrictionIds, Date timeStart, Date timeEnd, String status, Pageable paging) {
-        return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdInAndTimeAfterAndTimeBeforeAndStatusOrderByTimeDesc(locationId, areaRestrictionIds, timeStart, timeEnd, status, paging);
+        return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdInAndTimeBetweenAndStatusOrderByTimeDesc(locationId, areaRestrictionIds, timeStart, timeEnd, status, paging);
     }
 
     @Override
@@ -84,12 +88,12 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
 
     @Override
     public int getNumberNotificationInDay(Integer locationId, Date timeStart, Date timeEnd) {
-        return notificationHistoryRepository.countByLocationIdAndTimeAfterAndTimeBefore(locationId, timeStart, timeEnd);
+        return notificationHistoryRepository.countByLocationIdAndTimeBetween(locationId, timeStart, timeEnd);
     }
 
     @Override
     public int getNumberNotificationNotResolve(Integer locationId, Date timeStart, Date timeEnd) {
-        return notificationHistoryRepository.countByLocationIdAndTimeAfterAndTimeBeforeAndStatus(locationId, timeStart, timeEnd, "Chưa xử lý");
+        return notificationHistoryRepository.countByLocationIdAndTimeBetweenAndStatus(locationId, timeStart, timeEnd, "Chưa xử lý");
     }
 
     @Override
@@ -102,7 +106,7 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
         List<Integer> areaRestrictionIds = notificationHistoryRepository.getAreaRestrictionHasNotifyNotResolve(locationId, timeStart, timeEnd, "Chưa xử lý");
         AtomicInteger numberARHasNotifyNotResolveAndUsingRing = new AtomicInteger(0);
         areaRestrictionIds.forEach(areaRestrictionId -> {
-            NotificationMethodResponseClient notificationMethodResponseClient = areaRestrictionClient.getNotificationMethodOfAreaRestriction(httpServletRequest.getHeader("token"), areaRestrictionId).getBody();
+            NotificationMethodResponseClient notificationMethodResponseClient = areaRestrictionClient.getNotificationMethodOfAreaRestriction(internalToken, areaRestrictionId).getBody();
             if (notificationMethodResponseClient != null && notificationMethodResponseClient.getNotificationMethod().isUseRing()) {
                 numberARHasNotifyNotResolveAndUsingRing.getAndIncrement();
             }
@@ -113,9 +117,9 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
     @Override
     public int getNumberNotificationOfAreaRestriction(Integer areaRestrictionId, Date startDay, Date now, String status) {
         if (status == null) {
-            return notificationHistoryRepository.countByAreaRestrictionIdAndTimeAfterAndTimeBefore(areaRestrictionId, startDay, now);
+            return notificationHistoryRepository.countByAreaRestrictionIdAndTimeBetween(areaRestrictionId, startDay, now);
         }
-        return notificationHistoryRepository.countByAreaRestrictionIdAndTimeAfterAndTimeBeforeAndStatus(areaRestrictionId, startDay, now, status);
+        return notificationHistoryRepository.countByAreaRestrictionIdAndTimeBetweenAndStatus(areaRestrictionId, startDay, now, status);
     }
 
     @Override
@@ -136,104 +140,104 @@ public class NotificationHistoryServicesImpl implements NotificationHistoryServi
 
     @Override
     public int getNumberLateInMonth(Integer locationId, Date timeStart, Date timeEnd) {
-        return notificationHistoryRepository.countByLocationIdAndTimeAfterAndTimeBeforeAndType(locationId, timeStart, timeEnd, Const.MONTH_NOTIFICATION_TYPE);
+        return notificationHistoryRepository.countByLocationIdAndTimeBetweenAndType(locationId, timeStart, timeEnd, Const.MONTH_NOTIFICATION_TYPE);
     }
 
     @Override
     public boolean hasHistory(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd) {
-        return notificationHistoryRepository.countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(locationId, employeeId, timeStart, timeEnd) > 0;
+        return notificationHistoryRepository.countByLocationIdAndEmployeeIdAndTimeBetween(locationId, employeeId, timeStart, timeEnd) > 0;
     }
 
     @Override
     public int getNumberNotification(Integer locationId, Integer employeeId, Date timeStart, Date timeEnd) {
-        return notificationHistoryRepository.countByLocationIdAndEmployeeIdAndTimeAfterAndTimeBefore(locationId, employeeId, timeStart, timeEnd);
+        return notificationHistoryRepository.countByLocationIdAndEmployeeIdAndTimeBetween(locationId, employeeId, timeStart, timeEnd);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraIdAndStatus(Integer locationId, Integer areaRestrictionId, Integer cameraId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, cameraId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndCameraIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, cameraId, status, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, cameraId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndCameraIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, cameraId, status, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, cameraId, status, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndCameraIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, cameraId, status, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndCameraId(Integer locationId, Integer areaRestrictionId, Integer cameraId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, cameraId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndCameraIdAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, cameraId, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, cameraId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndCameraIdAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, cameraId, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, cameraId, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndCameraIdAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, cameraId, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionIdAndStatus(Integer locationId, Integer areaRestrictionId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, status, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, status, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, status, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, status, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByAreaRestrictionId(Integer locationId, Integer areaRestrictionId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndAreaRestrictionIdAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndAreaRestrictionIdAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, areaRestrictionId, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndAreaRestrictionIdAndTimeBetweenOrderByTimeDesc(locationId, areaRestrictionId, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByCameraIdAndStatus(Integer locationId, Integer cameraId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, cameraId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndCameraIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, cameraId, status, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, cameraId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndCameraIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, cameraId, status, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndCameraIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, cameraId, status, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndCameraIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, cameraId, status, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByCameraId(Integer locationId, Integer cameraId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, cameraId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndCameraIdAndTimeBetweenOrderByTimeDesc(locationId, cameraId, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, cameraId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndCameraIdAndTimeBetweenOrderByTimeDesc(locationId, cameraId, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndCameraIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, cameraId, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndCameraIdAndTimeBetweenOrderByTimeDesc(locationId, cameraId, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPageByStatus(Integer locationId, String status, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndStatusAndTimeBetweenOrderByTimeDesc(locationId, status, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, status, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndStatusAndTimeBetweenOrderByTimeDesc(locationId, status, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndStatusAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, status, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndStatusAndTimeBetweenOrderByTimeDesc(locationId, status, timeStart, timeEnd, paging);
     }
 
     @Override
     public Page<NotificationHistory> getNotificationHistoryPage(Integer locationId, Date timeStart, Date timeEnd, Boolean hasEmployee, Pageable paging) {
         if (hasEmployee == null) {
-            return notificationHistoryRepository.findByLocationIdAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndTimeBetweenOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
         }
         if (hasEmployee) {
-            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
+            return notificationHistoryRepository.findByLocationIdAndEmployeeIdNotNullAndTimeBetweenOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
         }
-        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndTimeAfterAndTimeBeforeOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
+        return notificationHistoryRepository.findByLocationIdAndEmployeeIdIsNullAndTimeBetweenOrderByTimeDesc(locationId, timeStart, timeEnd, paging);
     }
 }

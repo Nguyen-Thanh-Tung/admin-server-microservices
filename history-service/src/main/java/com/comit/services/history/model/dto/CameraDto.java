@@ -24,5 +24,8 @@ public class CameraDto {
     @JsonIncludeProperties(value = {"id", "name", "code"})
     @JsonProperty(value = "area_restriction")
     private AreaRestrictionDto areaRestriction;
+
+    @JsonProperty(value = "polygons")
+    private String polygons;
 }
 

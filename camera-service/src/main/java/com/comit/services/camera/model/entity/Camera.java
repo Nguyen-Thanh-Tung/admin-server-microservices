@@ -34,7 +34,7 @@ public class Camera extends BaseModel {
     @Column(name = "type")
     private String type;
 
-    @Column(name = "polygons")
+    @Column(name = "polygons", length = 5000)
     private String polygons;
 
     @Column(name = "is_updated", columnDefinition = "boolean default false")

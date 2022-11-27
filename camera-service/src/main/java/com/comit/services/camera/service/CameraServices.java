@@ -3,6 +3,8 @@ package com.comit.services.camera.service;
 import com.comit.services.camera.client.data.AreaRestrictionDtoClient;
 import com.comit.services.camera.client.data.LocationDtoClient;
 import com.comit.services.camera.client.data.OrganizationDtoClient;
+import com.comit.services.camera.client.response.RoleListResponseClient;
+import com.comit.services.camera.controller.request.CameraPolygonsRequest;
 import com.comit.services.camera.model.entity.Camera;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +15,6 @@ public interface CameraServices {
     Page<Camera> getAllCamera(List<Integer> locations, List<Integer> cameraIds, String status, String search, Pageable paging);
 
     Page<Camera> getAllCamera(Integer areaRestrictionId, String status, String search, Pageable paging);
-
-    Page<Camera> findByUser(Integer userId, String status, Pageable paging);
 
     Page<Camera> findByLocation(Integer locationId, List<Integer> cameraIds, String status, String search, Pageable paging);
 
@@ -34,6 +34,10 @@ public interface CameraServices {
 
     boolean isBehaviorModule();
 
+    boolean isMatchRolesAndModule(RoleListResponseClient rolesClient);
+
+    boolean isMatchLocationTypeAndModule(int locationId);
+
     OrganizationDtoClient getOrganizationOfCurrentUser();
 
     LocationDtoClient getLocationOfCurrentUser();
@@ -49,4 +53,14 @@ public interface CameraServices {
     int getNumberCameraOfLocation(int locationId);
 
     int getNumberCameraOfAreaRestriction(int areaRestrictionId);
+
+    boolean hasPermissionViewCamera(Camera camera);
+
+    boolean hasRole(String roleNeedCheck);
+
+    boolean hasPermissionDeleteCamera(Camera camera);
+
+    RoleListResponseClient getAllRoleOfCurrent();
+
+    boolean hasPermissionUpdatePolygons(int id, CameraPolygonsRequest request);
 }

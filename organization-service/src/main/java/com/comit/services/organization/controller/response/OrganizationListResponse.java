@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrganizationListResponse extends BaseResponse {
+public class OrganizationListResponse extends BasePagingResponse {
     @JsonProperty(value = "organizations")
     private List<OrganizationDto> organizationDtos;
 
@@ -22,5 +22,15 @@ public class OrganizationListResponse extends BaseResponse {
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
         this.organizationDtos = organizationDtos;
+    }
+
+    public OrganizationListResponse(OrganizationErrorCode errorCode, List<OrganizationDto> organizationDtos,
+                                    int currentPage, long totalItems, int totalPages) {
+        this.code = errorCode.getCode();
+        this.message = errorCode.getMessage();
+        this.organizationDtos = organizationDtos;
+        this.currentPage = currentPage;
+        this.totalItems = totalItems;
+        this.totalPages = totalPages;
     }
 }

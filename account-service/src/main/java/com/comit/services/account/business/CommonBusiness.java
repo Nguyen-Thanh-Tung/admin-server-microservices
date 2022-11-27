@@ -8,4 +8,8 @@ public interface CommonBusiness {
     boolean isTimeKeepingModule();
 
     boolean isAreaRestrictionModule();
+
+    boolean isBehaviorModule();
+
+    String findCadreRoleFromModule();
 }

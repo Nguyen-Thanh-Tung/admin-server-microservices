@@ -12,6 +12,7 @@ import com.comit.services.feature.loging.model.CommonLogger;
 import com.comit.services.feature.model.entity.Feature;
 import com.comit.services.feature.repository.FeatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,9 @@ public class FeatureServicesImpl implements FeatureServices {
     private AccountClient accountClient;
     @Autowired
     private HttpServletRequest httpServletRequest;
+
+    @Value("${app.internalToken}")
+    private String internalToken;
 
     @Override
     public Feature getFeature(int id) {
@@ -83,7 +87,7 @@ public class FeatureServicesImpl implements FeatureServices {
 
     @Override
     public RoleDtoClient findRoleByName(String roleName) {
-        RoleResponseClient roleResponseClient = accountClient.getRoleByName(httpServletRequest.getHeader("token"), roleName).getBody();
+        RoleResponseClient roleResponseClient = accountClient.getRoleByName(internalToken, roleName).getBody();
         if (roleResponseClient == null) {
             throw new RestApiException(FeatureErrorCode.INTERNAL_ERROR);
         }

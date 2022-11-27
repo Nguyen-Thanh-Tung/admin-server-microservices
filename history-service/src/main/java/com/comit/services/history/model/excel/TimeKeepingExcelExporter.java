@@ -2,6 +2,7 @@ package com.comit.services.history.model.excel;
 
 import com.comit.services.history.model.dto.CameraDto;
 import com.comit.services.history.model.dto.EmployeeDto;
+import com.comit.services.history.model.dto.FirstInLastOutHistoryDto;
 import com.comit.services.history.model.dto.InOutHistoryDto;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -17,10 +18,10 @@ import java.util.List;
 
 public class TimeKeepingExcelExporter {
     private final XSSFWorkbook workbook;
-    private final List<InOutHistoryDto> inOutHistories;
+    private final List<FirstInLastOutHistoryDto> inOutHistories;
     private XSSFSheet sheet;
 
-    public TimeKeepingExcelExporter(List<InOutHistoryDto> inOutHistories) {
+    public TimeKeepingExcelExporter(List<FirstInLastOutHistoryDto> inOutHistories) {
         this.inOutHistories = inOutHistories;
         this.workbook = new XSSFWorkbook();
     }
@@ -72,7 +73,7 @@ public class TimeKeepingExcelExporter {
         font.setFontHeight(14);
         style.setFont(font);
 
-        for (InOutHistoryDto history : inOutHistories) {
+        for (FirstInLastOutHistoryDto history : inOutHistories) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
             CameraDto cameraDto = history.getCamera();

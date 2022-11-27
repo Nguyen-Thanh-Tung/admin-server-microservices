@@ -13,11 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 @FeignClient(name = "metadata-service")
 public interface MetadataClient {
 
-    @PostMapping(value = "/metadatas/save-file", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "/metadatas/save-file", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     ResponseEntity<MetadataResponseClient> saveMetadata(@RequestHeader String token, MultipartFile file,
                                                         @RequestHeader String internal);
 
     @GetMapping("/metadatas/{id}")
-    ResponseEntity<MetadataResponseClient> getMetadata(@RequestHeader String token, @PathVariable Integer id);
+    ResponseEntity<MetadataResponseClient> getMetadata(@RequestHeader String token, @PathVariable Integer id, @RequestHeader String internal);
 
 }
